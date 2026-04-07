@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "products": "Products",
+    "whyUs": "Why CEPTI?",
+    "contact": "Contact",
+    "langSwitch": "ES"
+  },
+  "hero": {
+    "headline": "Finishes that transform spaces",
+    "sub": "Premium finishing materials for builders, contractors, and distributors across the Dominican Republic.",
+    "cta": "View products",
+    "ctaSecondary": "Contact us"
+  },
+  "products": {
+    "title": "Our products",
+    "sub": "Solutions for every surface and style",
+    "items": {
+      "pinturas": {
+        "name": "Paints",
+        "desc": "Wide range of interior and exterior paints with excellent coverage and durability."
+      },
+      "ladriflex": {
+        "name": "Ladriflex",
+        "desc": "Textured finish that simulates natural brick with superior flexibility and resistance."
+      },
+      "papelex": {
+        "name": "Papelex",
+        "desc": "High-impact decorative texture with a unique paper look for sophisticated walls."
+      },
+      "granito": {
+        "name": "Liquid Granite",
+        "desc": "Granite-style finish applicable to any surface — elegant and long-lasting."
+      },
+      "arena": {
+        "name": "Sand Art",
+        "desc": "Natural sand mix for creating unique artistic textures on walls and facades."
+      },
+      "primer": {
+        "name": "Primer",
+        "desc": "Preparatory base that ensures optimal adhesion and extends the life of finishes."
+      }
+    }
+  },
+  "whyUs": {
+    "title": "Why choose CEPTI?",
+    "sub": "Years of experience backing the best projects in the country",
+    "pillars": {
+      "quality": {
+        "title": "Guaranteed quality",
+        "desc": "Proven formulations that withstand tropical climate without losing color or texture."
+      },
+      "coverage": {
+        "title": "National coverage",
+        "desc": "Distributor network across the Dominican Republic ready to serve you."
+      },
+      "support": {
+        "title": "Technical support",
+        "desc": "Expert team available to advise you on product selection and application."
+      }
+    }
+  },
+  "contact": {
+    "title": "Let's talk about your project",
+    "sub": "Connect with a distributor or our team directly.",
+    "cta": "Get in touch"
+  },
+  "footer": {
+    "tagline": "Quality finishes for the Dominican Republic.",
+    "rights": "All rights reserved."
+  }
+}
