@@ -16,8 +16,16 @@ export default async function LocaleLayout({
   if (!hasLocale(lang)) notFound()
 
   return (
-    <html lang={lang} className="h-full scroll-smooth antialiased">
-      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+    <html
+      lang={lang}
+      data-scroll-behavior="smooth"
+      className="h-full scroll-smooth antialiased"
+      suppressHydrationWarning
+    >
+      <body
+        className="min-h-full flex flex-col bg-background text-foreground font-sans"
+        suppressHydrationWarning
+      >
         <Navbar lang={lang} />
         <main className="flex-1">{children}</main>
         <Footer lang={lang} />

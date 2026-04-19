@@ -1,0 +1,307 @@
+{
+  "brand": {
+    "tagline": {
+      "es": "El futuro en la decoración que está al alcance ahora",
+      "en": "The future of decoration, within reach now"
+    },
+    "positioning": {
+      "es": "CEPTI es un fabricante innovador de materiales de decoración de vanguardia, que transformarán y ampliarán los límites de sus ideas de decoración por menos dinero.",
+      "en": "CEPTI is an innovative manufacturer of cutting-edge decoration materials that will transform and expand the limits of your decoration ideas for less money."
+    },
+    "whatsapp_number": "REPLACE_WITH_YOUR_WHATSAPP_NUMBER",
+    "workshop_offer": {
+      "es": "Talleres gratuitos de instalación para diseñadores, arquitectos y contratistas.",
+      "en": "Free installation workshops for designers, architects, and contractors."
+    }
+  },
+  "products": [
+    {
+      "slug": "pintura-de-piedra",
+      "order": 1,
+      "name": { "es": "Pintura de Piedra", "en": "Stone Paint" },
+      "tagline": {
+        "es": "Acabado pétreo decorativo para interiores y exteriores",
+        "en": "Decorative stone finish for interior and exterior surfaces"
+      },
+      "description": {
+        "es": "Acabado, decoración y protección para todo tipo de superficies con apariencia de piedra natural. Vida útil de 10 años.",
+        "en": "Finish, decoration, and protection for all types of surfaces with a natural stone appearance. 10-year lifespan."
+      },
+      "properties": {
+        "es": ["Vida útil 10 años", "Multi-superficie", "Resistente al clima tropical", "Apariencia pétrea"],
+        "en": ["10-year lifespan", "Multi-surface", "Tropical climate resistant", "Stone-like appearance"]
+      },
+      "use_cases": {
+        "es": ["Fachadas", "Paredes interiores", "Columnas", "Muebles"],
+        "en": ["Facades", "Interior walls", "Columns", "Furniture"]
+      },
+      "catalog_codes": ["001", "002", "003", "004", "005", "006"],
+      "image_folder": "/images/products/pintura-de-piedra/",
+      "coverage_m2_per_unit": 4,
+      "unit_label": { "es": "galón", "en": "gallon" },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Pintura de Piedra. Superficie aproximada: {m2} m². Código de color: {code}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I'm interested in Stone Paint. Approximate surface: {m2} m². Color code: {code}. Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "granito-liquido",
+      "order": 2,
+      "name": { "es": "Granito Líquido", "en": "Liquid Granite" },
+      "tagline": {
+        "es": "Acabado tipo granito aplicable sobre cualquier superficie",
+        "en": "Granite-style finish applicable to any surface"
+      },
+      "description": {
+        "es": "Acabado elegante tipo granito de larga duración, aplicable sobre cualquier superficie. Alternativa moderna al granito natural con versatilidad de aplicación.",
+        "en": "Elegant, long-lasting granite-style finish applicable to any surface. A modern alternative to natural granite with application versatility."
+      },
+      "properties": {
+        "es": ["Apariencia de granito natural", "Multi-superficie", "Larga duración", "Acabado elegante"],
+        "en": ["Natural granite appearance", "Multi-surface", "Long-lasting", "Elegant finish"]
+      },
+      "use_cases": {
+        "es": ["Encimeras", "Fachadas", "Columnas", "Escaleras"],
+        "en": ["Countertops", "Facades", "Columns", "Staircases"]
+      },
+      "catalog_codes": ["01", "02", "03", "04", "05", "06", "07", "08", "09"],
+      "image_folder": "/images/products/granito-liquido/",
+      "coverage_m2_per_unit": 3,
+      "unit_label": { "es": "galón", "en": "gallon" },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Granito Líquido. Superficie aproximada: {m2} m². Código de color: {code}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I'm interested in Liquid Granite. Approximate surface: {m2} m². Color code: {code}. Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "ceramoflex",
+      "order": 3,
+      "name": { "es": "Ceramoflex", "en": "Ceramoflex" },
+      "tagline": {
+        "es": "Gres porcelánico flexible — acabado cerámico sobre superficies curvas",
+        "en": "Flexible porcelain stoneware — ceramic finish on curved surfaces"
+      },
+      "description": {
+        "es": "Gres porcelánico flexible que permite aplicar acabados cerámicos sobre superficies planas y curvas. Combina la resistencia del porcelánico con flexibilidad total de aplicación.",
+        "en": "Flexible porcelain stoneware that applies ceramic finishes to flat and curved surfaces. Combines porcelain durability with total application flexibility."
+      },
+      "properties": {
+        "es": ["Flexibilidad total", "Resistencia porcelánica", "Aplicación en curvas", "Acabado cerámico"],
+        "en": ["Total flexibility", "Porcelain durability", "Curved surface application", "Ceramic finish"]
+      },
+      "use_cases": {
+        "es": ["Columnas", "Arcos", "Cúpulas", "Fachadas complejas"],
+        "en": ["Columns", "Arches", "Domes", "Complex facades"]
+      },
+      "catalog_codes": ["01", "02", "03", "04", "05", "06", "07", "08"],
+      "image_folder": "/images/products/ceramoflex/",
+      "coverage_m2_per_unit": 1,
+      "unit_label": { "es": "m²", "en": "m²" },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Ceramoflex. Superficie aproximada: {m2} m². Código: {code}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I'm interested in Ceramoflex. Approximate surface: {m2} m². Code: {code}. Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "ladriflex",
+      "order": 4,
+      "name": { "es": "Ladriflex", "en": "Ladriflex" },
+      "tagline": {
+        "es": "Ladrillo flexible — la apariencia del ladrillo real con flexibilidad total",
+        "en": "Flexible brick — real brick appearance with total flexibility"
+      },
+      "description": {
+        "es": "Material decorativo para revestimiento de paredes, adecuado para las condiciones climáticas de América Latina. Tiene apariencia del ladrillo real con la capacidad de doblarse en cualquier ángulo. Las superficies cubiertas con Ladriflex no difieren de las cubiertas con ladrillo de arcilla.",
+        "en": "Decorative wall cladding material suited for Latin American climate conditions. Has the appearance of real brick with the ability to bend at any angle. Surfaces covered with Ladriflex are indistinguishable from those covered with clay brick."
+      },
+      "properties": {
+        "es": [
+          "Protege del agua de lluvia",
+          "Protege de los rayos UV del sol y el viento",
+          "Extiende la durabilidad de las estructuras portantes",
+          "Protege las paredes de imperfecciones",
+          "Sin moho ni hongos",
+          "Material muy flexible",
+          "Material muy ligero"
+        ],
+        "en": [
+          "Protects from rainwater",
+          "Protects from UV rays and wind",
+          "Extends durability of load-bearing structures",
+          "Protects walls from imperfections",
+          "Mold and fungus-free",
+          "Highly flexible material",
+          "Very lightweight"
+        ]
+      },
+      "use_cases": {
+        "es": ["Fachadas", "Interiores", "Columnas", "Arcos", "Cúpulas", "Portales de chimeneas"],
+        "en": ["Facades", "Interiors", "Columns", "Arches", "Domes", "Fireplace surrounds"]
+      },
+      "catalog_codes": ["01", "02", "03", "04", "05", "06", "07", "08"],
+      "image_folder": "/images/products/ladriflex/",
+      "coverage_m2_per_unit": 1,
+      "unit_label": { "es": "m²", "en": "m²" },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Ladriflex. Superficie aproximada: {m2} m². Color/textura: {code}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I'm interested in Ladriflex. Approximate surface: {m2} m². Color/texture: {code}. Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "papelex",
+      "order": 5,
+      "name": { "es": "Papelex", "en": "Papelex" },
+      "tagline": {
+        "es": "Piedra flexible — la solución moderna para fachadas e interiores",
+        "en": "Flexible stone — the modern solution for facades and interiors"
+      },
+      "description": {
+        "es": "Hojas de piedra flexible que se combinan fácilmente entre sí y encajan perfectamente con otros materiales de acabado. Además del pegado continuo a paredes y fachadas, Papelex también se utiliza para aplicación sobre superficies curvas, fabricación de fachadas de muebles, murales, cuadros, iluminaciones de piedra, y más.",
+        "en": "Flexible stone sheets that combine easily with each other and fit perfectly with other finishing materials. Beyond continuous application to walls and facades, Papelex is also used for curved surfaces, furniture facades, murals, framed art, stone lighting, and more."
+      },
+      "properties": {
+        "es": [
+          "Resistencia a la humedad con mayor hidrofobicidad",
+          "Resistencia al calor y a los rayos UV",
+          "Resistencia al ambiente y al desgaste",
+          "Protege las paredes de imperfecciones",
+          "Sin moho ni hongos",
+          "Resistencia al fuego",
+          "Material muy flexible",
+          "Material muy ligero"
+        ],
+        "en": [
+          "Moisture resistance with enhanced hydrophobicity",
+          "Heat and UV resistance",
+          "Environmental and wear resistance",
+          "Protects walls from imperfections",
+          "Mold and fungus-free",
+          "Fire resistance",
+          "Highly flexible",
+          "Very lightweight"
+        ]
+      },
+      "use_cases": {
+        "es": [
+          "Fachadas, paredes y techos",
+          "Columnas, arcos y otros elementos",
+          "Fachadas de muebles",
+          "Murales y cuadros",
+          "Farolas e iluminación de piedra",
+          "Letreros publicitarios"
+        ],
+        "en": [
+          "Facades, walls, and ceilings",
+          "Columns, arches, and other elements",
+          "Furniture facades",
+          "Murals and framed art",
+          "Lanterns and stone lighting",
+          "Advertising signage"
+        ]
+      },
+      "catalog_codes": ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"],
+      "image_folder": "/images/products/papelex/",
+      "coverage_m2_per_unit": 1,
+      "unit_label": { "es": "m²", "en": "m²" },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Papelex. Superficie aproximada: {m2} m². Textura: {code}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I'm interested in Papelex. Approximate surface: {m2} m². Texture: {code}. Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "arte-con-arena",
+      "order": 6,
+      "name": { "es": "Arte con Arena", "en": "Sand Art" },
+      "tagline": {
+        "es": "Texturas artísticas únicas con arena natural",
+        "en": "Unique artistic textures with natural sand"
+      },
+      "description": {
+        "es": "Mezcla de arena natural para crear texturas artísticas únicas en paredes y fachadas. Ideal para murales, acentos decorativos y proyectos personalizados donde cada aplicación es irrepetible.",
+        "en": "Natural sand mixture for creating unique artistic textures on walls and facades. Ideal for murals, decorative accents, and custom projects where every application is one-of-a-kind."
+      },
+      "properties": {
+        "es": ["Textura natural", "Aplicación personalizada", "Efecto artístico único", "Compatible con otros acabados CEPTI"],
+        "en": ["Natural texture", "Custom application", "Unique artistic effect", "Compatible with other CEPTI finishes"]
+      },
+      "use_cases": {
+        "es": ["Murales decorativos", "Acentos de pared", "Proyectos artísticos", "Fachadas creativas"],
+        "en": ["Decorative murals", "Wall accents", "Artistic projects", "Creative facades"]
+      },
+      "catalog_codes": [],
+      "image_folder": "/images/products/arte-con-arena/",
+      "coverage_m2_per_unit": 2,
+      "unit_label": { "es": "kg", "en": "kg" },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Arte con Arena. Superficie aproximada: {m2} m². ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I'm interested in Sand Art. Approximate surface: {m2} m². Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "pegamento",
+      "order": 7,
+      "name": { "es": "Pegamento", "en": "Adhesive" },
+      "tagline": {
+        "es": "Adhesivo profesional para Papelex y Ladriflex",
+        "en": "Professional adhesive for Papelex and Ladriflex"
+      },
+      "description": {
+        "es": "Pegamento a base acrílica con bauxita artificial, desarrollado específicamente para la correcta instalación de Papelex y Ladriflex. Garantiza adherencia duradera en interiores y exteriores.",
+        "en": "Acrylic-based adhesive with artificial bauxite, developed specifically for proper Papelex and Ladriflex installation. Ensures long-lasting adhesion in interior and exterior applications."
+      },
+      "properties": {
+        "es": ["Base acrílica", "Adherencia duradera", "Apto para interiores y exteriores", "Compatible con Papelex y Ladriflex"],
+        "en": ["Acrylic-based", "Long-lasting adhesion", "Interior and exterior use", "Compatible with Papelex and Ladriflex"]
+      },
+      "use_cases": {
+        "es": ["Instalación de Papelex", "Instalación de Ladriflex", "Fachadas", "Interiores"],
+        "en": ["Papelex installation", "Ladriflex installation", "Facades", "Interiors"]
+      },
+      "catalog_codes": [],
+      "image_folder": "/images/products/pegamento/",
+      "coverage_m2_per_unit": 5,
+      "unit_label": { "es": "galón", "en": "gallon" },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, necesito Pegamento para {m2} m² de {producto}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I need Adhesive for {m2} m² of {producto}. Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "primer",
+      "order": 8,
+      "name": { "es": "Primer", "en": "Primer" },
+      "tagline": {
+        "es": "Base de preparación que prolonga la vida de los acabados",
+        "en": "Preparation base that extends finish durability"
+      },
+      "description": {
+        "es": "Base de preparación que asegura adherencia óptima entre la superficie y el acabado CEPTI, prolongando la vida útil del sistema completo. Recomendado antes de aplicar cualquier producto CEPTI.",
+        "en": "Preparation base that ensures optimal adhesion between the surface and the CEPTI finish, extending the lifespan of the complete system. Recommended before applying any CEPTI product."
+      },
+      "properties": {
+        "es": ["Mejora adherencia", "Prolonga vida del acabado", "Compatible con todos los productos CEPTI", "Apto para múltiples sustratos"],
+        "en": ["Improves adhesion", "Extends finish lifespan", "Compatible with all CEPTI products", "Multi-substrate application"]
+      },
+      "use_cases": {
+        "es": ["Preparación previa a cualquier producto CEPTI", "Fachadas", "Paredes interiores", "Superficies porosas"],
+        "en": ["Preparation before any CEPTI product", "Facades", "Interior walls", "Porous surfaces"]
+      },
+      "catalog_codes": [],
+      "image_folder": "/images/products/primer/",
+      "coverage_m2_per_unit": 8,
+      "unit_label": { "es": "galón", "en": "gallon" },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, necesito Primer para {m2} m². ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I need Primer for {m2} m². Can you send me a quote?"
+      }
+    }
+  ],
+  "projects": [
+    { "name": "Hotel Hilton Santo Domingo", "location": "Santo Domingo", "products": ["papelex", "ladriflex"] },
+    { "name": "Restaurante Mr. Grilled Kitchen", "location": "Santo Domingo", "products": ["papelex"] },
+    { "name": "Almacenes Unidos", "location": "Punta Cana", "products": ["ladriflex", "papelex"] },
+    { "name": "Golf Sim RD", "location": "Santo Domingo", "products": ["ladriflex", "papelex"] },
+    { "name": "Plaza Morichal — Paola Alvarado Design Group Showroom", "location": "Santo Domingo", "products": ["papelex", "arte-con-arena"] },
+    { "name": "Villa Juan Dolio", "location": "Juan Dolio", "products": ["ladriflex"] }
+  ]
+}

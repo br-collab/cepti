@@ -7,39 +7,24 @@
   },
   "hero": {
     "headline": "Acabados que transforman espacios",
-    "sub": "Materiales de terminación de alta calidad para constructores, contratistas y distribuidores en la República Dominicana.",
+    "sub": "Materiales de acabado de alta calidad para constructores, contratistas y distribuidores en la República Dominicana.",
     "cta": "Ver productos",
     "ctaSecondary": "Contáctenos"
   },
   "products": {
     "title": "Nuestros productos",
     "sub": "Soluciones para cada superficie y estilo",
-    "items": {
-      "pinturas": {
-        "name": "Pinturas",
-        "desc": "Amplia gama de pinturas para interiores y exteriores con excelente cobertura y durabilidad."
-      },
-      "ladriflex": {
-        "name": "Ladriflex",
-        "desc": "Acabado texturizado que simula ladrillo natural con flexibilidad y resistencia superior."
-      },
-      "papelex": {
-        "name": "Papelex",
-        "desc": "Textura decorativa de alto impacto con aspecto único de papel para paredes sofisticadas."
-      },
-      "granito": {
-        "name": "Granito Líquido",
-        "desc": "Acabado tipo granito aplicable sobre cualquier superficie, elegante y de larga duración."
-      },
-      "arena": {
-        "name": "Arte con Arena",
-        "desc": "Mezcla de arena natural para crear texturas artísticas únicas en paredes y fachadas."
-      },
-      "primer": {
-        "name": "Primer",
-        "desc": "Base de preparación que asegura adherencia óptima y prolonga la vida de los acabados."
-      }
-    }
+    "viewDetails": "Ver detalles",
+    "viewAll": "Ver todos los productos",
+    "requestQuote": "Solicitar Cotización",
+    "selectColor": "Seleccionar color",
+    "properties": "Propiedades",
+    "useCases": "Aplicaciones",
+    "palette": "Catálogo de colores y texturas",
+    "gallery": "Proyectos instalados",
+    "ctaBand": "¿Listo para empezar tu proyecto?",
+    "whatsappBtn": "Hablar por WhatsApp",
+    "backToProducts": "Volver a productos"
   },
   "whyUs": {
     "title": "¿Por qué elegir CEPTI?",
