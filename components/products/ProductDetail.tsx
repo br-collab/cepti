@@ -4,6 +4,9 @@ import { useCallback, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Locale } from '@/app/[lang]/dictionaries'
+import type { CalcProduct } from '@/lib/calculator'
+import CalculatorMini from '@/components/calculator/CalculatorMini'
+import TextureVisualizer from './TextureVisualizer'
 
 type ProductDict = {
   requestQuote: string
@@ -15,6 +18,30 @@ type ProductDict = {
   ctaBand: string
   whatsappBtn: string
   backToProducts: string
+}
+
+type CalculatorDict = {
+  heading: string
+  area: string
+  m2Short: string
+  resultLead: string
+  resultFor: string
+  resultOf: string
+  cta: string
+  placeholderCode: string
+  enterValues: string
+}
+
+type VisualizerDict = {
+  title: string
+  sub: string
+  hint: string
+  selected: string
+}
+
+type VisualizerConfig = {
+  referenceSrc: string
+  wallInset: { top: string; bottom: string; left: string; right: string }
 }
 
 type Props = {
@@ -30,6 +57,10 @@ type Props = {
   whatsappTemplate: string
   whatsappNumber: string
   dict: ProductDict
+  calcProduct: CalcProduct
+  calculatorDict: CalculatorDict
+  visualizerDict: VisualizerDict
+  visualizer: VisualizerConfig | null
 }
 
 function buildWhatsAppHref(template: string, code: string | null, m2: string, number: string) {
@@ -54,9 +85,18 @@ export default function ProductDetail({
   whatsappTemplate,
   whatsappNumber,
   dict,
+  calcProduct,
+  calculatorDict,
+  visualizerDict,
+  visualizer,
 }: Props) {
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+
+  const selectedTextureSrc = useMemo(
+    () => textures.find((t) => t.code === selectedCode)?.src ?? null,
+    [textures, selectedCode]
+  )
 
   const waHref = useMemo(
     () => buildWhatsAppHref(whatsappTemplate, selectedCode, '', whatsappNumber),
@@ -224,6 +264,17 @@ export default function ProductDetail({
         </section>
       )}
 
+      {/* Texture visualizer */}
+      {visualizer && calcProduct.catalogCodes.length > 0 && (
+        <TextureVisualizer
+          referenceSrc={visualizer.referenceSrc}
+          textureSrc={selectedTextureSrc}
+          textureCode={selectedCode}
+          wallInset={visualizer.wallInset}
+          dict={visualizerDict}
+        />
+      )}
+
       {/* Installation gallery */}
       {projectImages.length > 0 && (
         <section className="py-16 sm:py-20 bg-background">
@@ -252,6 +303,19 @@ export default function ProductDetail({
           </div>
         </section>
       )}
+
+      {/* Mini calculator */}
+      <section className="py-16 sm:py-20 bg-stone-50 border-y border-stone-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <CalculatorMini
+            product={calcProduct}
+            selectedCode={selectedCode}
+            whatsappNumber={whatsappNumber}
+            lang={lang}
+            dict={calculatorDict}
+          />
+        </div>
+      </section>
 
       {/* CTA band */}
       <section className="bg-cepti-red text-white py-16 sm:py-20">

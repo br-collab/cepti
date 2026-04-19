@@ -4,8 +4,24 @@ import type { Locale } from '@/app/[lang]/dictionaries'
 import { fileExistsInPublic } from '@/lib/products'
 
 const navLinks = {
-  es: { products: 'Productos', whyUs: '¿Por qué CEPTI?', contact: 'Contacto', langHref: '/en', langLabel: 'EN' },
-  en: { products: 'Products', whyUs: 'Why CEPTI?', contact: 'Contact', langHref: '/es', langLabel: 'ES' },
+  es: {
+    products: 'Productos',
+    calculator: 'Calculadora',
+    calculatorHref: '/es/calculadora',
+    whyUs: '¿Por qué CEPTI?',
+    contact: 'Contacto',
+    langHref: '/en',
+    langLabel: 'EN',
+  },
+  en: {
+    products: 'Products',
+    calculator: 'Calculator',
+    calculatorHref: '/en/calculator',
+    whyUs: 'Why CEPTI?',
+    contact: 'Contact',
+    langHref: '/es',
+    langLabel: 'ES',
+  },
 }
 
 const LOGO_PATH = '/images/logo.png'
@@ -38,7 +54,8 @@ export default function Navbar({ lang }: { lang: Locale }) {
         </Link>
 
         <ul className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600">
-          <li><Link href={`/${lang}#productos`} className="hover:text-cepti-red transition-colors">{t.products}</Link></li>
+          <li><Link href={`/${lang}/productos`} className="hover:text-cepti-red transition-colors">{t.products}</Link></li>
+          <li><Link href={t.calculatorHref} className="hover:text-cepti-red transition-colors">{t.calculator}</Link></li>
           <li><Link href={`/${lang}#porque-cepti`} className="hover:text-cepti-red transition-colors">{t.whyUs}</Link></li>
           <li><Link href={`/${lang}#contacto`} className="hover:text-cepti-red transition-colors">{t.contact}</Link></li>
         </ul>

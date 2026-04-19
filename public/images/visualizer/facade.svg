@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Facade reference">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a8c4d8"/>
+      <stop offset="1" stop-color="#dfe6ea"/>
+    </linearGradient>
+    <linearGradient id="fac" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d6cdbd"/>
+      <stop offset="1" stop-color="#b3a68e"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6f6858"/>
+      <stop offset="1" stop-color="#3f3a2f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="200" fill="url(#sky)"/>
+  <rect y="200" width="1600" height="680" fill="url(#fac)"/>
+  <rect y="870" width="1600" height="10" fill="#2b2720"/>
+  <rect y="880" width="1600" height="120" fill="url(#ground)"/>
+
+  <rect x="200" y="380" width="160" height="260" fill="#2c3846" stroke="#4a5560" stroke-width="6"/>
+  <rect x="1240" y="380" width="160" height="260" fill="#2c3846" stroke="#4a5560" stroke-width="6"/>
+  <rect x="700" y="640" width="200" height="230" fill="#3a2d1e" stroke="#1f1710" stroke-width="6"/>
+</svg>

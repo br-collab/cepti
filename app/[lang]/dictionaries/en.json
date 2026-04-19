@@ -1,9 +1,36 @@
 {
   "nav": {
     "products": "Products",
+    "calculator": "Calculator",
     "whyUs": "Why CEPTI?",
     "contact": "Contact",
     "langSwitch": "ES"
+  },
+  "calculator": {
+    "title": "Surface Calculator",
+    "sub": "Calculate how much product you need for your project.",
+    "heading": "Calculate your quantity",
+    "modeDimensions": "Dimensions",
+    "modeArea": "Total area",
+    "product": "Product",
+    "selectProduct": "Select a product",
+    "width": "Width",
+    "height": "Height",
+    "area": "Area",
+    "meters": "meters",
+    "m2Short": "m²",
+    "resultLead": "You need approximately",
+    "resultFor": "for",
+    "resultOf": "of",
+    "cta": "Request Quote via WhatsApp",
+    "placeholderCode": "To be determined",
+    "enterValues": "Enter the values above to see the calculation."
+  },
+  "visualizer": {
+    "title": "Wall preview",
+    "sub": "Select a texture from the catalog to preview it.",
+    "hint": "Select a texture above",
+    "selected": "Selected texture"
   },
   "hero": {
     "headline": "Finishes that transform spaces",

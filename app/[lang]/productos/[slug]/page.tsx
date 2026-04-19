@@ -2,12 +2,35 @@ import { notFound } from 'next/navigation'
 import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
 import {
   brand,
+  fileExistsInPublic,
   getAllProducts,
   getProduct,
   getProductImages,
   pickLang,
 } from '@/lib/products'
+import type { CalcProduct } from '@/lib/calculator'
 import ProductDetail from '@/components/products/ProductDetail'
+
+const VISUALIZER_MAP: Record<string, string> = {
+  'pintura-de-piedra': 'interior-wall',
+  'granito-liquido': 'interior-wall',
+  'ceramoflex': 'interior-wall',
+  'ladriflex': 'interior-wall',
+  'papelex': 'interior-wall',
+}
+
+const WALL_INSETS: Record<string, { top: string; bottom: string; left: string; right: string }> = {
+  'interior-wall': { top: '0%', bottom: '30%', left: '0%', right: '0%' },
+  'facade': { top: '20%', bottom: '12%', left: '0%', right: '0%' },
+}
+
+function resolveVisualizerRef(refName: string): string | null {
+  for (const ext of ['jpg', 'jpeg', 'png', 'webp', 'svg']) {
+    const path = `/images/visualizer/${refName}.${ext}`
+    if (fileExistsInPublic(path)) return path
+  }
+  return null
+}
 
 export function generateStaticParams() {
   const products = getAllProducts()
@@ -40,6 +63,21 @@ export default async function ProductDetailPage({
   const dict = await getDictionary(lang)
   const images = getProductImages(product)
 
+  const calcProduct: CalcProduct = {
+    slug: product.slug,
+    name: pickLang(product.name, lang),
+    coverage: product.coverage_m2_per_unit,
+    unitLabel: pickLang(product.unit_label, lang),
+    whatsappTemplate: pickLang(product.whatsapp_template, lang),
+    catalogCodes: product.catalog_codes,
+  }
+
+  const refName = VISUALIZER_MAP[product.slug]
+  const refSrc = refName ? resolveVisualizerRef(refName) : null
+  const visualizer = refSrc && refName
+    ? { referenceSrc: refSrc, wallInset: WALL_INSETS[refName] }
+    : null
+
   return (
     <ProductDetail
       lang={lang}
@@ -54,6 +92,10 @@ export default async function ProductDetailPage({
       whatsappTemplate={pickLang(product.whatsapp_template, lang)}
       whatsappNumber={brand.whatsapp_number}
       dict={dict.products}
+      calcProduct={calcProduct}
+      calculatorDict={dict.calculator}
+      visualizerDict={dict.visualizer}
+      visualizer={visualizer}
     />
   )
 }

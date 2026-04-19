@@ -1,9 +1,36 @@
 {
   "nav": {
     "products": "Productos",
+    "calculator": "Calculadora",
     "whyUs": "¿Por qué CEPTI?",
     "contact": "Contacto",
     "langSwitch": "EN"
+  },
+  "calculator": {
+    "title": "Calculadora de superficie",
+    "sub": "Calcula cuánto producto necesitas para tu proyecto.",
+    "heading": "Calcula tu cantidad",
+    "modeDimensions": "Dimensiones",
+    "modeArea": "Área total",
+    "product": "Producto",
+    "selectProduct": "Selecciona un producto",
+    "width": "Ancho",
+    "height": "Alto",
+    "area": "Área",
+    "meters": "metros",
+    "m2Short": "m²",
+    "resultLead": "Necesitas aproximadamente",
+    "resultFor": "para",
+    "resultOf": "de",
+    "cta": "Solicitar Cotización por WhatsApp",
+    "placeholderCode": "Por definir",
+    "enterValues": "Ingresa los valores arriba para ver el cálculo."
+  },
+  "visualizer": {
+    "title": "Vista previa en pared",
+    "sub": "Selecciona una textura del catálogo para previsualizarla.",
+    "hint": "Selecciona una textura arriba",
+    "selected": "Textura seleccionada"
   },
   "hero": {
     "headline": "Acabados que transforman espacios",
