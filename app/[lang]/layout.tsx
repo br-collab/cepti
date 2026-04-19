@@ -22,8 +22,12 @@ export default async function LocaleLayout({
       className="h-full scroll-smooth antialiased"
       suppressHydrationWarning
     >
+      <head>
+        <meta name="google" content="notranslate" />
+      </head>
       <body
-        className="min-h-full flex flex-col bg-background text-foreground font-sans"
+        translate="no"
+        className="min-h-full flex flex-col bg-background text-foreground font-sans notranslate"
         suppressHydrationWarning
       >
         <Navbar lang={lang} />
