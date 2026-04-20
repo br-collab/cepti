@@ -10,6 +10,7 @@ export type BilingualArray = { es: string[]; en: string[] }
 export type Product = {
   slug: string
   order: number
+  show_on_homepage?: boolean
   name: Bilingual
   tagline: Bilingual
   description: Bilingual
@@ -44,6 +45,10 @@ const allProducts: Product[] = [...(productsData.products as Product[])].sort(
 
 export function getAllProducts(): Product[] {
   return allProducts
+}
+
+export function getHomepageProducts(): Product[] {
+  return allProducts.filter((p) => p.show_on_homepage !== false)
 }
 
 export function getProduct(slug: string): Product | undefined {

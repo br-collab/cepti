@@ -57,11 +57,15 @@
   },
   "whyUs": {
     "title": "Why choose CEPTI?",
-    "sub": "Years of experience backing the best projects in the country",
+    "sub": "Years of experience backing the best projects in the Dominican Republic and around the world",
     "pillars": {
       "quality": {
         "title": "Guaranteed quality",
-        "desc": "Proven formulations that withstand tropical climate without losing color or texture."
+        "desc": "Proven formulations that withstand tropical climate without losing color or texture, with a lifespan of up to 10 years in interior and exterior design."
+      },
+      "features": {
+        "title": "Unique features",
+        "desc": "All our products are protected against mold and fungus, are 100% eco-friendly, and easily withstand wet cleaning."
       },
       "coverage": {
         "title": "National coverage",
@@ -70,6 +74,10 @@
       "support": {
         "title": "Technical support",
         "desc": "Expert team available to advise you on product selection and application."
+      },
+      "warranty": {
+        "title": "At least 5-year warranty",
+        "desc": "We offer at least a 5-year warranty on the application of our finishing materials, performed by our experts."
       }
     }
   },
