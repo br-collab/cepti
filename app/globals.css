@@ -22,3 +22,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer utilities {
+  .bg-cepti-texture {
+    background-color: #6B5A4A;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.04) 1px, transparent 0),
+      radial-gradient(circle at 8px 8px, rgba(0, 0, 0, 0.06) 1px, transparent 0);
+    background-size: 14px 14px, 14px 14px;
+    background-position: 0 0, 7px 7px;
+  }
+}
