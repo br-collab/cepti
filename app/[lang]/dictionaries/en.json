@@ -3,6 +3,7 @@
     "products": "Products",
     "calculator": "Calculator",
     "whyUs": "Why CEPTI?",
+    "about": "About us",
     "contact": "Contact",
     "langSwitch": "ES"
   },
@@ -33,8 +34,9 @@
     "selected": "Selected texture"
   },
   "hero": {
-    "headline": "Finishes that transform spaces",
-    "sub": "Premium finishing materials for builders, contractors, and distributors across the Dominican Republic.",
+    "headline": "Finishes that renew any space, at a price you can afford",
+    "sub": "CEPTI is an innovative manufacturer of cutting-edge, high-quality finishing materials that will transform and expand the limits of your design ideas — for less.",
+    "brandLine": "The future of interior design, within reach today.",
     "cta": "View products",
     "ctaSecondary": "Contact us"
   },
@@ -77,7 +79,8 @@
     "cta": "Get in touch"
   },
   "footer": {
-    "tagline": "Quality finishes for the Dominican Republic.",
+    "tagline": "Innovative quality finishes for the Dominican Republic.",
+    "brandLine": "The future of interior design, within reach today.",
     "rights": "All rights reserved."
   }
 }
