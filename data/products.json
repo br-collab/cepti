@@ -260,8 +260,8 @@
       "slug": "papelex",
       "order": 5,
       "name": {
-        "es": "Papelex",
-        "en": "Papelex"
+        "es": "Piedra Flexible (Papelex)",
+        "en": "Flexible Stone (Papelex)"
       },
       "tagline": {
         "es": "Piedra flexible — la solución moderna para fachadas e interiores",
@@ -341,8 +341,8 @@
       "slug": "ladriflex",
       "order": 6,
       "name": {
-        "es": "Ladriflex",
-        "en": "Ladriflex"
+        "es": "Ladrillo Flexible (Ladriflex)",
+        "en": "Flexible Brick (Ladriflex)"
       },
       "tagline": {
         "es": "Ladrillo flexible — la apariencia del ladrillo real con flexibilidad total",
@@ -413,10 +413,178 @@
       "show_on_homepage": true
     },
     {
-      "slug": "arte-con-arena",
+      "slug": "primer",
       "order": 7,
+      "show_on_homepage": true,
       "name": {
-        "es": "Arte con Arena y Piedra",
+        "es": "Primer",
+        "en": "Primer"
+      },
+      "tagline": {
+        "es": "Base de preparación que prolonga la vida de los acabados",
+        "en": "Preparation base that extends finish durability"
+      },
+      "description": {
+        "es": "Base de preparación que asegura adherencia óptima entre la superficie y el acabado CEPTI, prolongando la vida útil del sistema completo. Recomendado antes de aplicar cualquier producto CEPTI.",
+        "en": "Preparation base that ensures optimal adhesion between the surface and the CEPTI finish, extending the lifespan of the complete system. Recommended before applying any CEPTI product."
+      },
+      "properties": {
+        "es": [
+          "Mejora adherencia",
+          "Prolonga vida del acabado",
+          "Compatible con todos los productos CEPTI",
+          "Apto para múltiples sustratos"
+        ],
+        "en": [
+          "Improves adhesion",
+          "Extends finish lifespan",
+          "Compatible with all CEPTI products",
+          "Multi-substrate application"
+        ]
+      },
+      "use_cases": {
+        "es": [
+          "Preparación previa a cualquier producto CEPTI",
+          "Fachadas",
+          "Paredes interiores",
+          "Superficies porosas"
+        ],
+        "en": [
+          "Preparation before any CEPTI product",
+          "Facades",
+          "Interior walls",
+          "Porous surfaces"
+        ]
+      },
+      "catalog_codes": [],
+      "image_folder": "/images/products/primer/",
+      "coverage_m2_per_unit": 8,
+      "unit_label": {
+        "es": "galón",
+        "en": "gallon"
+      },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, necesito Primer para {m2} m². ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I need Primer for {m2} m². Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "pegamento",
+      "order": 8,
+      "show_on_homepage": true,
+      "name": {
+        "es": "Pegamento",
+        "en": "Adhesive"
+      },
+      "tagline": {
+        "es": "Adhesivo profesional para Piedra Flexible y Ladrillo Flexible",
+        "en": "Professional adhesive for Flexible Stone and Flexible Brick"
+      },
+      "description": {
+        "es": "Pegamento a base acrílica con bauxita artificial, desarrollado específicamente para la correcta instalación de Piedra Flexible (Papelex) y Ladrillo Flexible (Ladriflex). Garantiza adherencia duradera en interiores y exteriores.",
+        "en": "Acrylic-based adhesive with artificial bauxite, developed specifically for proper Flexible Stone (Papelex) and Flexible Brick (Ladriflex) installation. Ensures long-lasting adhesion in interior and exterior applications."
+      },
+      "properties": {
+        "es": [
+          "Base acrílica",
+          "Adherencia duradera",
+          "Apto para interiores y exteriores",
+          "Compatible con Piedra Flexible y Ladrillo Flexible"
+        ],
+        "en": [
+          "Acrylic-based",
+          "Long-lasting adhesion",
+          "Interior and exterior use",
+          "Compatible with Flexible Stone and Flexible Brick"
+        ]
+      },
+      "use_cases": {
+        "es": [
+          "Instalación de Piedra Flexible",
+          "Instalación de Ladrillo Flexible",
+          "Fachadas",
+          "Interiores"
+        ],
+        "en": [
+          "Flexible Stone installation",
+          "Flexible Brick installation",
+          "Facades",
+          "Interiors"
+        ]
+      },
+      "catalog_codes": [],
+      "image_folder": "/images/products/pegamento/",
+      "coverage_m2_per_unit": 5,
+      "unit_label": {
+        "es": "galón",
+        "en": "gallon"
+      },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, necesito Pegamento para {m2} m² de {producto}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I need Adhesive for {m2} m² of {producto}. Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "arena-de-colores",
+      "order": 9,
+      "show_on_homepage": true,
+      "name": {
+        "es": "Arena de Colores",
+        "en": "Colored Sand"
+      },
+      "tagline": {
+        "es": "Arena decorativa en múltiples colores para acabados únicos",
+        "en": "Decorative sand in multiple colors for unique finishes"
+      },
+      "description": {
+        "es": "Arena fina de colores para acabados decorativos y proyectos de diseño. Se combina con nuestros adhesivos y resinas para crear texturas personalizadas en paredes, mobiliario y obra de arte.",
+        "en": "Fine colored sand for decorative finishes and design projects. Combines with our adhesives and resins to create custom textures on walls, furniture, and artwork."
+      },
+      "properties": {
+        "es": [
+          "Múltiples colores",
+          "Granulometría uniforme",
+          "Apto para uso decorativo",
+          "100% ecológica"
+        ],
+        "en": [
+          "Multiple colors",
+          "Uniform grain size",
+          "Decorative-grade",
+          "100% eco-friendly"
+        ]
+      },
+      "use_cases": {
+        "es": [
+          "Acabados decorativos",
+          "Mobiliario personalizado",
+          "Obra artística",
+          "Proyectos de diseño"
+        ],
+        "en": [
+          "Decorative finishes",
+          "Custom furniture",
+          "Artwork",
+          "Design projects"
+        ]
+      },
+      "catalog_codes": [],
+      "image_folder": "/images/products/arena-de-colores/",
+      "coverage_m2_per_unit": 10,
+      "unit_label": {
+        "es": "kg",
+        "en": "kg"
+      },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Arena de Colores. ¿Pueden enviarme información y cotización?",
+        "en": "Hi CEPTI, I'm interested in Colored Sand. Can you send me information and a quote?"
+      }
+    },
+    {
+      "slug": "arte-con-arena",
+      "order": 10,
+      "name": {
+        "es": "Artes con Arena y Piedra",
         "en": "Sand and Stone Art"
       },
       "tagline": {
@@ -467,62 +635,6 @@
         "en": "Hi CEPTI, I'm interested in Sand Art. Approximate surface: {m2} m². Can you send me a quote?"
       },
       "show_on_homepage": true
-    },
-    {
-      "slug": "primer-y-pegamento",
-      "order": 8,
-      "show_on_homepage": true,
-      "name": {
-        "es": "Primer y Pegamento",
-        "en": "Primer and Adhesive"
-      },
-      "tagline": {
-        "es": "Preparación y adhesión profesional para acabados CEPTI",
-        "en": "Professional preparation and adhesion for CEPTI finishes"
-      },
-      "description": {
-        "es": "Sistema de preparación y adhesión que asegura el desempeño óptimo de los acabados CEPTI. El Primer prolonga la vida útil del acabado, mientras el Pegamento garantiza la instalación duradera de Papelex y Ladriflex.",
-        "en": "Preparation and adhesion system that ensures optimal CEPTI finish performance. The Primer extends finish lifespan, while the Adhesive guarantees long-lasting Papelex and Ladriflex installation."
-      },
-      "properties": {
-        "es": [
-          "Mejora adherencia",
-          "Prolonga vida del acabado",
-          "Base acrílica",
-          "Apto para interiores y exteriores"
-        ],
-        "en": [
-          "Improves adhesion",
-          "Extends finish lifespan",
-          "Acrylic-based",
-          "Interior and exterior use"
-        ]
-      },
-      "use_cases": {
-        "es": [
-          "Preparación previa a cualquier producto CEPTI",
-          "Instalación de Papelex y Ladriflex",
-          "Fachadas",
-          "Paredes interiores"
-        ],
-        "en": [
-          "Preparation before any CEPTI product",
-          "Papelex and Ladriflex installation",
-          "Facades",
-          "Interior walls"
-        ]
-      },
-      "catalog_codes": [],
-      "image_folder": "/images/products/primer-y-pegamento/",
-      "coverage_m2_per_unit": 6,
-      "unit_label": {
-        "es": "galón",
-        "en": "gallon"
-      },
-      "whatsapp_template": {
-        "es": "Hola CEPTI, me interesa Primer y Pegamento para {m2} m². ¿Pueden enviarme una cotización?",
-        "en": "Hi CEPTI, I'm interested in Primer and Adhesive for {m2} m². Can you send me a quote?"
-      }
     },
     {
       "slug": "ceramoflex",
