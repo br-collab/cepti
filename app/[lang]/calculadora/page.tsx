@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation'
 import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
 import { brand, getHomepageProducts, pickLang } from '@/lib/products'
-import MultiSurfaceCalculator, {
+import Calculadora, {
   type CalcProductOption,
-} from '@/components/calculator/MultiSurfaceCalculator'
+} from '@/components/calculator/Calculadora'
 
 export function generateStaticParams() {
   return [{ lang: 'es' }, { lang: 'en' }]
@@ -53,7 +53,7 @@ export default async function CalculadoraPage({
 
       <section className="py-10 sm:py-14 bg-background">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <MultiSurfaceCalculator
+          <Calculadora
             products={products}
             whatsappNumber={brand.whatsapp_number}
             lang={lang}
