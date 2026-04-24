@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Locale } from '@/app/[lang]/dictionaries'
 import { fileExistsInPublic } from '@/lib/products'
+import NavLinks from '@/components/layout/NavLinks'
 
 const navLinks = {
   es: {
@@ -17,7 +18,7 @@ const navLinks = {
   en: {
     products: 'Products',
     calculator: 'Calculator',
-    calculatorHref: '/en/calculator',
+    calculatorHref: '/en/calculadora',
     whyUs: 'Why CEPTI?',
     about: 'About us',
     contact: 'Contact',
@@ -26,7 +27,7 @@ const navLinks = {
   },
 }
 
-const LOGO_PATH = '/images/brand/logo-dark.png'
+const LOGO_PATH = '/images/brand/LogoBlack_WhiteBackground.png'
 
 export default function Navbar({ lang }: { lang: Locale }) {
   const t = navLinks[lang]
@@ -52,12 +53,15 @@ export default function Navbar({ lang }: { lang: Locale }) {
           )}
         </Link>
 
-        <ul className="hidden md:flex items-center gap-8 text-lg font-medium text-stone-600">
-          <li><Link href={`/${lang}/productos`} className="hover:text-cepti-brown transition-colors">{t.products}</Link></li>
-          <li><Link href={t.calculatorHref} className="hover:text-cepti-brown transition-colors">{t.calculator}</Link></li>
-          <li><Link href={`/${lang}#porque-cepti`} className="hover:text-cepti-brown transition-colors">{t.whyUs}</Link></li>
-          <li><Link href={`/${lang}/sobre-nosotros`} className="hover:text-cepti-brown transition-colors">{t.about}</Link></li>
-        </ul>
+        <NavLinks
+          lang={lang}
+          links={[
+            { href: `/${lang}/productos`, label: t.products },
+            { href: t.calculatorHref, label: t.calculator },
+            { href: `/${lang}#porque-cepti`, label: t.whyUs },
+            { href: `/${lang}/sobre-nosotros`, label: t.about },
+          ]}
+        />
 
         <div className="flex items-center gap-3">
           <Link
