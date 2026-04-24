@@ -28,15 +28,18 @@
         "en": "Luxurious velvet finish for sophisticated interiors"
       },
       "description": {
-        "es": "Pintura de acabado aterciopelado que aporta profundidad y elegancia a cualquier espacio. Tacto suave y apariencia premium, ideal para salas, dormitorios y ambientes de alto diseño.",
+        "es": "La Pintura Aterciopelada crea un efecto visual de terciopelo exquisito. Los tonos oscuros y medios de colores como el negro o el rojo se utilizan a menudo para crear una atmósfera de lujo refinado. Los tonos más claros añaden espacio y un encanto único a la habitación. El inusual efecto aterciopelado se logra mediante una tecnología de fabricación especial que añade a la pintura sustancias de estructura finamente granulada. Esto confiere a la superficie un aspecto mate y sutil que puede combinar a la perfección con otros materiales decorativos.",
         "en": "Velvet-finish paint that brings depth and elegance to any space. Soft touch and premium appearance, ideal for living rooms, bedrooms, and high-design spaces."
       },
       "properties": {
         "es": [
           "Acabado aterciopelado",
+          "Resistente al clima tropical",
           "Resistente a la limpieza húmeda",
+          "Protección anti-moho y hongos",
+          "Alta resistencia al desgaste, a la decoloración y a la suciedad",
           "100% ecológica",
-          "Protección anti-moho y hongos"
+          "Vida útil 10 años"
         ],
         "en": [
           "Velvet finish",
@@ -47,9 +50,8 @@
       },
       "use_cases": {
         "es": [
-          "Paredes interiores",
-          "Salas y dormitorios",
-          "Proyectos de diseño",
+          "Todo tipo de superficies interiores",
+          "Todo tipo de superficies exteriores",
           "Ambientes premium"
         ],
         "en": [
@@ -61,10 +63,10 @@
       },
       "catalog_codes": [],
       "image_folder": "/images/products/pintura-aterciopelada/",
-      "coverage_m2_per_unit": 10,
+      "coverage_m2_per_unit": 4,
       "unit_label": {
-        "es": "galón",
-        "en": "gallon"
+        "es": "litro",
+        "en": "liter"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura Aterciopelada para {m2} m². ¿Pueden enviarme una cotización?",
@@ -79,19 +81,22 @@
         "en": "Stone Effect Paint"
       },
       "tagline": {
-        "es": "Acabado pétreo decorativo para interiores y exteriores",
+        "es": "Acabado pétreo decorativo que transmite toda la belleza y suavidad de la profundidad textural de la piedra",
         "en": "Decorative stone finish for interior and exterior surfaces"
       },
       "description": {
-        "es": "Acabado, decoración y protección para todo tipo de superficies con apariencia de piedra natural. Vida útil de 10 años.",
+        "es": "La Pintura con Efecto Piedra es un revestimiento decorativo con efecto de dunas de arena y es sedosa al tacto. Está creada para el acabado de alta calidad en interiores clásicos y modernos. Esta pintura transmite toda la belleza y suavidad de la profundidad textural de la piedra. Es original en su ejecución, es un producto top a nivel mundial y crea una decoración exclusiva. La composición del material incluye pigmentos naturales y un relleno de cuarzo calibrado que, en combinación, forman efectos visuales profundos de textura y un suave juego de tonos.",
         "en": "Finish, decoration, and protection for all types of surfaces with a natural stone appearance. 10-year lifespan."
       },
       "properties": {
         "es": [
-          "Vida útil 10 años",
-          "Multi-superficie",
+          "Apariencia pétrea",
           "Resistente al clima tropical",
-          "Apariencia pétrea"
+          "Resistente a la limpieza húmeda",
+          "Protección anti-moho y hongos",
+          "Alta resistencia al desgaste, a la decoloración y a la suciedad",
+          "100% ecológica",
+          "Vida útil 10 años"
         ],
         "en": [
           "10-year lifespan",
@@ -102,10 +107,9 @@
       },
       "use_cases": {
         "es": [
-          "Fachadas",
-          "Paredes interiores",
-          "Columnas",
-          "Muebles"
+          "Todo tipo de superficies interiores",
+          "Todo tipo de superficies exteriores",
+          "Ambientes premium"
         ],
         "en": [
           "Facades",
@@ -123,10 +127,10 @@
         "006"
       ],
       "image_folder": "/images/products/pintura-de-piedra/",
-      "coverage_m2_per_unit": 4,
+      "coverage_m2_per_unit": 3.5,
       "unit_label": {
-        "es": "galón",
-        "en": "gallon"
+        "es": "litro",
+        "en": "liter"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura de Piedra. Superficie aproximada: {m2} m². Código de color: {code}. ¿Pueden enviarme una cotización?",
@@ -139,23 +143,26 @@
       "order": 3,
       "show_on_homepage": true,
       "name": {
-        "es": "Pintura con Efecto Granito",
-        "en": "Granite Effect Paint"
+        "es": "Pintura con Efecto Granito y Granito Líquido",
+        "en": "Granite Effect Paint & Liquid Granite"
       },
       "tagline": {
-        "es": "Acabado decorativo con apariencia de granito natural",
+        "es": "Pintura con Efecto Granito y Granito Líquido — acabado continuo impecable con profundidad visual y resistencia",
         "en": "Decorative finish with natural granite appearance"
       },
       "description": {
-        "es": "Pintura decorativa que reproduce la apariencia del granito natural. Acabado resistente para interiores y exteriores, con la profundidad visual del granito a una fracción del costo.",
+        "es": "Las Pinturas con Efecto Granito y Granito Líquido permiten crear una agradable atmósfera de confort y prestigio, sin alterar el concepto general de su diseño. Las composiciones de los materiales incluyen aditivos especiales de cuarzo que permiten lograr la textura delicada de una superficie granítica, otorgando al revestimiento multidimensionalidad, profundidad visual, resistencia y durabilidad. Permiten crear un revestimiento continuo impecable en interiores de cualquier estilo, y generan en el espacio una atmósfera única de frescura y tranquilidad.",
         "en": "Decorative paint that reproduces the appearance of natural granite. Durable finish for interior and exterior use, with the visual depth of granite at a fraction of the cost."
       },
       "properties": {
         "es": [
-          "Apariencia de granito",
+          "Apariencia de granito natural",
           "Resistente al clima tropical",
-          "Multi-superficie",
-          "Vida útil prolongada"
+          "Resistente a la limpieza húmeda",
+          "Protección anti-moho y hongos",
+          "Alta resistencia al desgaste, a la decoloración y a la suciedad",
+          "100% ecológica",
+          "Vida útil 10 años"
         ],
         "en": [
           "Granite appearance",
@@ -166,10 +173,9 @@
       },
       "use_cases": {
         "es": [
-          "Fachadas",
-          "Paredes interiores",
-          "Columnas",
-          "Proyectos arquitectónicos"
+          "Todo tipo de superficies interiores",
+          "Todo tipo de superficies exteriores",
+          "Ambientes premium"
         ],
         "en": [
           "Facades",
@@ -180,81 +186,15 @@
       },
       "catalog_codes": [],
       "image_folder": "/images/products/pintura-efecto-granito/",
-      "coverage_m2_per_unit": 6,
+      "coverage_m2_per_unit": 3.5,
       "unit_label": {
-        "es": "galón",
-        "en": "gallon"
+        "es": "litro",
+        "en": "liter"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura con Efecto Granito para {m2} m². ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Granite Effect Paint for {m2} m². Can you send me a quote?"
       }
-    },
-    {
-      "slug": "granito-liquido",
-      "order": 4,
-      "name": {
-        "es": "Granito Líquido",
-        "en": "Liquid Granite"
-      },
-      "tagline": {
-        "es": "Acabado tipo granito aplicable sobre cualquier superficie",
-        "en": "Granite-style finish applicable to any surface"
-      },
-      "description": {
-        "es": "Acabado elegante tipo granito de larga duración, aplicable sobre cualquier superficie. Alternativa moderna al granito natural con versatilidad de aplicación.",
-        "en": "Elegant, long-lasting granite-style finish applicable to any surface. A modern alternative to natural granite with application versatility."
-      },
-      "properties": {
-        "es": [
-          "Apariencia de granito natural",
-          "Multi-superficie",
-          "Larga duración",
-          "Acabado elegante"
-        ],
-        "en": [
-          "Natural granite appearance",
-          "Multi-surface",
-          "Long-lasting",
-          "Elegant finish"
-        ]
-      },
-      "use_cases": {
-        "es": [
-          "Encimeras",
-          "Fachadas",
-          "Columnas",
-          "Escaleras"
-        ],
-        "en": [
-          "Countertops",
-          "Facades",
-          "Columns",
-          "Staircases"
-        ]
-      },
-      "catalog_codes": [
-        "01",
-        "02",
-        "03",
-        "04",
-        "05",
-        "06",
-        "07",
-        "08",
-        "09"
-      ],
-      "image_folder": "/images/products/granito-liquido/",
-      "coverage_m2_per_unit": 3,
-      "unit_label": {
-        "es": "galón",
-        "en": "gallon"
-      },
-      "whatsapp_template": {
-        "es": "Hola CEPTI, me interesa Granito Líquido. Superficie aproximada: {m2} m². Código de color: {code}. ¿Pueden enviarme una cotización?",
-        "en": "Hi CEPTI, I'm interested in Liquid Granite. Approximate surface: {m2} m². Color code: {code}. Can you send me a quote?"
-      },
-      "show_on_homepage": true
     },
     {
       "slug": "papelex",
@@ -264,23 +204,26 @@
         "en": "Flexible Stone (Papelex)"
       },
       "tagline": {
-        "es": "Piedra flexible — la solución moderna para fachadas e interiores",
+        "es": "Es un material ligero y flexible con la textura de la piedra real - la solución moderna para todo tipo de superficies, incluidas las superficies curvadas complejas",
         "en": "Flexible stone — the modern solution for facades and interiors"
       },
       "description": {
-        "es": "Hojas de piedra flexible que se combinan fácilmente entre sí y encajan perfectamente con otros materiales de acabado. Además del pegado continuo a paredes y fachadas, Papelex también se utiliza para aplicación sobre superficies curvas, fabricación de fachadas de muebles, murales, cuadros, iluminaciones de piedra, y más.",
+        "es": "La piedra flexible Papelex es un material de acabado ideal que reemplaza los productos decorativos conocidos en el mercado. Combina las ventajas de la piedra natural y los beneficios que le ofrecen las tecnologías modernas. Es un material ligero y flexible, fácil de instalar, tanto en el interior como exterior, y tiene una vida útil de hasta 10 años. Ideal para el revestimiento de todo tipo de superficies, incluidas las superficies curvadas complejas (columnas, arcos y otros elementos). Las hojas de piedra flexible Papelex se combinan fácilmente entre sí y perfectamente encajan con otros materiales de acabado.",
         "en": "Flexible stone sheets that combine easily with each other and fit perfectly with other finishing materials. Beyond continuous application to walls and facades, Papelex is also used for curved surfaces, furniture facades, murals, framed art, stone lighting, and more."
       },
       "properties": {
         "es": [
-          "Resistencia a la humedad con mayor hidrofobicidad",
-          "Resistencia al calor y a los rayos UV",
-          "Resistencia al ambiente y al desgaste",
-          "Protege las paredes de imperfecciones",
-          "Sin moho ni hongos",
-          "Resistencia al fuego",
+          "Apariencia de piedra natural",
           "Material muy flexible",
-          "Material muy ligero"
+          "Material muy ligero",
+          "Protege las superficies de imperfecciones",
+          "Resistente al clima tropical",
+          "Resistente a la limpieza húmeda",
+          "Protección anti-moho y hongos",
+          "Alta resistencia al desgaste, a la decoloración y a la suciedad",
+          "Resistente al fuego (no se inflama y no se derrite)",
+          "100% ecológica",
+          "Vida útil 10 años"
         ],
         "en": [
           "Moisture resistance with enhanced hydrophobicity",
@@ -296,10 +239,10 @@
       "use_cases": {
         "es": [
           "Fachadas, paredes y techos",
-          "Columnas, arcos y otros elementos",
+          "Columnas, arcos y otros elementos decorativos",
           "Fachadas de muebles",
-          "Murales y cuadros",
-          "Farolas e iluminación de piedra",
+          "Murales, frescos y cuadros",
+          "Lámparas, plafones, farolas y otros elementos de iluminación de piedra",
           "Letreros publicitarios"
         ],
         "en": [
@@ -328,8 +271,8 @@
       "image_folder": "/images/products/papelex/",
       "coverage_m2_per_unit": 1,
       "unit_label": {
-        "es": "m²",
-        "en": "m²"
+        "es": "placa",
+        "en": "plate"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Papelex. Superficie aproximada: {m2} m². Textura: {code}. ¿Pueden enviarme una cotización?",
@@ -345,22 +288,27 @@
         "en": "Flexible Brick (Ladriflex)"
       },
       "tagline": {
-        "es": "Ladrillo flexible — la apariencia del ladrillo real con flexibilidad total",
+        "es": "Ladrillo flexible — la apariencia del ladrillo real con flexibilidad total y bastante ligero",
         "en": "Flexible brick — real brick appearance with total flexibility"
       },
       "description": {
-        "es": "Material decorativo para revestimiento de paredes, adecuado para las condiciones climáticas de América Latina. Tiene apariencia del ladrillo real con la capacidad de doblarse en cualquier ángulo. Las superficies cubiertas con Ladriflex no difieren de las cubiertas con ladrillo de arcilla.",
+        "es": "El ladrillo flexible Ladriflex es un material decorativo moderno. Puede tener una estructura de superficie muy variable y parece a un ladrillo nuevo, envejecido o retro. También puede tener una superficie lisa, rugosa o texturizada de diferentes colores y tonalidades, con la capacidad de doblarse en cualquier ángulo. La diversidad del ladrillo flexible Ladriflex le permite igual revestir cualquier fachada o el interior de manera individual y única, obteniendo superficies con la belleza natural del ladrillo real. Las superficies cubiertas con ladrillo flexible Ladriflex no difieren de las superficies que están cubiertas con el ladrillo de arcilla y tiene una vida útil de hasta 10 años.",
         "en": "Decorative wall cladding material suited for Latin American climate conditions. Has the appearance of real brick with the ability to bend at any angle. Surfaces covered with Ladriflex are indistinguishable from those covered with clay brick."
       },
       "properties": {
         "es": [
-          "Protege del agua de lluvia",
-          "Protege de los rayos UV del sol y el viento",
+          "Apariencia de ladrillo natural",
           "Extiende la durabilidad de las estructuras portantes",
-          "Protege las paredes de imperfecciones",
-          "Sin moho ni hongos",
+          "Protege las superficies de imperfecciones",
           "Material muy flexible",
-          "Material muy ligero"
+          "Material muy ligero",
+          "Resistente al clima tropical",
+          "Resistente a la limpieza húmeda",
+          "Protección anti-moho y hongos",
+          "Alta resistencia al desgaste, a la decoloración y a la suciedad",
+          "Resistente al fuego (no se inflama y no se derrite)",
+          "100% ecológica",
+          "Vida útil 10 años"
         ],
         "en": [
           "Protects from rainwater",
@@ -374,12 +322,11 @@
       },
       "use_cases": {
         "es": [
-          "Fachadas",
-          "Interiores",
-          "Columnas",
-          "Arcos",
-          "Cúpulas",
-          "Portales de chimeneas"
+          "Fachadas y paredes",
+          "Columnas, arcos y cúpulas",
+          "Vallas y portones",
+          "Portales de chimeneas",
+          "Interiores"
         ],
         "en": [
           "Facades",
@@ -403,8 +350,8 @@
       "image_folder": "/images/products/ladriflex/",
       "coverage_m2_per_unit": 1,
       "unit_label": {
-        "es": "m²",
-        "en": "m²"
+        "es": "placa",
+        "en": "plate"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Ladriflex. Superficie aproximada: {m2} m². Color/textura: {code}. ¿Pueden enviarme una cotización?",
@@ -421,19 +368,25 @@
         "en": "Primer"
       },
       "tagline": {
-        "es": "Base de preparación que prolonga la vida de los acabados",
+        "es": "Base de preparación de alta calidad que prolonga la vida de los acabados",
         "en": "Preparation base that extends finish durability"
       },
       "description": {
-        "es": "Base de preparación que asegura adherencia óptima entre la superficie y el acabado CEPTI, prolongando la vida útil del sistema completo. Recomendado antes de aplicar cualquier producto CEPTI.",
+        "es": "El Primer CEPTI se utiliza para preparar superficies de paredes, techos y pisos antes de la instalación de placas piedra flexible Papelex, ladrillo flexible Ladriflex, la aplicación de pinturas u otros materiales de acabado. Se puede utilizar tanto en interiores como en exteriores. Es ideal para la preparación e instalación de todo tipo de nuestros productos. Nuestro Primer posee una calidad que supera con creces a la mayoría de los análogos existentes en el mercado. Gracias a sus propiedades únicas, todos los productos de CEPTI tienen una garantía de al menos 5 años en la aplicación de nuestros materiales de acabado, realizada por nuestros expertos.",
         "en": "Preparation base that ensures optimal adhesion between the surface and the CEPTI finish, extending the lifespan of the complete system. Recommended before applying any CEPTI product."
       },
       "properties": {
         "es": [
-          "Mejora adherencia",
+          "Contenido de sólidos: 15-16%",
+          "Protege las superficies de hongos y moho",
+          "Reduce el consumo de adhesivo y pintura",
+          "Mejora la adhesión de la base y el acabado",
           "Prolonga vida del acabado",
+          "Fortalece la capa superior del material y aumenta la resistencia al desgaste de la superficie",
+          "Apto para múltiples sustratos",
+          "El tiempo de secado es de 30-60 minutos",
           "Compatible con todos los productos CEPTI",
-          "Apto para múltiples sustratos"
+          "100% ecológica"
         ],
         "en": [
           "Improves adhesion",
@@ -444,10 +397,8 @@
       },
       "use_cases": {
         "es": [
-          "Preparación previa a cualquier producto CEPTI",
-          "Fachadas",
-          "Paredes interiores",
-          "Superficies porosas"
+          "Preparación superficies de paredes, techos, pisos y otros antes de la instalación de materiales de acabado",
+          "Utiliza tanto en interiores como en exteriores"
         ],
         "en": [
           "Preparation before any CEPTI product",
@@ -458,10 +409,10 @@
       },
       "catalog_codes": [],
       "image_folder": "/images/products/primer/",
-      "coverage_m2_per_unit": 8,
+      "coverage_m2_per_unit": 6,
       "unit_label": {
-        "es": "galón",
-        "en": "gallon"
+        "es": "litro",
+        "en": "liter"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, necesito Primer para {m2} m². ¿Pueden enviarme una cotización?",
@@ -477,19 +428,22 @@
         "en": "Adhesive"
       },
       "tagline": {
-        "es": "Adhesivo profesional para Piedra Flexible y Ladrillo Flexible",
+        "es": "Adhesivo profesional para la instalación de placas Piedra Flexible (Papelex) y Ladrillo Flexible (Ladriflex)",
         "en": "Professional adhesive for Flexible Stone and Flexible Brick"
       },
       "description": {
-        "es": "Pegamento a base acrílica con bauxita artificial, desarrollado específicamente para la correcta instalación de Piedra Flexible (Papelex) y Ladrillo Flexible (Ladriflex). Garantiza adherencia duradera en interiores y exteriores.",
+        "es": "Nuestro Pegamento está especialmente creado para la instalación de placas piedra flexible Papelex y ladrillo flexible Ladriflex. También se puede utilizar con otros materiales de acabado que requieran un adhesivo de alta calidad con una garantía prolongada en los trabajos de instalación. Gracias a nuestra tecnología única, además del pegamento transparente, también podemos producir pegamentos de diferentes colores. Esto abre posibilidades adicionales en diseños que requieren una atención impecable incluso a los más mínimos detalles.",
         "en": "Acrylic-based adhesive with artificial bauxite, developed specifically for proper Flexible Stone (Papelex) and Flexible Brick (Ladriflex) installation. Ensures long-lasting adhesion in interior and exterior applications."
       },
       "properties": {
         "es": [
+          "Alta transparencia, que se mantiene a lo largo de toda su vida útil después de la aplicación",
           "Base acrílica",
           "Adherencia duradera",
+          "Protección anti-moho y hongos",
           "Apto para interiores y exteriores",
-          "Compatible con Piedra Flexible y Ladrillo Flexible"
+          "Compatible con Piedra Flexible (Papelex) y Ladrillo Flexible (Ladriflex)",
+          "100% ecológica"
         ],
         "en": [
           "Acrylic-based",
@@ -500,10 +454,9 @@
       },
       "use_cases": {
         "es": [
-          "Instalación de Piedra Flexible",
-          "Instalación de Ladrillo Flexible",
-          "Fachadas",
-          "Interiores"
+          "Instalación de Piedra Flexible (Papelex)",
+          "Instalación de Ladrillo Flexible (Ladriflex)",
+          "Utiliza tanto en interiores como en exteriores"
         ],
         "en": [
           "Flexible Stone installation",
@@ -514,10 +467,10 @@
       },
       "catalog_codes": [],
       "image_folder": "/images/products/pegamento/",
-      "coverage_m2_per_unit": 5,
+      "coverage_m2_per_unit": 1.5,
       "unit_label": {
-        "es": "galón",
-        "en": "gallon"
+        "es": "kg",
+        "en": "kg"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, necesito Pegamento para {m2} m² de {producto}. ¿Pueden enviarme una cotización?",
@@ -525,82 +478,31 @@
       }
     },
     {
-      "slug": "arena-de-colores",
-      "order": 9,
-      "show_on_homepage": true,
-      "name": {
-        "es": "Arena de Colores",
-        "en": "Colored Sand"
-      },
-      "tagline": {
-        "es": "Arena decorativa en múltiples colores para acabados únicos",
-        "en": "Decorative sand in multiple colors for unique finishes"
-      },
-      "description": {
-        "es": "Arena fina de colores para acabados decorativos y proyectos de diseño. Se combina con nuestros adhesivos y resinas para crear texturas personalizadas en paredes, mobiliario y obra de arte.",
-        "en": "Fine colored sand for decorative finishes and design projects. Combines with our adhesives and resins to create custom textures on walls, furniture, and artwork."
-      },
-      "properties": {
-        "es": [
-          "Múltiples colores",
-          "Granulometría uniforme",
-          "Apto para uso decorativo",
-          "100% ecológica"
-        ],
-        "en": [
-          "Multiple colors",
-          "Uniform grain size",
-          "Decorative-grade",
-          "100% eco-friendly"
-        ]
-      },
-      "use_cases": {
-        "es": [
-          "Acabados decorativos",
-          "Mobiliario personalizado",
-          "Obra artística",
-          "Proyectos de diseño"
-        ],
-        "en": [
-          "Decorative finishes",
-          "Custom furniture",
-          "Artwork",
-          "Design projects"
-        ]
-      },
-      "catalog_codes": [],
-      "image_folder": "/images/products/arena-de-colores/",
-      "coverage_m2_per_unit": 10,
-      "unit_label": {
-        "es": "kg",
-        "en": "kg"
-      },
-      "whatsapp_template": {
-        "es": "Hola CEPTI, me interesa Arena de Colores. ¿Pueden enviarme información y cotización?",
-        "en": "Hi CEPTI, I'm interested in Colored Sand. Can you send me information and a quote?"
-      }
-    },
-    {
       "slug": "arte-con-arena",
       "order": 10,
       "name": {
-        "es": "Artes con Arena y Piedra",
+        "es": "Arte con Arena y Piedra",
         "en": "Sand and Stone Art"
       },
       "tagline": {
-        "es": "Texturas artísticas únicas con arena natural",
+        "es": "Dibujos y texturas artísticas únicas con arena natural, arena y piedra decorativas en múltiples colores para proyectos de diseño",
         "en": "Unique artistic textures with natural sand"
       },
       "description": {
-        "es": "Mezcla de arena natural para crear texturas artísticas únicas en paredes y fachadas. Ideal para murales, acentos decorativos y proyectos personalizados donde cada aplicación es irrepetible.",
+        "es": "CEPTI utiliza tecnologías únicas para crear Arte con Arena y Piedra muy sofisticado y de muy alta calidad como: murales y frescos; pinturas exclusivas; fachadas de muebles; decoración de lámparas, plafones, farolas y otros elementos de iluminación; fabricación de recuerdos o souvenirs; arena coloreada de cualquier tono y color, así como mezclas de arenas de diferentes colores y granulometrías. La elección del dibujo o el aspecto del producto final están limitados sólo por la fantasía y la creatividad del cliente.",
         "en": "Natural sand mixture for creating unique artistic textures on walls and facades. Ideal for murals, decorative accents, and custom projects where every application is one-of-a-kind."
       },
       "properties": {
         "es": [
-          "Textura natural",
+          "Textura y materiales naturales",
           "Aplicación personalizada",
           "Efecto artístico único",
-          "Compatible con otros acabados CEPTI"
+          "Resistente al clima tropical",
+          "Resistente a la limpieza húmeda",
+          "Protección anti-moho y hongos",
+          "Alta resistencia al desgaste, a la decoloración y a la suciedad",
+          "100% ecológica",
+          "Vida útil 10 años"
         ],
         "en": [
           "Natural texture",
@@ -611,10 +513,14 @@
       },
       "use_cases": {
         "es": [
-          "Murales decorativos",
-          "Acentos de pared",
-          "Proyectos artísticos",
-          "Fachadas creativas"
+          "Murales y frescos decorativos",
+          "Acentos de paredes, techos y pisos",
+          "Fachadas creativas",
+          "Acabados decorativos",
+          "Proyectos de diseño de espacios",
+          "Paisajismo, la zonificación y la urbanística",
+          "Mobiliario personalizado",
+          "Proyectos artísticos"
         ],
         "en": [
           "Decorative murals",

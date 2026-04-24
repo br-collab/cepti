@@ -6,7 +6,7 @@ type ContactDict = {
 
 export default function Contact({ dict }: { dict: ContactDict }) {
   return (
-    <section id="contacto" className="py-20 sm:py-28 bg-cepti-red">
+    <section id="contacto" className="py-10 sm:py-14 bg-cepti-red">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">{dict.title}</h2>
         <p className="text-red-100 text-lg mb-10">{dict.sub}</p>
