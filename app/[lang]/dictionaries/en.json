@@ -41,6 +41,7 @@
     "headline": "Finishes that renew any space, at a price you can afford",
     "sub": "CEPTI is an innovative manufacturer of cutting-edge, high-quality finishing materials that will transform and expand the limits of your design ideas — for less.",
     "brandLine": "The future of interior design, within reach today.",
+    "tagline": "CEPTI is an innovative manufacturer of cutting-edge, high-quality finishing materials for all types of interior and exterior surfaces, that will transform and expand the limits of your decoration ideas for less money",
     "cta": "View products",
     "ctaSecondary": "Contact us"
   },
@@ -88,11 +89,20 @@
   "contact": {
     "title": "Let's talk about your project",
     "sub": "Connect with a distributor or our team directly.",
-    "cta": "Get in touch"
+    "cta": "Get in touch",
+    "address": "Address",
+    "email": "Email",
+    "instagram": "Instagram",
+    "website": "Website",
+    "phone": "Phone",
+    "whatsapp": "WhatsApp",
+    "facebook": "Facebook",
+    "threads": "Threads",
+    "comingSoon": "COMING SOON"
   },
   "footer": {
-    "tagline": "Innovative quality finishes for the Dominican Republic.",
     "brandLine": "The future of interior design, within reach today.",
+    "slogan": "THE FUTURE OF DECORATION IS WITHIN REACH NOW",
     "rights": "All rights reserved."
   }
 }

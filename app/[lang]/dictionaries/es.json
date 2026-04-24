@@ -41,6 +41,7 @@
     "headline": "Acabados que renuevan cualquier espacio al alcance de tu bolsillo",
     "sub": "CEPTI es un fabricante innovador de materiales de acabado de vanguardia y de alta calidad, que transformarán y ampliarán los límites de sus ideas de decoración por menos dinero.",
     "brandLine": "El futuro en la decoración que está al alcance ahora.",
+    "tagline": "CEPTI es un fabricante innovador de materiales de acabado de vanguardia y de alta calidad para todo tipo de superficies de interiores y exteriores, que transformarán y ampliarán los límites de sus ideas de decoración por menos dinero",
     "cta": "Ver productos",
     "ctaSecondary": "Contáctenos"
   },
@@ -88,11 +89,20 @@
   "contact": {
     "title": "Hablemos de tu proyecto",
     "sub": "Conecta con un distribuidor o nuestro equipo directamente.",
-    "cta": "Contactar ahora"
+    "cta": "Contactar ahora",
+    "address": "Dirección",
+    "email": "Email",
+    "instagram": "Instagram",
+    "website": "Sitio web",
+    "phone": "Teléfono",
+    "whatsapp": "WhatsApp",
+    "facebook": "Facebook",
+    "threads": "Threads",
+    "comingSoon": "PRÓXIMAMENTE"
   },
   "footer": {
-    "tagline": "Acabados innovadores de calidad para la República Dominicana.",
     "brandLine": "El futuro en la decoración que está al alcance ahora.",
+    "slogan": "EL FUTURO EN LA DECORACIÓN QUE ESTÁ AL ALCANCE AHORA",
     "rights": "Todos los derechos reservados."
   }
 }

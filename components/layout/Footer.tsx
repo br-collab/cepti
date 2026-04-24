@@ -1,21 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import type { Locale } from '@/app/[lang]/dictionaries'
 
-const footerContent = {
-  es: {
-    slogan: 'EL FUTURO EN LA DECORACIÓN QUE ESTÁ AL ALCANCE AHORA',
-    rights: 'Todos los derechos reservados.',
-  },
-  en: {
-    slogan: 'EL FUTURO EN LA DECORACIÓN QUE ESTÁ AL ALCANCE AHORA',
-    rights: 'All rights reserved.',
-  },
+type FooterDict = {
+  slogan: string
+  rights: string
 }
 
-export default function Footer({ lang }: { lang: Locale }) {
-  const t = footerContent[lang]
-
+export default function Footer({ dict }: { dict: FooterDict }) {
   return (
     <footer
       className="text-white py-8 px-4 sm:px-6"
@@ -33,7 +24,7 @@ export default function Footer({ lang }: { lang: Locale }) {
             />
           </div>
           <p className="font-display text-base sm:text-lg font-semibold text-white leading-snug tracking-wide">
-            {t.slogan}
+            {dict.slogan}
           </p>
         </div>
         <div className="flex gap-4 text-sm text-white">
@@ -42,7 +33,7 @@ export default function Footer({ lang }: { lang: Locale }) {
         </div>
       </div>
       <div className="max-w-6xl mx-auto mt-6 pt-4 border-t border-white/20 text-xs text-white/70">
-        © {new Date().getFullYear()} CEPTI. {t.rights}
+        © {new Date().getFullYear()} CEPTI. {dict.rights}
       </div>
     </footer>
   )

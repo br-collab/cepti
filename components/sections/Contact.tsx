@@ -2,6 +2,15 @@ type ContactDict = {
   title: string
   sub: string
   cta: string
+  address: string
+  email: string
+  instagram: string
+  website: string
+  phone: string
+  whatsapp: string
+  facebook: string
+  threads: string
+  comingSoon: string
 }
 
 export default function Contact({ dict }: { dict: ContactDict }) {
@@ -14,7 +23,7 @@ export default function Contact({ dict }: { dict: ContactDict }) {
         <div className="bg-white/10 backdrop-blur rounded-2xl p-6 sm:p-8 text-left space-y-5 text-white">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-              Dirección
+              {dict.address}
             </p>
             <p className="text-base sm:text-lg leading-relaxed">
               Avenida República de Colombia 10, nave 11, sector los Peralejos, Distrito
@@ -24,7 +33,7 @@ export default function Contact({ dict }: { dict: ContactDict }) {
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-              Email
+              {dict.email}
             </p>
             <a
               href="mailto:info@cepticorp.com"
@@ -36,7 +45,7 @@ export default function Contact({ dict }: { dict: ContactDict }) {
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-              Instagram
+              {dict.instagram}
             </p>
             <a
               href="https://instagram.com/cepti_rd"
@@ -50,7 +59,7 @@ export default function Contact({ dict }: { dict: ContactDict }) {
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-              Sitio web
+              {dict.website}
             </p>
             <a
               href="https://cepticorp.com"
@@ -65,27 +74,27 @@ export default function Contact({ dict }: { dict: ContactDict }) {
           <div className="pt-2 border-t border-white/20 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-                Teléfono
+                {dict.phone}
               </p>
-              <p className="text-sm sm:text-base text-red-100">[PRÓXIMAMENTE]</p>
+              <p className="text-sm sm:text-base text-red-100">[{dict.comingSoon}]</p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-                WhatsApp
+                {dict.whatsapp}
               </p>
-              <p className="text-sm sm:text-base text-red-100">[PRÓXIMAMENTE]</p>
+              <p className="text-sm sm:text-base text-red-100">[{dict.comingSoon}]</p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-                Facebook
+                {dict.facebook}
               </p>
-              <p className="text-sm sm:text-base text-red-100">[PRÓXIMAMENTE]</p>
+              <p className="text-sm sm:text-base text-red-100">[{dict.comingSoon}]</p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-                Threads
+                {dict.threads}
               </p>
-              <p className="text-sm sm:text-base text-red-100">[PRÓXIMAMENTE]</p>
+              <p className="text-sm sm:text-base text-red-100">[{dict.comingSoon}]</p>
             </div>
           </div>
         </div>
