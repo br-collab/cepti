@@ -33,30 +33,30 @@ export default function Navbar({ lang }: { lang: Locale }) {
   const hasLogo = fileExistsInPublic(LOGO_PATH)
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-stone-100 shadow-sm">
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-        <Link href={`/${lang}`} className="flex items-center gap-2" translate="no">
+    <header className="sticky top-0 z-50 bg-white backdrop-blur border-b border-stone-100 shadow-sm">
+      <nav className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-28">
+        <Link href={`/${lang}`} className="flex items-center gap-2 bg-white rounded-md px-2 py-1" translate="no">
           {hasLogo ? (
             <Image
               src={LOGO_PATH}
               alt="CEPTI"
-              width={160}
-              height={44}
+              width={480}
+              height={132}
               priority
-              className="h-10 w-auto sm:h-11"
+              className="h-24 w-auto sm:h-[6.5rem]"
             />
           ) : (
-            <span className="font-display text-2xl font-bold tracking-tight text-cepti-brown-dark">
+            <span className="font-display text-5xl font-bold tracking-tight text-black">
               CEPTI
             </span>
           )}
         </Link>
 
-        <ul className="hidden md:flex items-center gap-8 text-sm font-medium text-stone-600">
+        <ul className="hidden md:flex items-center gap-8 text-lg font-medium text-stone-600">
           <li><Link href={`/${lang}/productos`} className="hover:text-cepti-brown transition-colors">{t.products}</Link></li>
           <li><Link href={t.calculatorHref} className="hover:text-cepti-brown transition-colors">{t.calculator}</Link></li>
           <li><Link href={`/${lang}#porque-cepti`} className="hover:text-cepti-brown transition-colors">{t.whyUs}</Link></li>
-          <li><Link href={`/${lang}#contacto`} className="hover:text-cepti-brown transition-colors">{t.about}</Link></li>
+          <li><Link href={`/${lang}/sobre-nosotros`} className="hover:text-cepti-brown transition-colors">{t.about}</Link></li>
         </ul>
 
         <div className="flex items-center gap-3">
