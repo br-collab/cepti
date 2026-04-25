@@ -404,6 +404,12 @@ export default function Analyzer({ lang }: { lang: Locale }) {
       const dataUrl = tmp.toDataURL('image/jpeg', 0.9)
 
       const pdf = new jsPDF({ unit: 'mm', format: 'a4' })
+      pdf.setProperties({
+        title: t.pdf.title,
+        subject: `${t.pdf.surfaceAnalysis}: ${t.surfaceType}`,
+        author: 'CEPTI',
+        creator: t.pdf.title,
+      })
       const pageW = pdf.internal.pageSize.getWidth()
       const pageH = pdf.internal.pageSize.getHeight()
       const margin = 14
