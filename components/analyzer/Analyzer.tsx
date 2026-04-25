@@ -11,35 +11,193 @@ import {
   type TouchEvent,
 } from 'react'
 import jsPDF from 'jspdf'
+import type { Locale } from '@/app/[lang]/dictionaries'
+
+type ProductId =
+  | 'ladriflex'
+  | 'pinturas'
+  | 'papelex'
+  | 'arte-con-arena'
+  | 'primer'
+  | 'granito-liquido'
 
 type ProductOption = {
-  id: string
-  name: string
+  id: ProductId
   color: string
 }
 
 const PRODUCTS: ProductOption[] = [
-  { id: 'ladriflex', name: 'Ladriflex', color: '#5DCAA5' },
-  { id: 'pinturas', name: 'Pinturas', color: '#D85A30' },
-  { id: 'papelex', name: 'Papelex', color: '#7F77DD' },
-  { id: 'arte-con-arena', name: 'Arte con Arena', color: '#BA7517' },
-  { id: 'primer', name: 'Primer', color: '#888780' },
-  { id: 'granito-liquido', name: 'Granito Líquido', color: '#378ADD' },
+  { id: 'ladriflex', color: '#5DCAA5' },
+  { id: 'pinturas', color: '#D85A30' },
+  { id: 'papelex', color: '#7F77DD' },
+  { id: 'arte-con-arena', color: '#BA7517' },
+  { id: 'primer', color: '#888780' },
+  { id: 'granito-liquido', color: '#378ADD' },
 ]
 
-const SURFACE_TYPE = 'Bloque de concreto'
+type Strings = {
+  eyebrow: string
+  headline: string
+  subhead: string
+  uploadTitle: string
+  uploadHint: string
+  uploadCta: string
+  uploadFormats: string
+  errorFormat: string
+  errorSize: string
+  errorRead: string
+  compareTitle: string
+  changeImage: string
+  compareHint: string
+  beforeBadge: string
+  afterBadge: string
+  productLabel: string
+  intensityLabel: string
+  intensityAria: string
+  analysisLabel: string
+  surfaceType: string
+  analysisBullets: string[]
+  download: string
+  downloading: string
+  whatsappCta: string
+  whatsappMessage: (productName: string, surfaceType: string) => string
+  productNames: Record<ProductId, string>
+  pdf: {
+    title: string
+    before: string
+    after: string
+    dateLocale: string
+    recommendedProduct: string
+    surfaceAnalysis: string
+    nextSteps: string
+    nextStepsList: string[]
+    contact: string
+    footer: string
+    filenamePrefix: string
+  }
+}
 
-const ANALYSIS_BULLETS = [
-  'Porosidad alta — recomendamos aplicar imprimación antes del producto seleccionado.',
-  'Para acabado uniforme, aplicar dos manos respetando los tiempos de secado.',
-  'Tiempo de secado entre manos: 4–6 horas a temperatura ambiente (20–25 °C).',
-]
-
-const NEXT_STEPS = [
-  'Solicita una muestra del color sobre tu superficie real para validar el resultado.',
-  'Calcula la cantidad necesaria con la Calculadora CEPTI.',
-  'Coordina una visita técnica o pide cotización por WhatsApp.',
-]
+const STRINGS: Record<Locale, Strings> = {
+  es: {
+    eyebrow: 'Analizador de superficies',
+    headline: 'Visualiza el acabado en tu propia superficie',
+    subhead:
+      'Sube una foto, prueba productos CEPTI en tiempo real y descarga un análisis listo para compartir.',
+    uploadTitle: 'Sube una foto de tu superficie',
+    uploadHint: 'Arrastra y suelta aquí, o haz clic para seleccionar.',
+    uploadCta: 'Seleccionar imagen',
+    uploadFormats: 'JPG · PNG · WEBP — máximo 10 MB',
+    errorFormat: 'Formato no soportado. Usa JPG, PNG o WEBP.',
+    errorSize: 'La imagen supera los 10 MB.',
+    errorRead: 'No se pudo leer el archivo.',
+    compareTitle: 'Compara antes y después',
+    changeImage: 'Cambiar imagen',
+    compareHint:
+      'Arrastra el divisor para revelar el acabado con el producto seleccionado.',
+    beforeBadge: 'Antes',
+    afterBadge: 'Después',
+    productLabel: 'Producto',
+    intensityLabel: 'Intensidad',
+    intensityAria: 'Opacidad del producto',
+    analysisLabel: 'Análisis de superficie',
+    surfaceType: 'Bloque de concreto',
+    analysisBullets: [
+      'Porosidad alta — recomendamos aplicar imprimación antes del producto seleccionado.',
+      'Para acabado uniforme, aplicar dos manos respetando los tiempos de secado.',
+      'Tiempo de secado entre manos: 4–6 horas a temperatura ambiente (20–25 °C).',
+    ],
+    download: 'Descargar análisis (PDF)',
+    downloading: 'Generando PDF...',
+    whatsappCta: 'Hablar por WhatsApp',
+    whatsappMessage: (name, surface) =>
+      `Hola CEPTI, vengo del Analizador de Superficies. Producto seleccionado: ${name}. Tipo de superficie: ${surface}. ¿Pueden enviarme una cotización?`,
+    productNames: {
+      ladriflex: 'Ladriflex',
+      pinturas: 'Pinturas',
+      papelex: 'Papelex',
+      'arte-con-arena': 'Arte con Arena',
+      primer: 'Primer',
+      'granito-liquido': 'Granito Líquido',
+    },
+    pdf: {
+      title: 'ANALIZADOR DE SUPERFICIES CEPTI',
+      before: 'ANTES',
+      after: 'DESPUÉS',
+      dateLocale: 'es-DO',
+      recommendedProduct: 'Producto recomendado',
+      surfaceAnalysis: 'Análisis de superficie',
+      nextSteps: 'Próximos pasos',
+      nextStepsList: [
+        'Solicita una muestra del color sobre tu superficie real para validar el resultado.',
+        'Calcula la cantidad necesaria con la Calculadora CEPTI.',
+        'Coordina una visita técnica o pide cotización por WhatsApp.',
+      ],
+      contact: 'Contacto CEPTI',
+      footer:
+        'Generado por el Analizador de Superficies CEPTI · cepticorp.com',
+      filenamePrefix: 'analisis-cepti',
+    },
+  },
+  en: {
+    eyebrow: 'Surface analyzer',
+    headline: 'Visualize the finish on your own surface',
+    subhead:
+      'Upload a photo, try CEPTI products in real time, and download a shareable analysis.',
+    uploadTitle: 'Upload a photo of your surface',
+    uploadHint: 'Drag and drop here, or click to select.',
+    uploadCta: 'Select image',
+    uploadFormats: 'JPG · PNG · WEBP — max 10 MB',
+    errorFormat: 'Unsupported format. Use JPG, PNG, or WEBP.',
+    errorSize: 'Image exceeds 10 MB.',
+    errorRead: 'Could not read the file.',
+    compareTitle: 'Compare before and after',
+    changeImage: 'Change image',
+    compareHint:
+      'Drag the divider to reveal the finish with the selected product.',
+    beforeBadge: 'Before',
+    afterBadge: 'After',
+    productLabel: 'Product',
+    intensityLabel: 'Intensity',
+    intensityAria: 'Product opacity',
+    analysisLabel: 'Surface analysis',
+    surfaceType: 'Concrete block',
+    analysisBullets: [
+      'High porosity — we recommend applying primer before the selected product.',
+      'For a uniform finish, apply two coats while respecting drying times.',
+      'Drying time between coats: 4–6 hours at room temperature (20–25 °C).',
+    ],
+    download: 'Download analysis (PDF)',
+    downloading: 'Generating PDF...',
+    whatsappCta: 'Chat on WhatsApp',
+    whatsappMessage: (name, surface) =>
+      `Hi CEPTI, I'm coming from the Surface Analyzer. Selected product: ${name}. Surface type: ${surface}. Can you send me a quote?`,
+    productNames: {
+      ladriflex: 'Ladriflex',
+      pinturas: 'Paints',
+      papelex: 'Papelex',
+      'arte-con-arena': 'Sand Art',
+      primer: 'Primer',
+      'granito-liquido': 'Liquid Granite',
+    },
+    pdf: {
+      title: 'CEPTI SURFACE ANALYZER',
+      before: 'BEFORE',
+      after: 'AFTER',
+      dateLocale: 'en-US',
+      recommendedProduct: 'Recommended product',
+      surfaceAnalysis: 'Surface analysis',
+      nextSteps: 'Next steps',
+      nextStepsList: [
+        'Request a color sample on your real surface to validate the result.',
+        'Calculate the quantity needed with the CEPTI Calculator.',
+        'Schedule a technical visit or request a quote on WhatsApp.',
+      ],
+      contact: 'CEPTI Contact',
+      footer: 'Generated by the CEPTI Surface Analyzer · cepticorp.com',
+      filenamePrefix: 'cepti-analysis',
+    },
+  },
+}
 
 const WHATSAPP_NUMBER = '19172461283'
 const WHATSAPP_DISPLAY = '+1 (917) 246-1283'
@@ -56,7 +214,9 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
   }
 }
 
-export default function Analyzer() {
+export default function Analyzer({ lang }: { lang: Locale }) {
+  const t = STRINGS[lang]
+
   const [image, setImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<ProductOption>(PRODUCTS[0])
@@ -138,11 +298,11 @@ export default function Analyzer() {
   const handleFile = (file: File) => {
     setError(null)
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError('Formato no soportado. Usa JPG, PNG o WEBP.')
+      setError(t.errorFormat)
       return
     }
     if (file.size > MAX_FILE_SIZE) {
-      setError('La imagen supera los 10 MB.')
+      setError(t.errorSize)
       return
     }
     const reader = new FileReader()
@@ -150,7 +310,7 @@ export default function Analyzer() {
       setImage(reader.result as string)
       setSplitPosition(50)
     }
-    reader.onerror = () => setError('No se pudo leer el archivo.')
+    reader.onerror = () => setError(t.errorRead)
     reader.readAsDataURL(file)
   }
 
@@ -202,8 +362,10 @@ export default function Analyzer() {
     }
   }, [dragging, updateSplit])
 
+  const selectedName = t.productNames[selected.id]
+
   const buildWhatsAppHref = () => {
-    const msg = `Hola CEPTI, vengo del Analizador de Superficies. Producto seleccionado: ${selected.name}. Tipo de superficie: ${SURFACE_TYPE}. ¿Pueden enviarme una cotización?`
+    const msg = t.whatsappMessage(selectedName, t.surfaceType)
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`
   }
 
@@ -237,8 +399,8 @@ export default function Analyzer() {
       tctx.font = 'bold 18px sans-serif'
       tctx.textAlign = 'center'
       tctx.textBaseline = 'middle'
-      tctx.fillText('ANTES', 75, 38)
-      tctx.fillText('DESPUÉS', tmp.width - 75, 38)
+      tctx.fillText(t.pdf.before, 75, 38)
+      tctx.fillText(t.pdf.after, tmp.width - 75, 38)
       const dataUrl = tmp.toDataURL('image/jpeg', 0.9)
 
       const pdf = new jsPDF({ unit: 'mm', format: 'a4' })
@@ -251,10 +413,10 @@ export default function Analyzer() {
       pdf.setTextColor(255, 255, 255)
       pdf.setFont('helvetica', 'bold')
       pdf.setFontSize(16)
-      pdf.text('ANALIZADOR DE SUPERFICIES CEPTI', margin, 14)
+      pdf.text(t.pdf.title, margin, 14)
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(10)
-      const today = new Date().toLocaleDateString('es-DO', {
+      const today = new Date().toLocaleDateString(t.pdf.dateLocale, {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -279,22 +441,22 @@ export default function Analyzer() {
       pdf.setTextColor(110, 100, 90)
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(9)
-      pdf.text('Producto recomendado', margin + 22, y + 9)
+      pdf.text(t.pdf.recommendedProduct, margin + 22, y + 9)
       pdf.setTextColor(40, 40, 40)
       pdf.setFont('helvetica', 'bold')
       pdf.setFontSize(13)
-      pdf.text(selected.name, margin + 22, y + 16)
+      pdf.text(selectedName, margin + 22, y + 16)
       y += 28
 
       pdf.setFont('helvetica', 'bold')
       pdf.setFontSize(11)
       pdf.setTextColor(...HEADER_GREEN)
-      pdf.text(`Análisis de superficie: ${SURFACE_TYPE}`, margin, y)
+      pdf.text(`${t.pdf.surfaceAnalysis}: ${t.surfaceType}`, margin, y)
       y += 6
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(10)
       pdf.setTextColor(60, 60, 60)
-      ANALYSIS_BULLETS.forEach((b) => {
+      t.analysisBullets.forEach((b) => {
         const lines = pdf.splitTextToSize(`•  ${b}`, pageW - margin * 2 - 4)
         pdf.text(lines, margin + 2, y)
         y += lines.length * 5 + 1
@@ -304,12 +466,12 @@ export default function Analyzer() {
       pdf.setFont('helvetica', 'bold')
       pdf.setFontSize(11)
       pdf.setTextColor(...HEADER_GREEN)
-      pdf.text('Próximos pasos', margin, y)
+      pdf.text(t.pdf.nextSteps, margin, y)
       y += 6
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(10)
       pdf.setTextColor(60, 60, 60)
-      NEXT_STEPS.forEach((s, i) => {
+      t.pdf.nextStepsList.forEach((s, i) => {
         const lines = pdf.splitTextToSize(`${i + 1}.  ${s}`, pageW - margin * 2 - 4)
         pdf.text(lines, margin + 2, y)
         y += lines.length * 5 + 1
@@ -321,7 +483,7 @@ export default function Analyzer() {
       pdf.setTextColor(255, 255, 255)
       pdf.setFont('helvetica', 'bold')
       pdf.setFontSize(10)
-      pdf.text('Contacto CEPTI', margin + 4, y + 7)
+      pdf.text(t.pdf.contact, margin + 4, y + 7)
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(9)
       pdf.text(
@@ -333,14 +495,9 @@ export default function Analyzer() {
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(8)
       pdf.setTextColor(150, 150, 150)
-      pdf.text(
-        'Generado por el Analizador de Superficies CEPTI · cepticorp.com',
-        pageW / 2,
-        pageH - 8,
-        { align: 'center' }
-      )
+      pdf.text(t.pdf.footer, pageW / 2, pageH - 8, { align: 'center' })
 
-      pdf.save(`analisis-cepti-${selected.id}.pdf`)
+      pdf.save(`${t.pdf.filenamePrefix}-${selected.id}.pdf`)
     } finally {
       setGenerating(false)
     }
@@ -356,36 +513,34 @@ export default function Analyzer() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-8">
       <header className="text-center space-y-3">
         <p className="inline-block text-xs font-bold uppercase tracking-widest text-cepti-brown bg-cepti-cream px-3 py-1 rounded-full">
-          Analizador de superficies
+          {t.eyebrow}
         </p>
         <h1 className="font-display text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight">
-          Visualiza el acabado en tu propia superficie
+          {t.headline}
         </h1>
         <p className="text-stone-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-          Sube una foto, prueba productos CEPTI en tiempo real y descarga un análisis listo para compartir.
+          {t.subhead}
         </p>
       </header>
 
       {!image ? (
-        <UploadZone onDrop={onDrop} onInput={onFileInput} error={error} />
+        <UploadZone t={t} onDrop={onDrop} onInput={onFileInput} error={error} />
       ) : (
         <>
           <section className="space-y-4">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <h2 className="font-display text-xl sm:text-2xl font-bold text-stone-900">
-                Compara antes y después
+                {t.compareTitle}
               </h2>
               <button
                 type="button"
                 onClick={reset}
                 className="text-sm font-medium text-stone-500 hover:text-cepti-red transition-colors underline-offset-4 hover:underline"
               >
-                Cambiar imagen
+                {t.changeImage}
               </button>
             </div>
-            <p className="text-stone-500 text-sm">
-              Arrastra el divisor para revelar el acabado con el producto seleccionado.
-            </p>
+            <p className="text-stone-500 text-sm">{t.compareHint}</p>
 
             <div className="relative bg-stone-100 rounded-2xl overflow-hidden shadow-sm">
               <canvas
@@ -395,20 +550,21 @@ export default function Analyzer() {
                 className="block w-full cursor-ew-resize select-none touch-none"
               />
               <span className="absolute top-3 left-3 bg-black/60 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2 sm:px-2.5 py-1 rounded">
-                Antes
+                {t.beforeBadge}
               </span>
               <span className="absolute top-3 right-3 bg-black/60 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2 sm:px-2.5 py-1 rounded">
-                Después
+                {t.afterBadge}
               </span>
             </div>
           </section>
 
-          <ProductSwitcher selected={selected} onSelect={setSelected} />
-          <OpacitySlider value={opacity} onChange={setOpacity} />
+          <ProductSwitcher t={t} selected={selected} onSelect={setSelected} />
+          <OpacitySlider t={t} value={opacity} onChange={setOpacity} />
 
-          <AnalysisCard />
+          <AnalysisCard t={t} />
 
           <ActionRow
+            t={t}
             onDownload={downloadPdf}
             generating={generating}
             whatsappHref={buildWhatsAppHref()}
@@ -420,10 +576,12 @@ export default function Analyzer() {
 }
 
 function UploadZone({
+  t,
   onDrop,
   onInput,
   error,
 }: {
+  t: Strings
   onDrop: (e: DragEvent<HTMLLabelElement>) => void
   onInput: (e: ChangeEvent<HTMLInputElement>) => void
   error: string | null
@@ -454,16 +612,14 @@ function UploadZone({
             </svg>
           </div>
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 mb-2">
-            Sube una foto de tu superficie
+            {t.uploadTitle}
           </h2>
-          <p className="text-stone-500 mb-6 text-base">
-            Arrastra y suelta aquí, o haz clic para seleccionar.
-          </p>
+          <p className="text-stone-500 mb-6 text-base">{t.uploadHint}</p>
           <span className="inline-flex items-center bg-cepti-brown text-cepti-cream font-semibold px-5 py-3 rounded-lg hover:bg-cepti-brown-dark transition-colors">
-            Seleccionar imagen
+            {t.uploadCta}
           </span>
           <p className="mt-5 text-xs text-stone-400 uppercase tracking-widest">
-            JPG · PNG · WEBP — máximo 10 MB
+            {t.uploadFormats}
           </p>
         </div>
         <input
@@ -484,15 +640,19 @@ function UploadZone({
 }
 
 function ProductSwitcher({
+  t,
   selected,
   onSelect,
 }: {
+  t: Strings
   selected: ProductOption
   onSelect: (p: ProductOption) => void
 }) {
   return (
     <section className="space-y-3">
-      <h3 className="font-display text-lg font-bold text-stone-900">Producto</h3>
+      <h3 className="font-display text-lg font-bold text-stone-900">
+        {t.productLabel}
+      </h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {PRODUCTS.map((p) => {
           const active = p.id === selected.id
@@ -514,7 +674,7 @@ function ProductSwitcher({
                 aria-hidden
               />
               <span className="text-xs sm:text-sm font-semibold text-stone-700 text-center leading-tight">
-                {p.name}
+                {t.productNames[p.id]}
               </span>
             </button>
           )
@@ -525,9 +685,11 @@ function ProductSwitcher({
 }
 
 function OpacitySlider({
+  t,
   value,
   onChange,
 }: {
+  t: Strings
   value: number
   onChange: (n: number) => void
 }) {
@@ -535,7 +697,7 @@ function OpacitySlider({
     <section className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-display text-lg font-bold text-stone-900">
-          Intensidad
+          {t.intensityLabel}
         </h3>
         <span className="text-sm font-medium text-stone-600 tabular-nums">
           {value}%
@@ -549,23 +711,23 @@ function OpacitySlider({
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full accent-cepti-brown"
-        aria-label="Opacidad del producto"
+        aria-label={t.intensityAria}
       />
     </section>
   )
 }
 
-function AnalysisCard() {
+function AnalysisCard({ t }: { t: Strings }) {
   return (
     <section className="bg-cepti-cream/40 rounded-2xl border border-cepti-brown/15 p-5 sm:p-6 space-y-3">
       <p className="text-xs font-bold uppercase tracking-widest text-cepti-brown">
-        Análisis de superficie
+        {t.analysisLabel}
       </p>
       <h3 className="font-display text-2xl sm:text-3xl font-bold text-stone-900">
-        {SURFACE_TYPE}
+        {t.surfaceType}
       </h3>
       <ul className="space-y-2 text-stone-700 text-sm sm:text-base leading-relaxed pt-1">
-        {ANALYSIS_BULLETS.map((b, i) => (
+        {t.analysisBullets.map((b, i) => (
           <li key={i} className="flex gap-3">
             <span className="text-cepti-brown font-bold mt-0.5">•</span>
             <span>{b}</span>
@@ -577,10 +739,12 @@ function AnalysisCard() {
 }
 
 function ActionRow({
+  t,
   onDownload,
   generating,
   whatsappHref,
 }: {
+  t: Strings
   onDownload: () => void
   generating: boolean
   whatsappHref: string
@@ -608,7 +772,7 @@ function ActionRow({
           <polyline points="7 10 12 15 17 10" />
           <line x1="12" y1="15" x2="12" y2="3" />
         </svg>
-        {generating ? 'Generando PDF...' : 'Descargar análisis (PDF)'}
+        {generating ? t.downloading : t.download}
       </button>
       <a
         href={whatsappHref}
@@ -619,7 +783,7 @@ function ActionRow({
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.15-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
         </svg>
-        Hablar por WhatsApp
+        {t.whatsappCta}
       </a>
     </section>
   )
