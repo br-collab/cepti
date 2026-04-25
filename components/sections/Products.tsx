@@ -50,11 +50,7 @@ export default function Products({
                     className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-cepti-texture flex items-center justify-center">
-                    <span className="font-display text-cepti-cream text-sm font-bold uppercase tracking-widest">
-                      CEPTI
-                    </span>
-                  </div>
+                  <div className="absolute inset-0 bg-cepti-texture" />
                 )}
               </div>
               <div className="p-5 flex flex-col flex-1">

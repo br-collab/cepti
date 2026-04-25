@@ -27,16 +27,16 @@ const navLinks = {
   },
 }
 
-const LOGO_PATH = '/images/brand/LogoBlack_WhiteBackground.png'
+const LOGO_PATH = '/images/brand/LogoBlack_WhiteBackground_Nerrow_bobers.png'
 
 export default function Navbar({ lang }: { lang: Locale }) {
   const t = navLinks[lang]
   const hasLogo = fileExistsInPublic(LOGO_PATH)
 
   return (
-    <header className="sticky top-0 z-50 bg-white backdrop-blur border-b border-stone-100 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white backdrop-blur border-b border-stone-100 shadow-sm relative">
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-28">
-        <Link href={`/${lang}`} className="flex items-center gap-2 bg-white rounded-md px-2 py-1" translate="no">
+        <Link href={`/${lang}`} className="flex items-center gap-2" translate="no">
           {hasLogo ? (
             <Image
               src={LOGO_PATH}
@@ -61,9 +61,11 @@ export default function Navbar({ lang }: { lang: Locale }) {
             { href: `/${lang}#porque-cepti`, label: t.whyUs },
             { href: `/${lang}/sobre-nosotros`, label: t.about },
           ]}
+          contactLabel={t.contact}
+          contactHref={`/${lang}/contacto`}
         />
 
-        <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           <Link
             href={t.langHref}
             translate="no"
@@ -73,8 +75,8 @@ export default function Navbar({ lang }: { lang: Locale }) {
             {t.langLabel}
           </Link>
           <Link
-            href={`/${lang}#contacto`}
-            className="hidden sm:inline-flex items-center bg-cepti-red text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-cepti-red-dark transition-colors"
+            href={`/${lang}/contacto`}
+            className="inline-flex items-center bg-cepti-red text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-cepti-red-dark transition-colors"
           >
             {t.contact}
           </Link>

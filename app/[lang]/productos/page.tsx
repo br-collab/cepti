@@ -33,9 +33,6 @@ export default async function ProductosIndexPage({
     <>
       <section className="bg-stone-900 text-white py-16 sm:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <span className="inline-block text-cepti-gold text-xs font-bold uppercase tracking-widest mb-4">
-            CEPTI Corp
-          </span>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
             {dict.products.title}
           </h1>
@@ -64,11 +61,7 @@ export default async function ProductosIndexPage({
                       className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-cepti-red/40 flex items-center justify-center">
-                      <span className="text-cepti-gold text-sm font-bold uppercase tracking-widest">
-                        CEPTI
-                      </span>
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-cepti-red/40" />
                   )}
                 </div>
                 <div className="p-6 sm:p-8 flex flex-col flex-1">

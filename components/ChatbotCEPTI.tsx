@@ -143,7 +143,7 @@ export default function ChatbotCEPTI({
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t.open}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 rounded-full bg-cepti-brown text-cepti-cream px-5 py-3 shadow-lg shadow-cepti-brown/30 hover:bg-cepti-brown-dark transition-colors text-base font-semibold"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 rounded-full bg-cepti-red text-white px-5 py-3 shadow-lg shadow-cepti-red/30 hover:bg-cepti-red-dark transition-colors text-base font-semibold"
       >
         <span aria-hidden className="text-xl">💬</span>
         <span className="hidden sm:inline">{t.open}</span>

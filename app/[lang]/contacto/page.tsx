@@ -1,0 +1,48 @@
+import { notFound } from 'next/navigation'
+import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
+import Contact from '@/components/sections/Contact'
+
+export function generateStaticParams() {
+  return [{ lang: 'es' }, { lang: 'en' }]
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<'/[lang]/contacto'>) {
+  const { lang } = await params
+  if (!hasLocale(lang)) return {}
+  const dict = await getDictionary(lang)
+  return {
+    title: `${dict.contact.title} — CEPTI`,
+    description: dict.contact.sub,
+  }
+}
+
+export default async function ContactoPage({
+  params,
+}: PageProps<'/[lang]/contacto'>) {
+  const { lang } = await params
+  if (!hasLocale(lang)) notFound()
+
+  const dict = await getDictionary(lang)
+
+  return (
+    <>
+      <section
+        className="text-white py-10 sm:py-14 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/brand/Background_plain.jpg')" }}
+      >
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight mb-3 text-white">
+            {dict.contact.title}
+          </h1>
+          <p className="text-base sm:text-lg text-white/85 max-w-2xl leading-relaxed">
+            {dict.contact.sub}
+          </p>
+        </div>
+      </section>
+
+      <Contact dict={dict.contact} />
+    </>
+  )
+}
