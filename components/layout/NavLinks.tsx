@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import type { Locale } from '@/app/[lang]/dictionaries'
 
-type LinkItem = { href: string; label: string }
+type LinkItem = { href: string; label: string; newTab?: boolean }
 
 function isActive(pathname: string, href: string, home: string): boolean {
   if (href.includes('#')) return false
@@ -40,6 +40,8 @@ export default function NavLinks({
             <li key={l.href}>
               <Link
                 href={l.href}
+                target={l.newTab ? '_blank' : undefined}
+                rel={l.newTab ? 'noopener noreferrer' : undefined}
                 className={
                   active
                     ? 'font-bold text-stone-900 underline decoration-cepti-red decoration-2 underline-offset-4'
@@ -84,6 +86,8 @@ export default function NavLinks({
               <li key={l.href}>
                 <Link
                   href={l.href}
+                  target={l.newTab ? '_blank' : undefined}
+                  rel={l.newTab ? 'noopener noreferrer' : undefined}
                   onClick={() => setOpen(false)}
                   className="block py-3 hover:text-cepti-brown transition-colors"
                 >
