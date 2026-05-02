@@ -6,6 +6,7 @@ import {
   getAllProducts,
   getProduct,
   getProductImages,
+  getProductVideos,
   pickLang,
 } from '@/lib/products'
 import type { CalcProduct } from '@/lib/calculator'
@@ -76,6 +77,7 @@ export default async function ProductDetailPage({
 
   const dict = await getDictionary(lang)
   const images = getProductImages(product)
+  const videos = getProductVideos(product)
 
   const calcProduct: CalcProduct = {
     slug: product.slug,
@@ -115,6 +117,7 @@ export default async function ProductDetailPage({
       calculatorDict={dict.calculator}
       visualizerDict={dict.visualizer}
       visualizer={visualizer}
+      videos={videos}
       showCalculator={product.slug !== 'arte-con-arena'}
       galleryTitleOverride={galleryTitleOverride}
       inMasterGallery={inMasterGallery}

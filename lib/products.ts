@@ -117,6 +117,21 @@ export function getProductImages(product: Product): ProductImages {
   return { hero, card, textures, projectImages }
 }
 
+export function getProductVideos(product: Product): string[] {
+  const dir = `/videos/products/${product.slug}`
+  try {
+    const absDir = publicPath(dir)
+    if (!fs.existsSync(absDir)) return []
+    return fs
+      .readdirSync(absDir)
+      .filter((name) => /\.(mp4|webm)$/i.test(name))
+      .sort()
+      .map((name) => `${dir}/${name}`)
+  } catch {
+    return []
+  }
+}
+
 export function buildWhatsAppHref(params: {
   template: string
   code: string | null

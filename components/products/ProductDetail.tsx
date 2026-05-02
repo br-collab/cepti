@@ -15,6 +15,7 @@ type ProductDict = {
   useCases: string
   palette: string
   gallery: string
+  videos: string
   viewMore: string
   ctaBand: string
   whatsappBtn: string
@@ -63,6 +64,7 @@ type Props = {
   calculatorDict: CalculatorDict
   visualizerDict: VisualizerDict
   visualizer: VisualizerConfig | null
+  videos: string[]
   showCalculator?: boolean
   galleryTitleOverride?: string | null
   inMasterGallery?: boolean
@@ -97,6 +99,7 @@ export default function ProductDetail({
   calculatorDict,
   visualizerDict,
   visualizer,
+  videos,
   showCalculator = true,
   galleryTitleOverride = null,
   inMasterGallery = false,
@@ -328,6 +331,29 @@ export default function ProductDetail({
                 </Link>
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* Videos */}
+      {videos.length > 0 && (
+        <section className="py-16 sm:py-20 bg-stone-50 border-y border-stone-100">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-8">
+              {dict.videos}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              {videos.map((src) => (
+                <video
+                  key={src}
+                  src={src}
+                  controls
+                  preload="metadata"
+                  playsInline
+                  className="w-full aspect-video rounded-xl bg-black"
+                />
+              ))}
+            </div>
           </div>
         </section>
       )}
