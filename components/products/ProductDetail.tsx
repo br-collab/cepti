@@ -1,12 +1,13 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Locale } from '@/app/[lang]/dictionaries'
 import type { CalcProduct } from '@/lib/calculator'
 import CalculatorMini from '@/components/calculator/CalculatorMini'
 import TextureVisualizer from './TextureVisualizer'
+import Lightbox from './Lightbox'
 
 type ProductDict = {
   requestQuote: string
@@ -109,7 +110,7 @@ export default function ProductDetail({
     ? projectImages.slice(0, INLINE_GALLERY_LIMIT)
     : projectImages
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
-  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
 
   const selectedTextureSrc = useMemo(
     () => textures.find((t) => t.code === selectedCode)?.src ?? null,
@@ -124,10 +125,6 @@ export default function ProductDetail({
   const ctaLabel = selectedCode
     ? `${dict.requestQuote} · ${selectedCode}`
     : dict.requestQuote
-
-  const onLightboxKey = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Escape') setLightboxSrc(null)
-  }, [])
 
   return (
     <>
@@ -307,7 +304,7 @@ export default function ProductDetail({
                 <button
                   key={src}
                   type="button"
-                  onClick={() => setLightboxSrc(src)}
+                  onClick={() => setLightboxIdx(i)}
                   className="relative aspect-[4/3] overflow-hidden rounded-xl bg-stone-100 group"
                 >
                   <Image
@@ -403,38 +400,13 @@ export default function ProductDetail({
         </div>
       </section>
 
-      {/* Lightbox */}
-      {lightboxSrc && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          tabIndex={-1}
-          onKeyDown={onLightboxKey}
-          onClick={() => setLightboxSrc(null)}
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
-        >
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              setLightboxSrc(null)
-            }}
-            aria-label="Close"
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center"
-          >
-            ×
-          </button>
-          <div className="relative w-full max-w-5xl aspect-[4/3]">
-            <Image
-              src={lightboxSrc}
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-contain"
-            />
-          </div>
-        </div>
-      )}
+      <Lightbox
+        images={galleryThumbnails}
+        index={lightboxIdx}
+        onClose={() => setLightboxIdx(null)}
+        onChange={setLightboxIdx}
+        alt={name}
+      />
     </>
   )
 }
