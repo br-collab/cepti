@@ -37,8 +37,12 @@ export default function Navbar({ lang }: { lang: Locale }) {
 
   return (
     <header className="sticky top-0 z-50 bg-white backdrop-blur border-b border-stone-100 shadow-sm relative">
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-28">
-        <Link href={`/${lang}`} className="flex items-center gap-2" translate="no">
+      <nav className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4 h-24 lg:h-28">
+        <Link
+          href={`/${lang}`}
+          className="flex items-center gap-2 flex-shrink-0"
+          translate="no"
+        >
           {hasLogo ? (
             <Image
               src={LOGO_PATH}
@@ -46,10 +50,10 @@ export default function Navbar({ lang }: { lang: Locale }) {
               width={480}
               height={132}
               priority
-              className="h-24 w-auto sm:h-[6.5rem]"
+              className="h-16 w-auto sm:h-20 lg:h-24 max-w-[200px] lg:max-w-none"
             />
           ) : (
-            <span className="font-display text-5xl font-bold tracking-tight text-black">
+            <span className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-black">
               CEPTI
             </span>
           )}
@@ -68,7 +72,7 @@ export default function Navbar({ lang }: { lang: Locale }) {
           contactHref={`/${lang}/contacto`}
         />
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <Link
             href={t.langHref}
             translate="no"

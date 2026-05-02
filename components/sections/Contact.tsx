@@ -14,88 +14,79 @@ type ContactDict = {
 }
 
 export default function Contact({ dict }: { dict: ContactDict }) {
-  return (
-    <section id="contacto" className="py-10 sm:py-14 bg-cepti-red">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">{dict.title}</h2>
-        <p className="text-red-100 text-lg mb-10">{dict.sub}</p>
+  const labelClass = 'text-xs font-semibold uppercase tracking-widest text-cepti-brown mb-1'
+  const valueClass = 'text-base sm:text-lg leading-relaxed text-cepti-brown-dark'
+  const linkClass =
+    'text-base sm:text-lg leading-relaxed text-cepti-brown-dark underline underline-offset-2 hover:text-cepti-red transition-colors'
 
-        <div className="bg-white/10 backdrop-blur rounded-2xl p-6 sm:p-8 text-left space-y-5 text-white">
+  return (
+    <section id="contacto" className="py-10 sm:py-14 bg-background">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="bg-cepti-cream rounded-2xl p-6 sm:p-8 text-left space-y-5 border border-cepti-brown/10 shadow-sm">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-              {dict.address}
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed">
+            <p className={labelClass}>{dict.address}</p>
+            <p className={valueClass}>
               Avenida República de Colombia 10, nave 11, sector los Peralejos, Distrito
               Nacional, Santo Domingo, República Dominicana
             </p>
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-              {dict.email}
-            </p>
-            <a
-              href="mailto:info@cepticorp.com"
-              className="text-base sm:text-lg underline underline-offset-2 hover:text-red-100"
-            >
+            <p className={labelClass}>{dict.email}</p>
+            <a href="mailto:info@cepticorp.com" className={linkClass}>
               info@cepticorp.com
             </a>
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-              {dict.instagram}
-            </p>
+            <p className={labelClass}>{dict.website}</p>
+            <a
+              href="https://cepticorp.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={linkClass}
+            >
+              cepticorp.com
+            </a>
+          </div>
+
+          <div>
+            <p className={labelClass}>{dict.instagram}</p>
             <a
               href="https://instagram.com/cepti_rd"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-base sm:text-lg underline underline-offset-2 hover:text-red-100"
+              className={linkClass}
             >
               @cepti_rd
             </a>
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-              {dict.website}
-            </p>
+            <p className={labelClass}>{dict.facebook}</p>
+            <p className={`${valueClass} text-cepti-brown/70`}>[{dict.comingSoon}]</p>
+          </div>
+
+          <div>
+            <p className={labelClass}>{dict.threads}</p>
             <a
-              href="https://cepticorp.com"
+              href="https://www.threads.net/@cepti_rd"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-base sm:text-lg underline underline-offset-2 hover:text-red-100"
+              className={linkClass}
             >
-              cepticorp.com
+              @cepti_rd
             </a>
           </div>
 
-          <div className="pt-2 border-t border-white/20 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-                {dict.phone}
-              </p>
-              <p className="text-sm sm:text-base text-red-100">[{dict.comingSoon}]</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-                {dict.whatsapp}
-              </p>
-              <p className="text-sm sm:text-base text-red-100">[{dict.comingSoon}]</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-                {dict.facebook}
-              </p>
-              <p className="text-sm sm:text-base text-red-100">[{dict.comingSoon}]</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-red-100 mb-1">
-                {dict.threads}
-              </p>
-              <p className="text-sm sm:text-base text-red-100">[{dict.comingSoon}]</p>
-            </div>
+          <div>
+            <p className={labelClass}>{dict.whatsapp}</p>
+            <p className={`${valueClass} text-cepti-brown/70`}>[{dict.comingSoon}]</p>
+          </div>
+
+          <div>
+            <p className={labelClass}>{dict.phone}</p>
+            <p className={`${valueClass} text-cepti-brown/70`}>[{dict.comingSoon}]</p>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import type { Locale } from '@/app/[lang]/dictionaries'
 import { formatM2, parseNumber, pluralizeUnit } from '@/lib/calculator'
@@ -225,7 +226,14 @@ export default function Calculadora({
             : 'bg-stone-200 text-stone-400 cursor-not-allowed'
         }`}
       >
-        <span aria-hidden className="text-xl">💬</span>
+        <Image
+          src="/images/brand/Chat_Icon.png"
+          alt=""
+          width={28}
+          height={28}
+          aria-hidden
+          className="w-7 h-7"
+        />
         {dict.requestQuote}
       </a>
     </div>

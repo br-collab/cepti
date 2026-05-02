@@ -46,6 +46,7 @@ type VisualizerConfig = {
 
 type Props = {
   lang: Locale
+  slug: string
   name: string
   tagline: string
   description: string
@@ -61,6 +62,7 @@ type Props = {
   calculatorDict: CalculatorDict
   visualizerDict: VisualizerDict
   visualizer: VisualizerConfig | null
+  showCalculator?: boolean
 }
 
 function buildWhatsAppHref(template: string, code: string | null, m2: string, number: string) {
@@ -89,6 +91,7 @@ export default function ProductDetail({
   calculatorDict,
   visualizerDict,
   visualizer,
+  showCalculator = true,
 }: Props) {
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
@@ -157,10 +160,12 @@ export default function ProductDetail({
 
       {/* Description */}
       <section className="py-16 sm:py-20 bg-background">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <p className="text-lg sm:text-xl text-stone-700 leading-relaxed" style={{ maxWidth: '65ch' }}>
-            {description}
-          </p>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-4" style={{ maxWidth: '65ch' }}>
+          {description.split(/\n\n+/).map((para, i) => (
+            <p key={i} className="text-lg sm:text-xl text-stone-700 leading-relaxed">
+              {para}
+            </p>
+          ))}
         </div>
       </section>
 
@@ -305,17 +310,19 @@ export default function ProductDetail({
       )}
 
       {/* Mini calculator */}
-      <section className="py-16 sm:py-20 bg-stone-50 border-y border-stone-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <CalculatorMini
-            product={calcProduct}
-            selectedCode={selectedCode}
-            whatsappNumber={whatsappNumber}
-            lang={lang}
-            dict={calculatorDict}
-          />
-        </div>
-      </section>
+      {showCalculator && (
+        <section className="py-16 sm:py-20 bg-stone-50 border-y border-stone-100">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <CalculatorMini
+              product={calcProduct}
+              selectedCode={selectedCode}
+              whatsappNumber={whatsappNumber}
+              lang={lang}
+              dict={calculatorDict}
+            />
+          </div>
+        </section>
+      )}
 
       {/* CTA band */}
       <section className="bg-cepti-red text-white py-16 sm:py-20">
@@ -329,7 +336,14 @@ export default function ProductDetail({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 bg-white text-cepti-red font-bold px-8 py-4 rounded-lg hover:bg-stone-100 transition-colors text-lg shadow-xl"
           >
-            <span aria-hidden>💬</span>
+            <Image
+              src="/images/brand/Chat_Icon.png"
+              alt=""
+              width={28}
+              height={28}
+              aria-hidden
+              className="w-7 h-7"
+            />
             {dict.whatsappBtn}
             {selectedCode && (
               <span className="text-sm font-semibold bg-cepti-red/10 text-cepti-red px-2 py-1 rounded">

@@ -28,12 +28,14 @@ export default async function CalculadoraPage({
   if (!hasLocale(lang)) notFound()
 
   const dict = await getDictionary(lang)
-  const products: CalcProductOption[] = getHomepageProducts().map((p) => ({
-    slug: p.slug,
-    name: pickLang(p.name, lang),
-    coverage: p.coverage_m2_per_unit,
-    unitLabel: pickLang(p.unit_label, lang),
-  }))
+  const products: CalcProductOption[] = getHomepageProducts()
+    .filter((p) => p.slug !== 'arte-con-arena')
+    .map((p) => ({
+      slug: p.slug,
+      name: pickLang(p.name, lang),
+      coverage: p.coverage_m2_per_unit,
+      unitLabel: pickLang(p.unit_label, lang),
+    }))
 
   return (
     <>
@@ -41,7 +43,7 @@ export default async function CalculadoraPage({
         className="text-white py-10 sm:py-14 bg-cover bg-center"
         style={{ backgroundImage: "url('/images/brand/Background_plain.jpg')" }}
       >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight mb-3">
             {dict.calculator.title}
           </h1>

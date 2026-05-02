@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 type FooterDict = {
@@ -13,11 +14,18 @@ export default function Footer({ dict }: { dict: FooterDict }) {
   return (
     <footer
       className="text-white py-8 px-4 sm:px-6 bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/images/brand/Background_LogoWhite.jpg')" }}
+      style={{ backgroundImage: "url('/images/brand/Background_plain.jpg')" }}
     >
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-        <div className="max-w-3xl">
-          <p className="font-display text-base sm:text-lg font-semibold text-white tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
+        <div className="flex items-center gap-4 sm:gap-6 max-w-3xl">
+          <Image
+            src="/images/brand/LOGO_WHITE.png"
+            alt="CEPTI"
+            width={200}
+            height={56}
+            className="h-12 w-auto sm:h-14 flex-shrink-0"
+          />
+          <p className="font-display text-sm sm:text-base lg:text-lg font-semibold text-white tracking-wide leading-snug">
             {dict.slogan}
           </p>
         </div>

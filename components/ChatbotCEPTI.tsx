@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 
 type Locale = 'es' | 'en'
@@ -143,9 +144,16 @@ export default function ChatbotCEPTI({
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t.open}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 rounded-full bg-cepti-red text-white px-5 py-3 shadow-lg shadow-cepti-red/30 hover:bg-cepti-red-dark transition-colors text-base font-semibold"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 rounded-full bg-cepti-red text-white pl-3 pr-5 py-2.5 shadow-lg shadow-cepti-red/30 hover:bg-cepti-red-dark transition-colors text-base font-semibold"
       >
-        <span aria-hidden className="text-xl">💬</span>
+        <Image
+          src="/images/brand/Chat_Icon.png"
+          alt=""
+          width={32}
+          height={32}
+          aria-hidden
+          className="w-8 h-8"
+        />
         <span className="hidden sm:inline">{t.open}</span>
       </button>
     )

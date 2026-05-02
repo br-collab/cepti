@@ -81,6 +81,7 @@ export default async function ProductDetailPage({
   return (
     <ProductDetail
       lang={lang}
+      slug={product.slug}
       name={pickLang(product.name, lang)}
       tagline={pickLang(product.tagline, lang)}
       description={pickLang(product.description, lang)}
@@ -96,6 +97,7 @@ export default async function ProductDetailPage({
       calculatorDict={dict.calculator}
       visualizerDict={dict.visualizer}
       visualizer={visualizer}
+      showCalculator={product.slug !== 'arte-con-arena'}
     />
   )
 }

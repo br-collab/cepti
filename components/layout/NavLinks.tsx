@@ -2,13 +2,26 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Locale } from '@/app/[lang]/dictionaries'
 
 type LinkItem = { href: string; label: string; newTab?: boolean }
 
-function isActive(pathname: string, href: string, home: string): boolean {
-  if (href.includes('#')) return false
+function isActive(
+  pathname: string,
+  href: string,
+  home: string,
+  currentHash: string
+): boolean {
+  if (href.includes('#')) {
+    const [path, hash] = href.split('#')
+    const targetPath = path || home
+    const onTargetPage =
+      targetPath === home
+        ? pathname === home
+        : pathname === targetPath || pathname.startsWith(targetPath + '/')
+    return onTargetPage && currentHash === `#${hash}`
+  }
   const path = href.split('#')[0]
   if (path === home || path === `${home}/`) {
     return pathname === home
@@ -30,12 +43,20 @@ export default function NavLinks({
   const pathname = usePathname()
   const home = `/${lang}`
   const [open, setOpen] = useState(false)
+  const [hash, setHash] = useState('')
+
+  useEffect(() => {
+    const update = () => setHash(window.location.hash)
+    update()
+    window.addEventListener('hashchange', update)
+    return () => window.removeEventListener('hashchange', update)
+  }, [])
 
   return (
     <>
-      <ul className="hidden md:flex items-center gap-8 text-lg font-medium text-stone-600">
+      <ul className="hidden lg:flex items-center gap-8 text-lg font-medium text-stone-600">
         {links.map((l) => {
-          const active = isActive(pathname, l.href, home)
+          const active = isActive(pathname, l.href, home, hash)
           return (
             <li key={l.href}>
               <Link
@@ -60,7 +81,7 @@ export default function NavLinks({
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
-        className="md:hidden relative w-10 h-10 flex flex-col items-center justify-center gap-1.5"
+        className="lg:hidden relative w-10 h-10 flex flex-col items-center justify-center gap-1.5"
       >
         <span
           className={`block h-0.5 w-6 bg-stone-800 transition-transform duration-200 ${
@@ -80,7 +101,7 @@ export default function NavLinks({
       </button>
 
       {open ? (
-        <div className="md:hidden absolute left-0 right-0 top-full bg-white border-b border-stone-100 shadow-md">
+        <div className="lg:hidden absolute left-0 right-0 top-full bg-white border-b border-stone-100 shadow-md">
           <ul className="flex flex-col px-4 sm:px-6 py-4 gap-1 text-base font-medium text-stone-700">
             {links.map((l) => (
               <li key={l.href}>

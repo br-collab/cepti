@@ -4,6 +4,8 @@ import { Syne, Manrope } from 'next/font/google'
 import { getDictionary, hasLocale } from './dictionaries'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import ChatbotCEPTI from '@/components/ChatbotCEPTI'
+import { brand } from '@/lib/products'
 
 const syne = Syne({
   subsets: ['latin'],
@@ -50,6 +52,7 @@ export default async function LocaleLayout({
         <Navbar lang={lang} />
         <main className="flex-1">{children}</main>
         <Footer dict={dict.footer} />
+        <ChatbotCEPTI whatsappNumber={brand.whatsapp_number} initialLang={lang} />
       </body>
     </html>
   )
