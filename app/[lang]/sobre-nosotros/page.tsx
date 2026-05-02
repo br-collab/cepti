@@ -48,10 +48,11 @@ export default async function SobreNosotrosPage({
   return (
     <>
       <section
-        className="text-white py-10 sm:py-14 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/brand/Background_plain.jpg')" }}
+        className="relative text-white py-10 sm:py-14 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/brand/SobreNosotros_Cover.png')" }}
       >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="absolute inset-0 bg-stone-900/50" />
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6">
           <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-white">
             {t.title}
           </h1>
@@ -63,6 +64,15 @@ export default async function SobreNosotrosPage({
           <div className="space-y-6 text-base sm:text-lg leading-relaxed text-stone-700">
             <p>{t.intro1}</p>
             <p>{t.intro2}</p>
+            <div className="my-4 relative aspect-[16/9] rounded-2xl overflow-hidden bg-stone-100">
+              <Image
+                src="/images/brand/SobreNosotros_Body.jpg"
+                alt=""
+                fill
+                sizes="(max-width: 768px) 100vw, 768px"
+                className="object-cover"
+              />
+            </div>
 
             <div>
               <p className="mb-4">{t.objectivesTitle}</p>

@@ -22,7 +22,7 @@ export default function Products({
     slug: p.slug,
     name: pickLang(p.name, lang),
     tagline: pickLang(p.tagline, lang),
-    heroSrc: getProductImages(p).hero,
+    cardSrc: getProductImages(p).card,
   }))
 
   return (
@@ -41,9 +41,9 @@ export default function Products({
               className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-stone-100 hover:shadow-md hover:border-cepti-brown/40 transition-all flex flex-col"
             >
               <div className="relative aspect-[4/3] bg-stone-100">
-                {c.heroSrc ? (
+                {c.cardSrc ? (
                   <Image
-                    src={c.heroSrc}
+                    src={c.cardSrc}
                     alt={c.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

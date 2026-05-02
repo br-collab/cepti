@@ -26,17 +26,21 @@ export default async function ProductosIndexPage({
     name: pickLang(p.name, lang),
     tagline: pickLang(p.tagline, lang),
     description: pickLang(p.description, lang),
-    heroSrc: getProductImages(p).hero,
+    cardSrc: getProductImages(p).card,
   }))
 
   return (
     <>
-      <section className="bg-stone-900 text-white py-16 sm:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <section
+        className="relative text-white py-16 sm:py-24 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/brand/Productos_Cover.png')" }}
+      >
+        <div className="absolute inset-0 bg-stone-900/55" />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
             {dict.products.title}
           </h1>
-          <p className="text-lg sm:text-xl text-stone-300 max-w-2xl leading-relaxed">
+          <p className="text-lg sm:text-xl text-stone-100 max-w-2xl leading-relaxed">
             {dict.products.sub}
           </p>
         </div>
@@ -52,9 +56,9 @@ export default async function ProductosIndexPage({
                 className="group bg-white rounded-2xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-lg hover:border-cepti-red/30 transition-all flex flex-col"
               >
                 <div className="relative aspect-[4/3] bg-stone-100">
-                  {c.heroSrc ? (
+                  {c.cardSrc ? (
                     <Image
-                      src={c.heroSrc}
+                      src={c.cardSrc}
                       alt={c.name}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"

@@ -73,6 +73,7 @@ export function fileExistsInPublic(relativePath: string): boolean {
 
 export type ProductImages = {
   hero: string | null
+  card: string | null
   textures: { code: string; src: string }[]
   projectImages: string[]
 }
@@ -90,6 +91,7 @@ function findFileWithExt(basePath: string): string | null {
 export function getProductImages(product: Product): ProductImages {
   const folder = product.image_folder.replace(/\/$/, '')
   const hero = findFileWithExt(`${folder}/hero`)
+  const card = findFileWithExt(`${folder}/card`) ?? hero
 
   const textures = product.catalog_codes
     .map((code) => {
@@ -112,7 +114,7 @@ export function getProductImages(product: Product): ProductImages {
     projectImages = []
   }
 
-  return { hero, textures, projectImages }
+  return { hero, card, textures, projectImages }
 }
 
 export function buildWhatsAppHref(params: {

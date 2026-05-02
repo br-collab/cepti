@@ -138,13 +138,13 @@ export default function ProductDetail({
               fill
               priority
               sizes="100vw"
-              className="object-cover opacity-50"
+              className="object-cover"
             />
           </div>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-900 to-cepti-red/60" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/85 via-stone-900/45 to-stone-900/15" />
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-24 sm:py-32 lg:py-40">
           <Link

@@ -40,14 +40,15 @@ export default async function CalculadoraPage({
   return (
     <>
       <section
-        className="text-white py-10 sm:py-14 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/brand/Background_plain.jpg')" }}
+        className="relative text-white py-10 sm:py-14 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/brand/Calculadora_Cover.png')" }}
       >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="absolute inset-0 bg-stone-900/50" />
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6">
           <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight mb-3">
             {dict.calculator.title}
           </h1>
-          <p className="text-base sm:text-lg text-white/85 max-w-2xl leading-relaxed">
+          <p className="text-base sm:text-lg text-white/95 max-w-2xl leading-relaxed">
             {dict.calculator.sub}
           </p>
         </div>
