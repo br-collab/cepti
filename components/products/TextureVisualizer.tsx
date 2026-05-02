@@ -7,6 +7,22 @@ type VisualizerDict = {
   selected: string
 }
 
+function deriveForegroundSrc(referenceSrc: string): string | null {
+  // Convention: a foreground SVG sits next to the reference with -fg suffix.
+  // e.g. /images/visualizer/interior-wall.svg -> /images/visualizer/interior-wall-fg.svg
+  const match = referenceSrc.match(/^(.*)\.([a-z0-9]+)$/i)
+  if (!match) return null
+  const [, base, ext] = match
+  return `${base}-fg.${ext}`
+}
+
+function deriveBackgroundSrc(referenceSrc: string): string {
+  const match = referenceSrc.match(/^(.*)\.([a-z0-9]+)$/i)
+  if (!match) return referenceSrc
+  const [, base, ext] = match
+  return `${base}-bg.${ext}`
+}
+
 export default function TextureVisualizer({
   referenceSrc,
   textureSrc,
@@ -21,6 +37,8 @@ export default function TextureVisualizer({
   dict: VisualizerDict
 }) {
   const hasTexture = !!textureSrc
+  const backgroundSrc = deriveBackgroundSrc(referenceSrc)
+  const foregroundSrc = deriveForegroundSrc(referenceSrc)
 
   return (
     <section className="py-16 sm:py-20 bg-stone-50 border-y border-stone-100">
@@ -39,13 +57,18 @@ export default function TextureVisualizer({
         </div>
 
         <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden shadow-lg bg-stone-200">
-          {/* Reference: plain <img> so Next can't optimize the SVG */}
+          {/* Background: wall + floor + spotlight */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={referenceSrc}
+            src={backgroundSrc}
             alt=""
             className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
             draggable={false}
+            onError={(e) => {
+              // Fallback: if -bg variant doesn't exist, use the original reference
+              const target = e.currentTarget
+              if (target.src !== referenceSrc) target.src = referenceSrc
+            }}
           />
 
           {/* Texture overlay on wall region */}
@@ -65,7 +88,20 @@ export default function TextureVisualizer({
                 opacity: 0.92,
               }}
             />
-          ) : (
+          ) : null}
+
+          {/* Foreground: window + table — sits ABOVE the texture so it isn't covered */}
+          {foregroundSrc && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={foregroundSrc}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+              draggable={false}
+            />
+          )}
+
+          {!hasTexture && (
             <div className="absolute inset-0 flex items-start justify-center pt-10 sm:pt-16 pointer-events-none">
               <span className="bg-black/60 text-white text-xs sm:text-sm font-medium px-3 py-2 rounded-full backdrop-blur-sm">
                 {dict.hint}

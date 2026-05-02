@@ -24,15 +24,16 @@ type ProductId =
 type ProductOption = {
   id: ProductId
   color: string
+  textureSrc?: string
 }
 
 const PRODUCTS: ProductOption[] = [
-  { id: 'ladriflex', color: '#5DCAA5' },
-  { id: 'pinturas', color: '#D85A30' },
-  { id: 'papelex', color: '#7F77DD' },
-  { id: 'arte-con-arena', color: '#BA7517' },
+  { id: 'ladriflex', color: '#5DCAA5', textureSrc: '/images/products/ladriflex/texture-01.jpg' },
+  { id: 'pinturas', color: '#D85A30', textureSrc: '/images/products/pintura-aterciopelada/texture-01.jpg' },
+  { id: 'papelex', color: '#7F77DD', textureSrc: '/images/products/papelex/texture-01.jpg' },
+  { id: 'arte-con-arena', color: '#BA7517', textureSrc: '/images/products/arte-con-arena/project-01.jpg' },
   { id: 'primer', color: '#888780' },
-  { id: 'granito-liquido', color: '#378ADD' },
+  { id: 'granito-liquido', color: '#378ADD', textureSrc: '/images/products/pintura-efecto-granito/texture-01.jpg' },
 ]
 
 type Strings = {
@@ -227,6 +228,23 @@ export default function Analyzer({ lang }: { lang: Locale }) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
+  const textureRef = useRef<HTMLImageElement | null>(null)
+  const [textureVersion, setTextureVersion] = useState(0)
+
+  useEffect(() => {
+    if (!selected.textureSrc) {
+      textureRef.current = null
+      setTextureVersion((v) => v + 1)
+      return
+    }
+    const tex = new Image()
+    tex.crossOrigin = 'anonymous'
+    tex.onload = () => {
+      textureRef.current = tex
+      setTextureVersion((v) => v + 1)
+    }
+    tex.src = selected.textureSrc
+  }, [selected])
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current
@@ -245,14 +263,47 @@ export default function Analyzer({ lang }: { lang: Locale }) {
 
     const splitX = (splitPosition / 100) * canvas.width
     const { r, g, b } = hexToRgb(selected.color)
+    const alpha = opacity / 100
+    const texture = textureRef.current
 
     ctx.save()
     ctx.beginPath()
     ctx.rect(splitX, 0, canvas.width - splitX, canvas.height)
     ctx.clip()
-    ctx.fillStyle = `rgba(${r},${g},${b},${opacity / 100})`
-    ctx.fillRect(splitX, 0, canvas.width - splitX, canvas.height)
+
+    if (texture) {
+      // Tile the texture and blend it over the photo with multiply so the
+      // photo's lighting + shadows are preserved.
+      const tileSize = Math.max(160, Math.round(canvas.width / 6))
+      const cols = Math.ceil((canvas.width - splitX) / tileSize) + 1
+      const rows = Math.ceil(canvas.height / tileSize) + 1
+      ctx.globalAlpha = Math.min(1, alpha + 0.45)
+      ctx.globalCompositeOperation = 'multiply'
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          ctx.drawImage(
+            texture,
+            splitX + col * tileSize,
+            row * tileSize,
+            tileSize,
+            tileSize
+          )
+        }
+      }
+      // Subtle product color tint on top to push the hue toward the product.
+      ctx.globalAlpha = alpha * 0.35
+      ctx.globalCompositeOperation = 'source-over'
+      ctx.fillStyle = `rgb(${r},${g},${b})`
+      ctx.fillRect(splitX, 0, canvas.width - splitX, canvas.height)
+      ctx.globalAlpha = 1
+      ctx.globalCompositeOperation = 'source-over'
+    } else {
+      // Fallback (Primer): flat color tint only.
+      ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`
+      ctx.fillRect(splitX, 0, canvas.width - splitX, canvas.height)
+    }
     ctx.restore()
+    void textureVersion
 
     ctx.fillStyle = '#ffffff'
     ctx.fillRect(splitX - 1, 0, 2, canvas.height)
@@ -270,7 +321,7 @@ export default function Analyzer({ lang }: { lang: Locale }) {
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText('⇄', splitX, handleY)
-  }, [selected, opacity, splitPosition])
+  }, [selected, opacity, splitPosition, textureVersion])
 
   useEffect(() => {
     if (!image) {
