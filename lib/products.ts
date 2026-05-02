@@ -77,15 +77,24 @@ export type ProductImages = {
   projectImages: string[]
 }
 
+const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp'] as const
+
+function findFileWithExt(basePath: string): string | null {
+  for (const ext of IMAGE_EXTS) {
+    const candidate = `${basePath}.${ext}`
+    if (fileExistsInPublic(candidate)) return candidate
+  }
+  return null
+}
+
 export function getProductImages(product: Product): ProductImages {
   const folder = product.image_folder.replace(/\/$/, '')
-  const heroRel = `${folder}/hero.jpg`
-  const hero = fileExistsInPublic(heroRel) ? heroRel : null
+  const hero = findFileWithExt(`${folder}/hero`)
 
   const textures = product.catalog_codes
     .map((code) => {
-      const src = `${folder}/texture-${code}.jpg`
-      return fileExistsInPublic(src) ? { code, src } : null
+      const src = findFileWithExt(`${folder}/texture-${code}`)
+      return src ? { code, src } : null
     })
     .filter((t): t is { code: string; src: string } => t !== null)
 

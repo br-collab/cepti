@@ -12,11 +12,25 @@ import type { CalcProduct } from '@/lib/calculator'
 import ProductDetail from '@/components/products/ProductDetail'
 
 const VISUALIZER_MAP: Record<string, string> = {
+  'pintura-aterciopelada': 'interior-wall',
   'pintura-de-piedra': 'interior-wall',
-  'granito-liquido': 'interior-wall',
-  'ceramoflex': 'interior-wall',
+  'pintura-efecto-granito': 'interior-wall',
   'ladriflex': 'interior-wall',
   'papelex': 'interior-wall',
+}
+
+const MASTER_GALLERY_SLUGS = new Set([
+  'papelex',
+  'ladriflex',
+  'pintura-aterciopelada',
+  'pintura-de-piedra',
+  'pintura-efecto-granito',
+  'arte-con-arena',
+])
+
+const ARTE_GALLERY_TITLE = {
+  es: 'Ejemplos de arte con Arena y Piedra',
+  en: 'Sand and Stone art examples',
 }
 
 const WALL_INSETS: Record<string, { top: string; bottom: string; left: string; right: string }> = {
@@ -78,6 +92,10 @@ export default async function ProductDetailPage({
     ? { referenceSrc: refSrc, wallInset: WALL_INSETS[refName] }
     : null
 
+  const galleryTitleOverride =
+    product.slug === 'arte-con-arena' ? ARTE_GALLERY_TITLE[lang] : null
+  const inMasterGallery = MASTER_GALLERY_SLUGS.has(product.slug)
+
   return (
     <ProductDetail
       lang={lang}
@@ -98,6 +116,8 @@ export default async function ProductDetailPage({
       visualizerDict={dict.visualizer}
       visualizer={visualizer}
       showCalculator={product.slug !== 'arte-con-arena'}
+      galleryTitleOverride={galleryTitleOverride}
+      inMasterGallery={inMasterGallery}
     />
   )
 }

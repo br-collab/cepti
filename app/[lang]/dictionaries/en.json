@@ -55,7 +55,8 @@
     "properties": "Properties",
     "useCases": "Applications",
     "palette": "Color and texture catalog",
-    "gallery": "Installed projects",
+    "gallery": "Gallery",
+    "viewMore": "View details",
     "ctaBand": "Ready to start your project?",
     "whatsappBtn": "Chat on WhatsApp",
     "backToProducts": "Back to products"

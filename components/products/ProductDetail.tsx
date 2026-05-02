@@ -15,6 +15,7 @@ type ProductDict = {
   useCases: string
   palette: string
   gallery: string
+  viewMore: string
   ctaBand: string
   whatsappBtn: string
   backToProducts: string
@@ -63,7 +64,11 @@ type Props = {
   visualizerDict: VisualizerDict
   visualizer: VisualizerConfig | null
   showCalculator?: boolean
+  galleryTitleOverride?: string | null
+  inMasterGallery?: boolean
 }
+
+const INLINE_GALLERY_LIMIT = 6
 
 function buildWhatsAppHref(template: string, code: string | null, m2: string, number: string) {
   const text = template
@@ -76,6 +81,7 @@ function buildWhatsAppHref(template: string, code: string | null, m2: string, nu
 
 export default function ProductDetail({
   lang,
+  slug,
   name,
   tagline,
   description,
@@ -92,7 +98,13 @@ export default function ProductDetail({
   visualizerDict,
   visualizer,
   showCalculator = true,
+  galleryTitleOverride = null,
+  inMasterGallery = false,
 }: Props) {
+  const galleryTitle = galleryTitleOverride ?? dict.gallery
+  const galleryThumbnails = inMasterGallery
+    ? projectImages.slice(0, INLINE_GALLERY_LIMIT)
+    : projectImages
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
 
@@ -280,15 +292,15 @@ export default function ProductDetail({
         />
       )}
 
-      {/* Installation gallery */}
+      {/* Galería */}
       {projectImages.length > 0 && (
         <section className="py-16 sm:py-20 bg-background">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-8">
-              {dict.gallery}
+              {galleryTitle}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-              {projectImages.map((src, i) => (
+              {galleryThumbnails.map((src, i) => (
                 <button
                   key={src}
                   type="button"
@@ -297,7 +309,7 @@ export default function ProductDetail({
                 >
                   <Image
                     src={src}
-                    alt={`${name} project ${i + 1}`}
+                    alt={`${name} ${i + 1}`}
                     fill
                     sizes="(max-width: 768px) 50vw, 33vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -305,6 +317,17 @@ export default function ProductDetail({
                 </button>
               ))}
             </div>
+            {inMasterGallery && projectImages.length > INLINE_GALLERY_LIMIT && (
+              <div className="mt-8 flex justify-center">
+                <Link
+                  href={`/${lang}/galeria#${slug}`}
+                  className="inline-flex items-center gap-2 bg-cepti-brown text-white font-semibold px-6 py-3 rounded-lg hover:bg-cepti-brown-dark transition-colors text-base"
+                >
+                  {dict.viewMore}
+                  <span aria-hidden>→</span>
+                </Link>
+              </div>
+            )}
           </div>
         </section>
       )}
