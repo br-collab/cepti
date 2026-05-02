@@ -111,6 +111,7 @@ export default function ProductDetail({
     : projectImages
   const [selectedCode, setSelectedCode] = useState<string | null>(null)
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
+  const [textureLightboxIdx, setTextureLightboxIdx] = useState<number | null>(null)
 
   const selectedTextureSrc = useMemo(
     () => textures.find((t) => t.code === selectedCode)?.src ?? null,
@@ -246,16 +247,17 @@ export default function ProductDetail({
               )}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-              {textures.map((t) => {
+              {textures.map((t, i) => {
                 const isSelected = t.code === selectedCode
                 return (
                   <button
                     key={t.code}
                     type="button"
-                    onClick={() =>
-                      setSelectedCode((prev) => (prev === t.code ? null : t.code))
-                    }
-                    className={`group relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${
+                    onClick={() => {
+                      setSelectedCode(t.code)
+                      setTextureLightboxIdx(i)
+                    }}
+                    className={`group relative aspect-square overflow-hidden rounded-lg border-2 transition-all cursor-zoom-in ${
                       isSelected
                         ? 'border-cepti-red ring-2 ring-cepti-red/30 scale-[0.98]'
                         : 'border-transparent hover:border-stone-300'
@@ -405,6 +407,17 @@ export default function ProductDetail({
         index={lightboxIdx}
         onClose={() => setLightboxIdx(null)}
         onChange={setLightboxIdx}
+        alt={name}
+      />
+
+      <Lightbox
+        images={textures.map((t) => t.src)}
+        index={textureLightboxIdx}
+        onClose={() => setTextureLightboxIdx(null)}
+        onChange={(idx) => {
+          setTextureLightboxIdx(idx)
+          setSelectedCode(textures[idx]?.code ?? null)
+        }}
         alt={name}
       />
     </>
