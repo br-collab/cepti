@@ -52,7 +52,7 @@ export default async function SobreNosotrosPage({
         style={{ backgroundImage: "url('/images/brand/SobreNosotros_Cover.png')" }}
       >
         <div className="absolute inset-0 bg-stone-900/50" />
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-white">
             {t.title}
           </h1>

@@ -44,7 +44,7 @@ export default async function CalculadoraPage({
         style={{ backgroundImage: "url('/images/brand/Calculadora_Cover.png')" }}
       >
         <div className="absolute inset-0 bg-stone-900/50" />
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight mb-3">
             {dict.calculator.title}
           </h1>

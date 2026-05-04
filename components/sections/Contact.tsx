@@ -26,8 +26,8 @@ export default function Contact({ dict }: { dict: ContactDict }) {
           <div>
             <p className={labelClass}>{dict.address}</p>
             <p className={valueClass}>
-              Avenida República de Colombia 10, nave 11, sector los Peralejos, Distrito
-              Nacional, Santo Domingo, República Dominicana
+              Avenida República de Colombia No. 10, Nave 11, sector Los Peralejos,
+              Distrito Nacional, Santo Domingo de Guzmán, República Dominicana
             </p>
           </div>
 

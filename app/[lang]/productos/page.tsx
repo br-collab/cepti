@@ -8,6 +8,13 @@ import {
   pickLang,
 } from '@/lib/products'
 
+const CARD_PHOTO_CLASS: Record<string, string> = {
+  'primer': 'object-cover [object-position:50%_65%] group-hover:scale-[1.02]',
+  'pegamento': 'object-cover scale-105 group-hover:scale-[1.07]',
+  'arte-con-arena': 'object-contain group-hover:scale-[1.02]',
+}
+const DEFAULT_CARD_PHOTO_CLASS = 'object-cover group-hover:scale-[1.02]'
+
 export function generateStaticParams() {
   return [{ lang: 'es' }, { lang: 'en' }]
 }
@@ -62,7 +69,7 @@ export default async function ProductosIndexPage({
                       alt={c.name}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                      className={`transition-transform duration-300 ${CARD_PHOTO_CLASS[c.slug] ?? DEFAULT_CARD_PHOTO_CLASS}`}
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-cepti-red/40" />

@@ -30,7 +30,7 @@ const MASTER_GALLERY_SLUGS = new Set([
 ])
 
 const ARTE_GALLERY_TITLE = {
-  es: 'Ejemplos de arte con Arena y Piedra',
+  es: 'Ejemplos de Arte con Arena y Piedra',
   en: 'Sand and Stone art examples',
 }
 

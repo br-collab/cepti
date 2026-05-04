@@ -50,7 +50,7 @@ export default function NavLinks({
     update()
     window.addEventListener('hashchange', update)
     return () => window.removeEventListener('hashchange', update)
-  }, [])
+  }, [pathname])
 
   return (
     <>

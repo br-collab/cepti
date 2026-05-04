@@ -82,8 +82,9 @@ export default function TextureVisualizer({
                 right: wallInset.right,
                 bottom: wallInset.bottom,
                 backgroundImage: `url("${textureSrc}")`,
-                backgroundSize: '220px 220px',
-                backgroundRepeat: 'repeat',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
                 mixBlendMode: 'multiply',
                 opacity: 0.92,
               }}

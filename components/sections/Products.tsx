@@ -10,6 +10,13 @@ type ProductsDict = {
   viewAll: string
 }
 
+const CARD_PHOTO_CLASS: Record<string, string> = {
+  'primer': 'object-cover [object-position:50%_65%] group-hover:scale-[1.03]',
+  'pegamento': 'object-cover scale-105 group-hover:scale-[1.08]',
+  'arte-con-arena': 'object-contain group-hover:scale-[1.03]',
+}
+const DEFAULT_CARD_PHOTO_CLASS = 'object-cover group-hover:scale-[1.03]'
+
 export default function Products({
   dict,
   lang,
@@ -47,7 +54,7 @@ export default function Products({
                     alt={c.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                    className={`transition-transform duration-300 ${CARD_PHOTO_CLASS[c.slug] ?? DEFAULT_CARD_PHOTO_CLASS}`}
                   />
                 ) : (
                   <div className="absolute inset-0 bg-cepti-texture" />

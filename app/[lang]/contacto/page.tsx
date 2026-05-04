@@ -30,9 +30,9 @@ export default async function ContactoPage({
     <>
       <section
         className="text-white py-10 sm:py-14 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/brand/Background_plain.jpg')" }}
+        style={{ backgroundImage: "url('/images/brand/Contacto_Cover.png')" }}
       >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-white">
             {dict.contact.title}
           </h1>

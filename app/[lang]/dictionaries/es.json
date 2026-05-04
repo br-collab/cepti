@@ -8,7 +8,7 @@
     "langSwitch": "EN"
   },
   "calculator": {
-    "title": "Calculadora de Materiales",
+    "title": "Calculadora de materiales",
     "sub": "Calcula cuánto producto necesitas para tu proyecto.",
     "heading": "Calcula tu cantidad",
     "modeDimensions": "Dimensiones",
@@ -57,7 +57,7 @@
     "palette": "Catálogo de colores y texturas",
     "gallery": "Galería",
     "videos": "Vídeos",
-    "viewMore": "Ver detalles",
+    "viewMore": "Ver más",
     "ctaBand": "¿Listo para empezar tu proyecto?",
     "whatsappBtn": "Hablar por WhatsApp",
     "backToProducts": "Volver a productos"
@@ -93,7 +93,7 @@
     "sub": "",
     "cta": "Contactar ahora",
     "address": "Dirección",
-    "email": "Email",
+    "email": "Correo electrónico",
     "instagram": "Instagram",
     "website": "Sitio web",
     "phone": "Teléfono",
@@ -108,8 +108,8 @@
     "rights": "Todos los derechos reservados."
   },
   "sobreNosotros": {
-    "metaTitle": "Sobre Nosotros — CEPTI",
-    "title": "Sobre Nosotros",
+    "metaTitle": "Sobre nosotros — CEPTI",
+    "title": "Sobre nosotros",
     "intro1": "CEPTI es un fabricante innovador de materiales de decoración de vanguardia para todos tipos de superficies de interiores y exteriores, que transformarán y ampliarán los límites de sus ideas de decoración por menos dinero.",
     "intro2": "CEPTI se creó en el año 2017 para la implementación de las tecnologías del día de mañana, la introducción de nuevas soluciones, únicas e innovadoras, que podrían ya ahora satisfacer las necesidades del futuro en la República Dominicana y todo el mundo.",
     "objectivesTitle": "Nuestros metas y objetivos son:",
