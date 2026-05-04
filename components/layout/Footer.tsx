@@ -6,10 +6,14 @@ type FooterDict = {
   rights: string
 }
 
-const PHONE_PLACEHOLDER = '+18091234567'
-
-export default function Footer({ dict }: { dict: FooterDict }) {
-  const phoneDigits = PHONE_PLACEHOLDER.replace(/[^\d]/g, '')
+export default function Footer({
+  dict,
+  whatsappNumber,
+}: {
+  dict: FooterDict
+  whatsappNumber: string
+}) {
+  const phoneDigits = whatsappNumber.replace(/[^\d]/g, '')
 
   return (
     <footer
@@ -91,7 +95,7 @@ export default function Footer({ dict }: { dict: FooterDict }) {
           </svg>
         </a>
         <a
-          href={`tel:${PHONE_PLACEHOLDER}`}
+          href={`tel:+${phoneDigits}`}
           aria-label="Phone"
           className="text-white hover:opacity-75 transition-opacity"
         >

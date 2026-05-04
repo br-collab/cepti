@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
+import { brand } from '@/lib/products'
 import Contact from '@/components/sections/Contact'
 
 export function generateStaticParams() {
@@ -39,7 +40,7 @@ export default async function ContactoPage({
         </div>
       </section>
 
-      <Contact dict={dict.contact} />
+      <Contact dict={dict.contact} whatsappNumber={brand.whatsapp_number} />
     </>
   )
 }

@@ -51,7 +51,7 @@ export default async function LocaleLayout({
       >
         <Navbar lang={lang} />
         <main className="flex-1">{children}</main>
-        <Footer dict={dict.footer} />
+        <Footer dict={dict.footer} whatsappNumber={brand.whatsapp_number} />
         <ChatbotCEPTI whatsappNumber={brand.whatsapp_number} initialLang={lang} />
       </body>
     </html>

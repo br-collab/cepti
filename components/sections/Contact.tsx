@@ -13,7 +13,15 @@ type ContactDict = {
   comingSoon: string
 }
 
-export default function Contact({ dict }: { dict: ContactDict }) {
+export default function Contact({
+  dict,
+  whatsappNumber,
+}: {
+  dict: ContactDict
+  whatsappNumber: string
+}) {
+  const phoneDigits = whatsappNumber.replace(/[^\d]/g, '')
+  const phoneDisplay = `+1 (${phoneDigits.slice(1, 4)}) ${phoneDigits.slice(4, 7)}-${phoneDigits.slice(7)}`
   const labelClass = 'text-xs font-semibold uppercase tracking-widest text-cepti-brown mb-1'
   const valueClass = 'text-base sm:text-lg leading-relaxed text-cepti-brown-dark'
   const linkClass =
@@ -81,12 +89,21 @@ export default function Contact({ dict }: { dict: ContactDict }) {
 
           <div>
             <p className={labelClass}>{dict.whatsapp}</p>
-            <p className={`${valueClass} text-cepti-brown/70`}>[{dict.comingSoon}]</p>
+            <a
+              href={`https://wa.me/${phoneDigits}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={linkClass}
+            >
+              {phoneDisplay}
+            </a>
           </div>
 
           <div>
             <p className={labelClass}>{dict.phone}</p>
-            <p className={`${valueClass} text-cepti-brown/70`}>[{dict.comingSoon}]</p>
+            <a href={`tel:+${phoneDigits}`} className={linkClass}>
+              {phoneDisplay}
+            </a>
           </div>
         </div>
       </div>
