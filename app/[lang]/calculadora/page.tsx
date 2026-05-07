@@ -40,7 +40,7 @@ export default async function CalculadoraPage({
   return (
     <>
       <section
-        className="relative text-white py-10 sm:py-14 bg-cover bg-center"
+        className="relative text-white py-16 sm:py-24 lg:py-32 bg-cover bg-center"
         style={{ backgroundImage: "url('/images/brand/Calculadora_Cover.png')" }}
       >
         <div className="absolute inset-0 bg-stone-900/50" />

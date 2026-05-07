@@ -30,7 +30,7 @@ export default async function ContactoPage({
   return (
     <>
       <section
-        className="text-white py-10 sm:py-14 bg-cover bg-center"
+        className="text-white py-16 sm:py-24 lg:py-32 bg-cover bg-center"
         style={{ backgroundImage: "url('/images/brand/Contacto_Cover.png')" }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6">

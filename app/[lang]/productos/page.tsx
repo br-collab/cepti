@@ -39,7 +39,7 @@ export default async function ProductosIndexPage({
   return (
     <>
       <section
-        className="relative text-white py-16 sm:py-24 bg-cover bg-center"
+        className="relative text-white py-16 sm:py-24 lg:py-32 bg-cover bg-center"
         style={{ backgroundImage: "url('/images/brand/Productos_Cover.png')" }}
       >
         <div className="absolute inset-0 bg-stone-900/55" />
