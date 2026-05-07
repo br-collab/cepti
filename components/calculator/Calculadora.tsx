@@ -1,9 +1,16 @@
 'use client'
 
-import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import type { Locale } from '@/app/[lang]/dictionaries'
-import { formatM2, parseNumber, pluralizeUnit } from '@/lib/calculator'
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon'
+import {
+  type SurfaceType,
+  WASTE_LABEL,
+  calcQuantity,
+  formatM2,
+  parseNumber,
+  pluralizeUnit,
+} from '@/lib/calculator'
 
 export type CalcProductOption = {
   slug: string
@@ -22,14 +29,6 @@ type Dict = {
   m2Short: string
 }
 
-type SurfaceType = 'lisa' | 'rugosa' | 'porosa'
-
-const SURFACE_FACTOR: Record<SurfaceType, number> = {
-  lisa: 1.0,
-  rugosa: 1.2,
-  porosa: 1.3,
-}
-
 const SURFACE_LABELS: Record<Locale, Record<SurfaceType, string>> = {
   es: { lisa: 'Lisa', rugosa: 'Rugosa', porosa: 'Porosa' },
   en: { lisa: 'Smooth', rugosa: 'Rough', porosa: 'Porous' },
@@ -39,10 +38,6 @@ const COATS_LABEL: Record<Locale, string> = { es: 'Manos', en: 'Coats' }
 const SURFACE_LABEL: Record<Locale, string> = {
   es: 'Tipo de superficie',
   en: 'Surface type',
-}
-const WASTE_LABEL: Record<Locale, string> = {
-  es: 'Incluye 10% de margen para desperdicio',
-  en: 'Includes a 10% waste buffer',
 }
 
 export default function Calculadora({
@@ -68,11 +63,9 @@ export default function Calculadora({
   )
 
   const baseM2 = parseNumber(width) * parseNumber(height)
-  const adjustedM2 = baseM2 * coats * SURFACE_FACTOR[surface]
-  const quantity =
-    product && adjustedM2 > 0
-      ? Math.ceil((adjustedM2 / product.coverage) * 1.1)
-      : 0
+  const quantity = product
+    ? calcQuantity(baseM2, product.coverage, { coats, surface })
+    : 0
   const hasResult = !!product && baseM2 > 0 && quantity > 0
   const unitPlural = product
     ? pluralizeUnit(product.unitLabel, quantity, lang)
@@ -226,14 +219,7 @@ export default function Calculadora({
             : 'bg-stone-200 text-stone-400 cursor-not-allowed'
         }`}
       >
-        <Image
-          src="/images/brand/Chat_Icon.png"
-          alt=""
-          width={28}
-          height={28}
-          aria-hidden
-          className="w-7 h-7"
-        />
+        <WhatsAppIcon size={24} className="w-6 h-6" />
         {dict.requestQuote}
       </a>
     </div>

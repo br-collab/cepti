@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon'
 
 type Locale = 'es' | 'en'
 type ChatMessage = { role: 'user' | 'assistant'; content: string }
@@ -226,7 +227,7 @@ export default function ChatbotCEPTI({
           rel="noopener noreferrer"
           className="mx-4 mb-2 flex items-center justify-center gap-2 rounded-xl bg-green-600 text-white font-semibold px-4 py-3 hover:bg-green-700 transition-colors text-sm sm:text-base"
         >
-          <span aria-hidden>💬</span>
+          <WhatsAppIcon size={18} className="w-[18px] h-[18px]" />
           {t.whatsapp}
         </a>
       ) : null}

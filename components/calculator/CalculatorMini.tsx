@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from 'react'
 import type { Locale } from '@/app/[lang]/dictionaries'
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon'
 import {
   type CalcProduct,
+  WASTE_LABEL,
   buildWhatsAppHref,
   calcQuantity,
   formatM2,
@@ -86,18 +88,21 @@ export default function CalculatorMini({
         aria-live="polite"
       >
         {hasResult ? (
-          <p className="text-base sm:text-lg text-stone-800 leading-relaxed">
-            {dict.resultLead}{' '}
-            <span className="font-bold text-cepti-red text-xl sm:text-2xl">
-              {quantity} {unitPlural}
-            </span>{' '}
-            {dict.resultOf} <span className="font-semibold">{product.name}</span>{' '}
-            {dict.resultFor}{' '}
-            <span className="font-semibold">
-              {formatM2(m2)} {dict.m2Short}
-            </span>
-            .
-          </p>
+          <>
+            <p className="text-base sm:text-lg text-stone-800 leading-relaxed">
+              {dict.resultLead}{' '}
+              <span className="font-bold text-cepti-red text-xl sm:text-2xl">
+                {quantity} {unitPlural}
+              </span>{' '}
+              {dict.resultOf} <span className="font-semibold">{product.name}</span>{' '}
+              {dict.resultFor}{' '}
+              <span className="font-semibold">
+                {formatM2(m2)} {dict.m2Short}
+              </span>
+              .
+            </p>
+            <p className="mt-2 text-xs text-stone-500">{WASTE_LABEL[lang]}</p>
+          </>
         ) : (
           <p className="text-sm text-stone-500">{dict.enterValues}</p>
         )}
@@ -117,7 +122,7 @@ export default function CalculatorMini({
             : 'bg-stone-200 text-stone-400 cursor-not-allowed'
         }`}
       >
-        <span aria-hidden>💬</span>
+        <WhatsAppIcon size={20} className="w-5 h-5" />
         {dict.cta}
         {hasResult && selectedCode && (
           <span className="ml-1 text-sm bg-white/15 rounded px-2 py-0.5">{selectedCode}</span>

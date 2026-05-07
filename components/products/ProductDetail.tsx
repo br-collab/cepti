@@ -6,6 +6,7 @@ import Link from 'next/link'
 import type { Locale } from '@/app/[lang]/dictionaries'
 import type { CalcProduct } from '@/lib/calculator'
 import CalculatorMini from '@/components/calculator/CalculatorMini'
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon'
 import TextureVisualizer from './TextureVisualizer'
 import Lightbox from './Lightbox'
 
@@ -384,14 +385,7 @@ export default function ProductDetail({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 bg-white text-cepti-red font-bold px-8 py-4 rounded-lg hover:bg-stone-100 transition-colors text-lg shadow-xl"
           >
-            <Image
-              src="/images/brand/Chat_Icon.png"
-              alt=""
-              width={28}
-              height={28}
-              aria-hidden
-              className="w-7 h-7"
-            />
+            <WhatsAppIcon size={24} className="w-6 h-6" />
             {dict.whatsappBtn}
             {selectedCode && (
               <span className="text-sm font-semibold bg-cepti-red/10 text-cepti-red px-2 py-1 rounded">

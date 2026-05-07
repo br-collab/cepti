@@ -9,6 +9,21 @@ export type CalcProduct = {
   catalogCodes: string[]
 }
 
+export type SurfaceType = 'lisa' | 'rugosa' | 'porosa'
+
+export const SURFACE_FACTOR: Record<SurfaceType, number> = {
+  lisa: 1.0,
+  rugosa: 1.2,
+  porosa: 1.3,
+}
+
+export const WASTE_BUFFER = 1.1
+
+export const WASTE_LABEL: Record<Locale, string> = {
+  es: 'Incluye 10% de margen para desperdicio',
+  en: 'Includes a 10% waste buffer',
+}
+
 export function parseNumber(input: string): number {
   if (!input) return 0
   const n = parseFloat(input.replace(',', '.'))
@@ -19,9 +34,16 @@ export function areaFromDimensions(width: string, height: string): number {
   return parseNumber(width) * parseNumber(height)
 }
 
-export function calcQuantity(m2: number, coverage: number): number {
+export function calcQuantity(
+  m2: number,
+  coverage: number,
+  options?: { coats?: number; surface?: SurfaceType }
+): number {
   if (!m2 || m2 <= 0 || !coverage || coverage <= 0) return 0
-  return Math.ceil(m2 / coverage)
+  const coats = options?.coats ?? 1
+  const surface = options?.surface ?? 'lisa'
+  const adjusted = m2 * coats * SURFACE_FACTOR[surface]
+  return Math.ceil((adjusted / coverage) * WASTE_BUFFER)
 }
 
 export function formatM2(m2: number): string {
