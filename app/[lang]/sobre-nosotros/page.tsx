@@ -48,11 +48,11 @@ export default async function SobreNosotrosPage({
   return (
     <>
       <section
-        className="relative text-white py-16 sm:py-24 lg:py-32 bg-cover bg-center"
+        className="relative text-white bg-cover bg-center min-h-[26rem] sm:min-h-[28rem] lg:min-h-[30rem] flex items-center"
         style={{ backgroundImage: "url('/images/brand/SobreNosotros_Cover.png')" }}
       >
         <div className="absolute inset-0 bg-stone-900/50" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 py-12">
           <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-white">
             {t.title}
           </h1>

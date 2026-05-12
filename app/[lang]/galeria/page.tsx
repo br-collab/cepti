@@ -49,10 +49,10 @@ export default async function GaleriaPage({
   return (
     <>
       <section
-        className="text-white py-16 sm:py-24 lg:py-32 bg-cover bg-center"
+        className="text-white bg-cover bg-center min-h-[26rem] sm:min-h-[28rem] lg:min-h-[30rem] flex items-center"
         style={{ backgroundImage: "url('/images/brand/Galeria_Cover.png')" }}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-12">
           <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-white text-left">
             {dict.products.gallery}
           </h1>
