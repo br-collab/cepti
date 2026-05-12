@@ -39,11 +39,11 @@ export default async function ProductosIndexPage({
   return (
     <>
       <section
-        className="relative text-white py-16 sm:py-24 lg:py-32 bg-cover bg-center"
+        className="relative text-white bg-cover bg-center min-h-[26rem] sm:min-h-[28rem] lg:min-h-[30rem] flex items-center"
         style={{ backgroundImage: "url('/images/brand/Productos_Cover.png')" }}
       >
         <div className="absolute inset-0 bg-stone-900/55" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 py-12">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
             {dict.products.title}
           </h1>
