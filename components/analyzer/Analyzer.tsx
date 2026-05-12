@@ -222,7 +222,7 @@ export default function Analyzer({ lang }: { lang: Locale }) {
   const [image, setImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<ProductOption>(PRODUCTS[0])
-  const [opacity, setOpacity] = useState<number>(45)
+  const [opacity, setOpacity] = useState<number>(70)
   const [splitPosition, setSplitPosition] = useState<number>(50)
   const [dragging, setDragging] = useState<boolean>(false)
   const [generating, setGenerating] = useState<boolean>(false)
@@ -272,13 +272,20 @@ export default function Analyzer({ lang }: { lang: Locale }) {
     ctx.rect(splitX, 0, canvas.width - splitX, canvas.height)
     ctx.clip()
 
+    // Solid product color as the base coat so the result reads as paint
+    // covering the surface, not a transparent veil over the original photo.
+    ctx.globalAlpha = alpha
+    ctx.globalCompositeOperation = 'source-over'
+    ctx.fillStyle = `rgb(${r},${g},${b})`
+    ctx.fillRect(splitX, 0, canvas.width - splitX, canvas.height)
+
     if (texture) {
-      // Tile the texture and blend it over the photo with multiply so the
-      // photo's lighting + shadows are preserved.
+      // Tile the texture on top with multiply so the swatch's pattern shows
+      // through without lifting the original photo back through the paint.
       const tileSize = Math.max(160, Math.round(canvas.width / 6))
       const cols = Math.ceil((canvas.width - splitX) / tileSize) + 1
       const rows = Math.ceil(canvas.height / tileSize) + 1
-      ctx.globalAlpha = Math.min(1, alpha + 0.45)
+      ctx.globalAlpha = Math.min(1, alpha + 0.2)
       ctx.globalCompositeOperation = 'multiply'
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
@@ -291,18 +298,9 @@ export default function Analyzer({ lang }: { lang: Locale }) {
           )
         }
       }
-      // Subtle product color tint on top to push the hue toward the product.
-      ctx.globalAlpha = alpha * 0.35
-      ctx.globalCompositeOperation = 'source-over'
-      ctx.fillStyle = `rgb(${r},${g},${b})`
-      ctx.fillRect(splitX, 0, canvas.width - splitX, canvas.height)
-      ctx.globalAlpha = 1
-      ctx.globalCompositeOperation = 'source-over'
-    } else {
-      // Fallback (Primer): flat color tint only.
-      ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`
-      ctx.fillRect(splitX, 0, canvas.width - splitX, canvas.height)
     }
+    ctx.globalAlpha = 1
+    ctx.globalCompositeOperation = 'source-over'
     ctx.restore()
     void textureVersion
 

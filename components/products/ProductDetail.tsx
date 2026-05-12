@@ -70,6 +70,7 @@ type Props = {
   showCalculator?: boolean
   galleryTitleOverride?: string | null
   inMasterGallery?: boolean
+  viewMoreHref?: string
 }
 
 const INLINE_GALLERY_LIMIT = 6
@@ -105,6 +106,7 @@ export default function ProductDetail({
   showCalculator = true,
   galleryTitleOverride = null,
   inMasterGallery = false,
+  viewMoreHref,
 }: Props) {
   const galleryTitle = galleryTitleOverride ?? dict.gallery
   const galleryThumbnails = inMasterGallery
@@ -320,10 +322,11 @@ export default function ProductDetail({
                 </button>
               ))}
             </div>
-            {inMasterGallery && projectImages.length > INLINE_GALLERY_LIMIT && (
+            {(viewMoreHref ||
+              (inMasterGallery && projectImages.length > INLINE_GALLERY_LIMIT)) && (
               <div className="mt-8 flex justify-center">
                 <Link
-                  href={`/${lang}/galeria#${slug}`}
+                  href={viewMoreHref ?? `/${lang}/galeria#${slug}`}
                   className="inline-flex items-center gap-2 bg-cepti-brown text-white font-semibold px-6 py-3 rounded-lg hover:bg-cepti-brown-dark transition-colors text-base"
                 >
                   {dict.viewMore}

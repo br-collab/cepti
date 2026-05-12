@@ -64,7 +64,7 @@ export default function Navbar({ lang }: { lang: Locale }) {
           links={[
             { href: `/${lang}/productos`, label: t.products },
             { href: t.calculatorHref, label: t.calculator },
-            { href: `/${lang}/analyzer`, label: t.analyzer, newTab: true },
+            { href: `/${lang}/analyzer`, label: t.analyzer },
             { href: `/${lang}#porque-cepti`, label: t.whyUs },
             { href: `/${lang}/sobre-nosotros`, label: t.about },
           ]}

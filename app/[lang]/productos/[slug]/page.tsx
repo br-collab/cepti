@@ -97,6 +97,10 @@ export default async function ProductDetailPage({
   const galleryTitleOverride =
     product.slug === 'arte-con-arena' ? ARTE_GALLERY_TITLE[lang] : null
   const inMasterGallery = MASTER_GALLERY_SLUGS.has(product.slug)
+  const viewMoreHref =
+    product.slug === 'primer' || product.slug === 'pegamento'
+      ? `/${lang}/galeria`
+      : undefined
 
   return (
     <ProductDetail
@@ -121,6 +125,7 @@ export default async function ProductDetailPage({
       showCalculator={product.slug !== 'arte-con-arena'}
       galleryTitleOverride={galleryTitleOverride}
       inMasterGallery={inMasterGallery}
+      viewMoreHref={viewMoreHref}
     />
   )
 }
