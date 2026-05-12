@@ -20,6 +20,16 @@ const VISUALIZER_MAP: Record<string, string> = {
   'papelex': 'interior-wall',
 }
 
+// Real-world feel: a Papelex slab is ~50 cm tall, a velvet paint
+// micro-texture is invisible at that scale. Tile sizes are tuned so the
+// rendered tile reads close to actual product scale in the 16:10 frame.
+const VISUALIZER_TILE_PX: Record<string, number> = {
+  'pintura-aterciopelada': 180,
+  'pintura-de-piedra': 280,
+  'pintura-efecto-granito': 220,
+  'papelex': 480,
+}
+
 const MASTER_GALLERY_SLUGS = new Set([
   'papelex',
   'ladriflex',
@@ -91,7 +101,11 @@ export default async function ProductDetailPage({
   const refName = VISUALIZER_MAP[product.slug]
   const refSrc = refName ? resolveVisualizerRef(refName) : null
   const visualizer = refSrc && refName
-    ? { referenceSrc: refSrc, wallInset: WALL_INSETS[refName] }
+    ? {
+        referenceSrc: refSrc,
+        wallInset: WALL_INSETS[refName],
+        tileScalePx: VISUALIZER_TILE_PX[product.slug],
+      }
     : null
 
   const galleryTitleOverride =

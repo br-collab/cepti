@@ -35,7 +35,10 @@
     "title": "Wall preview",
     "sub": "Select a texture from the catalog to preview it.",
     "hint": "Select a texture above",
-    "selected": "Selected texture"
+    "selected": "Selected texture",
+    "beforeBadge": "Before",
+    "afterBadge": "After",
+    "compareHint": "Drag the divider to compare the bare wall with the selected finish."
   },
   "hero": {
     "headline": "Finishes that renew any space, at a price you can afford",

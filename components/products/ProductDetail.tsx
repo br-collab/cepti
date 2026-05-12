@@ -41,11 +41,15 @@ type VisualizerDict = {
   sub: string
   hint: string
   selected: string
+  beforeBadge: string
+  afterBadge: string
+  compareHint: string
 }
 
 type VisualizerConfig = {
   referenceSrc: string
   wallInset: { top: string; bottom: string; left: string; right: string }
+  tileScalePx?: number
 }
 
 type Props = {
@@ -293,6 +297,7 @@ export default function ProductDetail({
           textureSrc={selectedTextureSrc}
           textureCode={selectedCode}
           wallInset={visualizer.wallInset}
+          tileScalePx={visualizer.tileScalePx}
           dict={visualizerDict}
         />
       )}

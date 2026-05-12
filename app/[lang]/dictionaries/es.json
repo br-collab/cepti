@@ -35,7 +35,10 @@
     "title": "Vista previa en pared",
     "sub": "Selecciona una textura del catálogo para previsualizarla.",
     "hint": "Selecciona una textura arriba",
-    "selected": "Textura seleccionada"
+    "selected": "Textura seleccionada",
+    "beforeBadge": "Antes",
+    "afterBadge": "Después",
+    "compareHint": "Arrastra el divisor para comparar la pared sin acabado con el acabado seleccionado."
   },
   "hero": {
     "headline": "Acabados que renuevan cualquier espacio al alcance de tu bolsillo",
