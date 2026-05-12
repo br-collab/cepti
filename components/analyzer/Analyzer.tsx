@@ -51,6 +51,9 @@ type Strings = {
   compareTitle: string
   changeImage: string
   compareHint: string
+  wallPrompt: string
+  wallHint: string
+  wallReset: string
   beforeBadge: string
   afterBadge: string
   productLabel: string
@@ -96,6 +99,10 @@ const STRINGS: Record<Locale, Strings> = {
     changeImage: 'Cambiar imagen',
     compareHint:
       'Arrastra el divisor para revelar el acabado con el producto seleccionado.',
+    wallPrompt: 'Marca el área de la pared',
+    wallHint:
+      'Arrastra sobre la foto para dibujar un rectángulo alrededor de la pared. El acabado solo se aplicará dentro del área marcada.',
+    wallReset: 'Cambiar área de pared',
     beforeBadge: 'Antes',
     afterBadge: 'Después',
     productLabel: 'Producto',
@@ -156,6 +163,10 @@ const STRINGS: Record<Locale, Strings> = {
     changeImage: 'Change image',
     compareHint:
       'Drag the divider to reveal the finish with the selected product.',
+    wallPrompt: 'Mark the wall area',
+    wallHint:
+      'Drag on the photo to draw a rectangle around the wall. The finish will only be applied inside the marked area.',
+    wallReset: 'Reselect wall area',
     beforeBadge: 'Before',
     afterBadge: 'After',
     productLabel: 'Product',
@@ -226,6 +237,15 @@ export default function Analyzer({ lang }: { lang: Locale }) {
   const [splitPosition, setSplitPosition] = useState<number>(50)
   const [dragging, setDragging] = useState<boolean>(false)
   const [generating, setGenerating] = useState<boolean>(false)
+  // wallRect uses normalized 0-1 coordinates so it survives canvas resize.
+  // null means the user hasn't marked a wall yet — paint preview is gated
+  // on this so the overlay can't bleed onto furniture or the floor.
+  const [wallRect, setWallRect] = useState<
+    { x: number; y: number; w: number; h: number } | null
+  >(null)
+  const [definingRect, setDefiningRect] = useState<
+    { startX: number; startY: number } | null
+  >(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
@@ -262,29 +282,40 @@ export default function Analyzer({ lang }: { lang: Locale }) {
 
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
-    const splitX = (splitPosition / 100) * canvas.width
+    // Without a wall rectangle, just show the photo + a dashed outline of
+    // the in-progress drag (if any). The overlay is gated on the user
+    // marking the wall, so we don't paint over furniture/floor.
+    if (!wallRect) {
+      void textureVersion
+      return
+    }
+
+    const rx = wallRect.x * canvas.width
+    const ry = wallRect.y * canvas.height
+    const rw = wallRect.w * canvas.width
+    const rh = wallRect.h * canvas.height
+
+    const splitX = Math.max(rx, Math.min(rx + rw, (splitPosition / 100) * canvas.width))
     const { r, g, b } = hexToRgb(selected.color)
     const alpha = opacity / 100
     const texture = textureRef.current
 
+    // Clip to the intersection of wall rectangle and right-of-split so the
+    // paint preview stays inside the wall area on the "after" side only.
     ctx.save()
     ctx.beginPath()
-    ctx.rect(splitX, 0, canvas.width - splitX, canvas.height)
+    ctx.rect(splitX, ry, rx + rw - splitX, rh)
     ctx.clip()
 
-    // Solid product color as the base coat so the result reads as paint
-    // covering the surface, not a transparent veil over the original photo.
     ctx.globalAlpha = alpha
     ctx.globalCompositeOperation = 'source-over'
     ctx.fillStyle = `rgb(${r},${g},${b})`
-    ctx.fillRect(splitX, 0, canvas.width - splitX, canvas.height)
+    ctx.fillRect(splitX, ry, rx + rw - splitX, rh)
 
     if (texture) {
-      // Tile the texture on top with multiply so the swatch's pattern shows
-      // through without lifting the original photo back through the paint.
       const tileSize = Math.max(160, Math.round(canvas.width / 6))
-      const cols = Math.ceil((canvas.width - splitX) / tileSize) + 1
-      const rows = Math.ceil(canvas.height / tileSize) + 1
+      const cols = Math.ceil((rx + rw - splitX) / tileSize) + 1
+      const rows = Math.ceil(rh / tileSize) + 1
       ctx.globalAlpha = Math.min(1, alpha + 0.2)
       ctx.globalCompositeOperation = 'multiply'
       for (let row = 0; row < rows; row++) {
@@ -292,7 +323,7 @@ export default function Analyzer({ lang }: { lang: Locale }) {
           ctx.drawImage(
             texture,
             splitX + col * tileSize,
-            row * tileSize,
+            ry + row * tileSize,
             tileSize,
             tileSize
           )
@@ -304,10 +335,20 @@ export default function Analyzer({ lang }: { lang: Locale }) {
     ctx.restore()
     void textureVersion
 
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(splitX - 1, 0, 2, canvas.height)
+    // Wall rectangle outline so the user can see what's being treated as wall.
+    ctx.save()
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)'
+    ctx.lineWidth = 2
+    ctx.setLineDash([8, 6])
+    ctx.strokeRect(rx, ry, rw, rh)
+    ctx.setLineDash([])
+    ctx.restore()
 
-    const handleY = canvas.height / 2
+    // Split line — only drawn within the wall rectangle.
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(splitX - 1, ry, 2, rh)
+
+    const handleY = ry + rh / 2
     ctx.beginPath()
     ctx.arc(splitX, handleY, 18, 0, Math.PI * 2)
     ctx.fillStyle = '#ffffff'
@@ -320,7 +361,7 @@ export default function Analyzer({ lang }: { lang: Locale }) {
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText('⇄', splitX, handleY)
-  }, [selected, opacity, splitPosition, textureVersion])
+  }, [selected, opacity, splitPosition, textureVersion, wallRect])
 
   useEffect(() => {
     if (!image) {
@@ -359,6 +400,7 @@ export default function Analyzer({ lang }: { lang: Locale }) {
     reader.onload = () => {
       setImage(reader.result as string)
       setSplitPosition(50)
+      setWallRect(null)
     }
     reader.onerror = () => setError(t.errorRead)
     reader.readAsDataURL(file)
@@ -383,23 +425,72 @@ export default function Analyzer({ lang }: { lang: Locale }) {
     setSplitPosition(Math.max(0, Math.min(100, pct)))
   }, [])
 
+  const normalizedFromClient = useCallback((clientX: number, clientY: number) => {
+    const canvas = canvasRef.current
+    if (!canvas) return null
+    const rect = canvas.getBoundingClientRect()
+    return {
+      x: Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)),
+      y: Math.max(0, Math.min(1, (clientY - rect.top) / rect.height)),
+    }
+  }, [])
+
   const onMouseDown = (e: MouseEvent<HTMLCanvasElement>) => {
-    setDragging(true)
-    updateSplit(e.clientX)
+    if (!wallRect) {
+      const p = normalizedFromClient(e.clientX, e.clientY)
+      if (!p) return
+      setDefiningRect({ startX: p.x, startY: p.y })
+      setWallRect({ x: p.x, y: p.y, w: 0, h: 0 })
+    } else {
+      setDragging(true)
+      updateSplit(e.clientX)
+    }
   }
   const onTouchStart = (e: TouchEvent<HTMLCanvasElement>) => {
-    setDragging(true)
-    updateSplit(e.touches[0].clientX)
+    const touch = e.touches[0]
+    if (!wallRect) {
+      const p = normalizedFromClient(touch.clientX, touch.clientY)
+      if (!p) return
+      setDefiningRect({ startX: p.x, startY: p.y })
+      setWallRect({ x: p.x, y: p.y, w: 0, h: 0 })
+    } else {
+      setDragging(true)
+      updateSplit(touch.clientX)
+    }
   }
 
   useEffect(() => {
-    if (!dragging) return
+    if (!dragging && !definingRect) return
     const onMove = (e: globalThis.MouseEvent | globalThis.TouchEvent) => {
-      const x =
-        'touches' in e ? e.touches[0].clientX : (e as globalThis.MouseEvent).clientX
-      updateSplit(x)
+      const isTouch = 'touches' in e
+      const clientX = isTouch ? e.touches[0].clientX : (e as globalThis.MouseEvent).clientX
+      const clientY = isTouch ? e.touches[0].clientY : (e as globalThis.MouseEvent).clientY
+      if (definingRect) {
+        const p = normalizedFromClient(clientX, clientY)
+        if (!p) return
+        setWallRect({
+          x: Math.min(definingRect.startX, p.x),
+          y: Math.min(definingRect.startY, p.y),
+          w: Math.abs(p.x - definingRect.startX),
+          h: Math.abs(p.y - definingRect.startY),
+        })
+      } else {
+        updateSplit(clientX)
+      }
     }
-    const onUp = () => setDragging(false)
+    const onUp = () => {
+      if (definingRect) {
+        setDefiningRect(null)
+        // Treat a near-zero drag as a cancel so we don't strand the user with
+        // a wallRect they can't see or interact with.
+        setWallRect((rect) => {
+          if (!rect) return null
+          if (rect.w < 0.04 || rect.h < 0.04) return null
+          return rect
+        })
+      }
+      setDragging(false)
+    }
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
     window.addEventListener('touchmove', onMove)
@@ -410,7 +501,7 @@ export default function Analyzer({ lang }: { lang: Locale }) {
       window.removeEventListener('touchmove', onMove)
       window.removeEventListener('touchend', onUp)
     }
-  }, [dragging, updateSplit])
+  }, [dragging, definingRect, updateSplit, normalizedFromClient])
 
   const selectedName = t.productNames[selected.id]
 
@@ -434,13 +525,30 @@ export default function Analyzer({ lang }: { lang: Locale }) {
       tctx.drawImage(img, 0, 0, tmp.width, tmp.height)
       const splitX = tmp.width / 2
       const { r, g, b } = hexToRgb(selected.color)
-      tctx.save()
-      tctx.beginPath()
-      tctx.rect(splitX, 0, tmp.width - splitX, tmp.height)
-      tctx.clip()
-      tctx.fillStyle = `rgba(${r},${g},${b},${opacity / 100})`
-      tctx.fillRect(splitX, 0, tmp.width - splitX, tmp.height)
-      tctx.restore()
+      if (wallRect) {
+        const rx = wallRect.x * tmp.width
+        const ry = wallRect.y * tmp.height
+        const rw = wallRect.w * tmp.width
+        const rh = wallRect.h * tmp.height
+        const overlayX = Math.max(rx, splitX)
+        const overlayW = rx + rw - overlayX
+        if (overlayW > 0) {
+          tctx.save()
+          tctx.beginPath()
+          tctx.rect(overlayX, ry, overlayW, rh)
+          tctx.clip()
+          tctx.fillStyle = `rgba(${r},${g},${b},${opacity / 100})`
+          tctx.fillRect(overlayX, ry, overlayW, rh)
+          tctx.restore()
+        }
+        tctx.save()
+        tctx.strokeStyle = 'rgba(255,255,255,0.9)'
+        tctx.lineWidth = 2
+        tctx.setLineDash([8, 6])
+        tctx.strokeRect(rx, ry, rw, rh)
+        tctx.setLineDash([])
+        tctx.restore()
+      }
 
       tctx.fillStyle = 'rgba(0,0,0,0.6)'
       tctx.fillRect(20, 20, 110, 36)
@@ -562,7 +670,13 @@ export default function Analyzer({ lang }: { lang: Locale }) {
   const reset = () => {
     setImage(null)
     setError(null)
+    setWallRect(null)
     imageRef.current = null
+  }
+
+  const resetWallRect = () => {
+    setWallRect(null)
+    setDefiningRect(null)
   }
 
   return (
@@ -596,21 +710,43 @@ export default function Analyzer({ lang }: { lang: Locale }) {
                 {t.changeImage}
               </button>
             </div>
-            <p className="text-stone-500 text-sm">{t.compareHint}</p>
+            <p className="text-stone-500 text-sm">
+              {wallRect ? t.compareHint : t.wallHint}
+            </p>
 
             <div className="relative bg-stone-100 rounded-2xl overflow-hidden shadow-sm">
               <canvas
                 ref={canvasRef}
                 onMouseDown={onMouseDown}
                 onTouchStart={onTouchStart}
-                className="block w-full cursor-ew-resize select-none touch-none"
+                className={`block w-full select-none touch-none ${
+                  wallRect ? 'cursor-ew-resize' : 'cursor-crosshair'
+                }`}
               />
-              <span className="absolute top-3 left-3 bg-black/60 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2 sm:px-2.5 py-1 rounded">
-                {t.beforeBadge}
-              </span>
-              <span className="absolute top-3 right-3 bg-black/60 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2 sm:px-2.5 py-1 rounded">
-                {t.afterBadge}
-              </span>
+              {!wallRect && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="bg-black/65 text-white text-xs sm:text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-full">
+                    {t.wallPrompt}
+                  </span>
+                </div>
+              )}
+              {wallRect && (
+                <>
+                  <span className="absolute top-3 left-3 bg-black/60 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2 sm:px-2.5 py-1 rounded">
+                    {t.beforeBadge}
+                  </span>
+                  <span className="absolute top-3 right-3 bg-black/60 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2 sm:px-2.5 py-1 rounded">
+                    {t.afterBadge}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={resetWallRect}
+                    className="absolute bottom-3 right-3 bg-white/95 hover:bg-white text-stone-800 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-md shadow-sm transition-colors"
+                  >
+                    {t.wallReset}
+                  </button>
+                </>
+              )}
             </div>
           </section>
 
