@@ -18,8 +18,6 @@ type ProductId =
   | 'ladriflex'
   | 'pinturas'
   | 'papelex'
-  | 'arte-con-arena'
-  | 'primer'
   | 'granito-liquido'
 
 type ProductOption = {
@@ -32,8 +30,6 @@ const PRODUCTS: ProductOption[] = [
   { id: 'ladriflex', color: '#5DCAA5', textureSrc: '/images/products/ladriflex/texture-01.jpg' },
   { id: 'pinturas', color: '#D85A30', textureSrc: '/images/products/pintura-aterciopelada/texture-01.jpg' },
   { id: 'papelex', color: '#7F77DD', textureSrc: '/images/products/papelex/texture-01.jpg' },
-  { id: 'arte-con-arena', color: '#BA7517', textureSrc: '/images/products/arte-con-arena/project-01.jpg' },
-  { id: 'primer', color: '#888780' },
   { id: 'granito-liquido', color: '#378ADD', textureSrc: '/images/products/pintura-efecto-granito/texture-01.jpg' },
 ]
 
@@ -124,8 +120,6 @@ const STRINGS: Record<Locale, Strings> = {
       ladriflex: 'Ladriflex',
       pinturas: 'Pinturas',
       papelex: 'Papelex',
-      'arte-con-arena': 'Arte con Arena',
-      primer: 'Primer',
       'granito-liquido': 'Granito Líquido',
     },
     pdf: {
@@ -188,8 +182,6 @@ const STRINGS: Record<Locale, Strings> = {
       ladriflex: 'Ladriflex',
       pinturas: 'Paints',
       papelex: 'Papelex',
-      'arte-con-arena': 'Sand Art',
-      primer: 'Primer',
       'granito-liquido': 'Liquid Granite',
     },
     pdf: {
