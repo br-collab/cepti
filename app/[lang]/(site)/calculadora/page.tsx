@@ -1,9 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
-import { brand, getHomepageProducts, pickLang } from '@/lib/products'
-import Calculadora, {
-  type CalcProductOption,
-} from '@/components/calculator/Calculadora'
+import { brand } from '@/lib/products'
+import Calculadora from '@/components/calculator/Calculadora'
 
 export function generateStaticParams() {
   return [{ lang: 'es' }, { lang: 'en' }]
@@ -28,14 +26,6 @@ export default async function CalculadoraPage({
   if (!hasLocale(lang)) notFound()
 
   const dict = await getDictionary(lang)
-  const products: CalcProductOption[] = getHomepageProducts()
-    .filter((p) => p.slug !== 'arte-con-arena')
-    .map((p) => ({
-      slug: p.slug,
-      name: pickLang(p.name, lang),
-      coverage: p.coverage_m2_per_unit,
-      unitLabel: pickLang(p.unit_label, lang),
-    }))
 
   return (
     <>
@@ -57,7 +47,6 @@ export default async function CalculadoraPage({
       <section className="py-10 sm:py-14 bg-background">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <Calculadora
-            products={products}
             whatsappNumber={brand.whatsapp_number}
             lang={lang}
             dict={dict.calculator}
