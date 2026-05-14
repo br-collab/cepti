@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getDictionary, hasLocale } from './dictionaries'
+import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
 import Hero from '@/components/sections/Hero'
 import Products from '@/components/sections/Products'
 import WhyUs from '@/components/sections/WhyUs'
