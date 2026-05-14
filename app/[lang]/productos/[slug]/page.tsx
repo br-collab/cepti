@@ -92,8 +92,6 @@ export default async function ProductDetailPage({
   const calcProduct: CalcProduct = {
     slug: product.slug,
     name: pickLang(product.name, lang),
-    coverage: product.coverage_m2_per_unit,
-    unitLabel: pickLang(product.unit_label, lang),
     whatsappTemplate: pickLang(product.whatsapp_template, lang),
     catalogCodes: product.catalog_codes,
   }

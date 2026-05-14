@@ -1,20 +1,11 @@
 import type { Locale } from '@/app/[lang]/dictionaries'
+import { type Surface, lookupRate } from '@/lib/calculator/rates'
 
 export type CalcProduct = {
   slug: string
   name: string
-  coverage: number
-  unitLabel: string
   whatsappTemplate: string
   catalogCodes: string[]
-}
-
-export type SurfaceType = 'lisa' | 'rugosa' | 'porosa'
-
-export const SURFACE_FACTOR: Record<SurfaceType, number> = {
-  lisa: 1.0,
-  rugosa: 1.2,
-  porosa: 1.3,
 }
 
 export const WASTE_BUFFER = 1.1
@@ -34,16 +25,21 @@ export function areaFromDimensions(width: string, height: string): number {
   return parseNumber(width) * parseNumber(height)
 }
 
+/**
+ * Material quantity for an area: a direct rate lookup from Francisco's spec
+ * (productId, surface, coats) times the area, plus a 10% waste buffer.
+ * Returns the raw quantity — no rounding up. Throws via lookupRate if the
+ * (productId, surface, coats) combination is not in the spec.
+ */
 export function calcQuantity(
   m2: number,
-  coverage: number,
-  options?: { coats?: number; surface?: SurfaceType }
+  productId: string,
+  surface: Surface,
+  coats: 1 | 2
 ): number {
-  if (!m2 || m2 <= 0 || !coverage || coverage <= 0) return 0
-  const coats = options?.coats ?? 1
-  const surface = options?.surface ?? 'lisa'
-  const adjusted = m2 * coats * SURFACE_FACTOR[surface]
-  return Math.ceil((adjusted / coverage) * WASTE_BUFFER)
+  if (!m2 || m2 <= 0) return 0
+  const { rate } = lookupRate(productId, surface, coats)
+  return rate * m2 * WASTE_BUFFER
 }
 
 export function formatM2(m2: number): string {
@@ -52,15 +48,14 @@ export function formatM2(m2: number): string {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2)
 }
 
-const PLURAL_ES: Record<string, string> = { 'galón': 'galones' }
-const PLURAL_EN: Record<string, string> = { gallon: 'gallons' }
-
-export function pluralizeUnit(unit: string, count: number, lang: Locale): string {
-  if (count <= 1) return unit
-  const map = lang === 'es' ? PLURAL_ES : PLURAL_EN
-  if (map[unit]) return map[unit]
-  if (unit.endsWith('²') || unit === 'kg' || unit === 'm²') return unit
-  return unit + 's'
+/**
+ * Format a computed quantity for display: round to 2 decimals, then trim
+ * trailing zeros. The waste buffer is already baked into the raw value;
+ * this only controls how the final number reads. e.g. 5 -> "5",
+ * 0.66 -> "0.66", 9.9 -> "9.9".
+ */
+export function formatQuantity(raw: number): string {
+  return Number(raw.toFixed(2)).toString()
 }
 
 export function buildWhatsAppHref(params: {

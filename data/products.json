@@ -75,8 +75,8 @@
       "image_folder": "/images/products/pintura-aterciopelada/",
       "coverage_m2_per_unit": 4,
       "unit_label": {
-        "es": "litro",
-        "en": "liter"
+        "es": "kg",
+        "en": "kg"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura Aterciopelada para {m2} m². ¿Pueden enviarme una cotización?",
@@ -152,8 +152,8 @@
       "image_folder": "/images/products/pintura-de-piedra/",
       "coverage_m2_per_unit": 3.5,
       "unit_label": {
-        "es": "litro",
-        "en": "liter"
+        "es": "kg",
+        "en": "kg"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura de Piedra. Superficie aproximada: {m2} m². Código de color: {code}. ¿Pueden enviarme una cotización?",
@@ -258,8 +258,8 @@
       "image_folder": "/images/products/pintura-efecto-granito/",
       "coverage_m2_per_unit": 3.5,
       "unit_label": {
-        "es": "litro",
-        "en": "liter"
+        "es": "kg",
+        "en": "kg"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura con Efecto Granito para {m2} m². ¿Pueden enviarme una cotización?",
@@ -365,8 +365,8 @@
       "image_folder": "/images/products/papelex/",
       "coverage_m2_per_unit": 1,
       "unit_label": {
-        "es": "placa",
-        "en": "plate"
+        "es": "hojas",
+        "en": "sheets"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Papelex. Superficie aproximada: {m2} m². Textura: {code}. ¿Pueden enviarme una cotización?",
@@ -458,8 +458,8 @@
       "image_folder": "/images/products/ladriflex/",
       "coverage_m2_per_unit": 1,
       "unit_label": {
-        "es": "placa",
-        "en": "plate"
+        "es": "piezas",
+        "en": "pieces"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Ladriflex. Superficie aproximada: {m2} m². Color/textura: {code}. ¿Pueden enviarme una cotización?",
@@ -577,8 +577,8 @@
       "image_folder": "/images/products/pegamento/",
       "coverage_m2_per_unit": 1.5,
       "unit_label": {
-        "es": "kg",
-        "en": "kg"
+        "es": "litro",
+        "en": "liter"
       },
       "whatsapp_template": {
         "es": "Hola CEPTI, necesito Pegamento para {m2} m² de {producto}. ¿Pueden enviarme una cotización?",
