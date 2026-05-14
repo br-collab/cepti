@@ -9,9 +9,10 @@ import {
   buildWhatsAppHref,
   calcQuantity,
   formatM2,
+  formatQuantity,
   parseNumber,
-  pluralizeUnit,
 } from '@/lib/calculator'
+import { getDefaultRate } from '@/lib/calculator/rates'
 
 type CalculatorDict = {
   heading: string
@@ -40,9 +41,12 @@ export default function CalculatorMini({
 }) {
   const [area, setArea] = useState('')
   const m2 = parseNumber(area)
-  const quantity = calcQuantity(m2, product.coverage)
+
+  // No surface/coats selector here — use the product's default spec row.
+  const rate = getDefaultRate(product.slug)
+  const quantity = calcQuantity(m2, product.slug, rate.surface, rate.coats)
   const hasResult = m2 > 0 && quantity > 0
-  const unitPlural = pluralizeUnit(product.unitLabel, quantity, lang)
+  const quantityText = `${formatQuantity(quantity)} ${rate.displayNoun[lang]}`
 
   const codeForMsg = selectedCode ?? dict.placeholderCode
 
@@ -92,7 +96,7 @@ export default function CalculatorMini({
             <p className="text-base sm:text-lg text-stone-800 leading-relaxed">
               {dict.resultLead}{' '}
               <span className="font-bold text-cepti-red text-xl sm:text-2xl">
-                {quantity} {unitPlural}
+                {quantityText}
               </span>{' '}
               {dict.resultOf} <span className="font-semibold">{product.name}</span>{' '}
               {dict.resultFor}{' '}
