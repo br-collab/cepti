@@ -1,11 +1,7 @@
 import '@/app/globals.css'
 import { notFound } from 'next/navigation'
 import { Syne, Manrope } from 'next/font/google'
-import { getDictionary, hasLocale } from './dictionaries'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import ChatbotCEPTI from '@/components/ChatbotCEPTI'
-import { brand } from '@/lib/products'
+import { hasLocale } from './dictionaries'
 
 const syne = Syne({
   subsets: ['latin'],
@@ -32,8 +28,6 @@ export default async function LocaleLayout({
   const { lang } = await params
   if (!hasLocale(lang)) notFound()
 
-  const dict = await getDictionary(lang)
-
   return (
     <html
       lang={lang}
@@ -49,10 +43,7 @@ export default async function LocaleLayout({
         className="min-h-full flex flex-col bg-background text-foreground font-sans notranslate"
         suppressHydrationWarning
       >
-        <Navbar lang={lang} />
-        <main className="flex-1">{children}</main>
-        <Footer dict={dict.footer} whatsappNumber={brand.whatsapp_number} />
-        <ChatbotCEPTI whatsappNumber={brand.whatsapp_number} initialLang={lang} />
+        {children}
       </body>
     </html>
   )
