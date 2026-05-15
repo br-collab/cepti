@@ -225,7 +225,7 @@ export default function Analyzer({ lang }: { lang: Locale }) {
   const [image, setImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<ProductOption>(PRODUCTS[0])
-  const [opacity, setOpacity] = useState<number>(70)
+  const [opacity, setOpacity] = useState<number>(92)
   const [splitPosition, setSplitPosition] = useState<number>(50)
   const [dragging, setDragging] = useState<boolean>(false)
   const [generating, setGenerating] = useState<boolean>(false)
@@ -889,8 +889,8 @@ function OpacitySlider({
       </div>
       <input
         type="range"
-        min={10}
-        max={80}
+        min={80}
+        max={100}
         step={1}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
