@@ -29,7 +29,15 @@
     "cta": "Request Quote via WhatsApp",
     "requestQuote": "Request Quote via WhatsApp",
     "placeholderCode": "To be determined",
-    "enterValues": "Enter the values above to see the calculation."
+    "enterValues": "Enter the values above to see the calculation.",
+    "surface": "Surface type",
+    "smooth": "Smooth",
+    "rough": "Rough",
+    "coats": "Coats",
+    "subProduct": "Product type",
+    "granito_paint": "Granite Effect Paint",
+    "granito_estandar": "Liquid Granite (Standard)",
+    "granito_intensivo": "Liquid Granite (Intensive)"
   },
   "visualizer": {
     "title": "Wall preview",
