@@ -114,6 +114,24 @@ export default async function ProductDetailPage({
       ? `/${lang}/galeria`
       : undefined
 
+  const calculatorSubProducts =
+    product.slug === 'pintura-efecto-granito'
+      ? [
+          {
+            label: dict.calculator.granito_paint,
+            productId: 'pintura-efecto-granito',
+          },
+          {
+            label: dict.calculator.granito_estandar,
+            productId: 'granito-liquido-estandar',
+          },
+          {
+            label: dict.calculator.granito_intensivo,
+            productId: 'granito-liquido-intensivo',
+          },
+        ]
+      : undefined
+
   return (
     <ProductDetail
       lang={lang}
@@ -138,6 +156,7 @@ export default async function ProductDetailPage({
       galleryTitleOverride={galleryTitleOverride}
       inMasterGallery={inMasterGallery}
       viewMoreHref={viewMoreHref}
+      calculatorSubProducts={calculatorSubProducts}
     />
   )
 }

@@ -34,7 +34,14 @@ type CalculatorDict = {
   cta: string
   placeholderCode: string
   enterValues: string
+  surface: string
+  smooth: string
+  rough: string
+  coats: string
+  subProduct: string
 }
+
+type SubProductOption = { label: string; productId: string }
 
 type VisualizerDict = {
   title: string
@@ -75,6 +82,7 @@ type Props = {
   galleryTitleOverride?: string | null
   inMasterGallery?: boolean
   viewMoreHref?: string
+  calculatorSubProducts?: SubProductOption[]
 }
 
 const INLINE_GALLERY_LIMIT = 6
@@ -111,6 +119,7 @@ export default function ProductDetail({
   galleryTitleOverride = null,
   inMasterGallery = false,
   viewMoreHref,
+  calculatorSubProducts,
 }: Props) {
   const galleryTitle = galleryTitleOverride ?? dict.gallery
   const galleryThumbnails = inMasterGallery
@@ -376,6 +385,8 @@ export default function ProductDetail({
               whatsappNumber={whatsappNumber}
               lang={lang}
               dict={calculatorDict}
+              showSubSelector={!!calculatorSubProducts}
+              subProducts={calculatorSubProducts}
             />
           </div>
         </section>

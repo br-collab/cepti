@@ -29,7 +29,15 @@
     "cta": "Solicitar Cotización por WhatsApp",
     "requestQuote": "Solicitar Cotización por WhatsApp",
     "placeholderCode": "Por definir",
-    "enterValues": "Ingresa los valores arriba para ver el cálculo."
+    "enterValues": "Ingresa los valores arriba para ver el cálculo.",
+    "surface": "Tipo de superficie",
+    "smooth": "Lisa",
+    "rough": "Rugosa",
+    "coats": "Manos",
+    "subProduct": "Tipo de producto",
+    "granito_paint": "Pintura con Efecto Granito",
+    "granito_estandar": "Granito Líquido (Estándar)",
+    "granito_intensivo": "Granito Líquido (Intensivo)"
   },
   "visualizer": {
     "title": "Vista previa en pared",
