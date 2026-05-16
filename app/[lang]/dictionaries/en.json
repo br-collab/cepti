@@ -134,5 +134,36 @@
       "Raising the technological level of the Dominican Republic and other Latin American countries into the top ranks among the world's high-tech leaders"
     ],
     "closing": "All our products are protected against mold and fungus, are 100% eco-friendly, and easily withstand wet cleaning. Proven formulations that withstand the tropical climate without losing color or texture, with a service life of up to 10 years in interior and exterior designs. We also offer at least a 5-year warranty on the installation of our finishing materials, performed by our experts."
+  },
+  "privacy": {
+    "metaTitle": "Privacy Policy — CEPTI",
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: May 2026",
+    "sections": {
+      "intro": {
+        "heading": "Introduction",
+        "body": "CEPTI operates the website cepticorp.com and associated digital tools. This policy explains how we collect, use, and protect your information."
+      },
+      "dataCollected": {
+        "heading": "Data we collect",
+        "body": "We collect information you provide directly, including: name, phone number, and messages sent via WhatsApp or contact forms. We also collect anonymous usage data to improve our services."
+      },
+      "howWeUse": {
+        "heading": "How we use your data",
+        "body": "We use your information to: respond to quote requests, improve our products and services, and communicate with you about orders or inquiries. We do not sell or share your personal information with third parties for commercial purposes."
+      },
+      "socialMedia": {
+        "heading": "Social media",
+        "body": "Our social media management application accesses public data from Instagram, Facebook, and Threads exclusively to post CEPTI content and respond to public comments on behalf of CEPTI. We do not access private messages from third parties or user data outside our own account."
+      },
+      "dataDeletion": {
+        "heading": "Data deletion",
+        "body": "To request deletion of your data, email us at info@cepticorp.com with the subject line 'Data deletion request'. We will process your request within 30 days."
+      },
+      "contact": {
+        "heading": "Contact",
+        "body": "If you have questions about this policy, contact us at: info@cepticorp.com | +1 (917) 246-1283"
+      }
+    }
   }
 }
