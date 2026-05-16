@@ -525,12 +525,39 @@ export default function Analyzer({ lang }: { lang: Locale }) {
         const overlayX = Math.max(rx, splitX)
         const overlayW = rx + rw - overlayX
         if (overlayW > 0) {
+          const alpha = opacity / 100
+          const texture = textureRef.current
           tctx.save()
           tctx.beginPath()
           tctx.rect(overlayX, ry, overlayW, rh)
           tctx.clip()
-          tctx.fillStyle = `rgba(${r},${g},${b},${opacity / 100})`
+
+          tctx.globalAlpha = alpha
+          tctx.globalCompositeOperation = 'source-over'
+          tctx.fillStyle = `rgb(${r},${g},${b})`
           tctx.fillRect(overlayX, ry, overlayW, rh)
+
+          if (texture && texture.complete && texture.naturalWidth > 0) {
+            const tileSize = Math.max(160, Math.round(tmp.width / 6))
+            const cols = Math.ceil(overlayW / tileSize) + 1
+            const rows = Math.ceil(rh / tileSize) + 1
+            tctx.globalAlpha = Math.min(1, alpha + 0.2)
+            tctx.globalCompositeOperation = 'multiply'
+            for (let row = 0; row < rows; row++) {
+              for (let col = 0; col < cols; col++) {
+                tctx.drawImage(
+                  texture,
+                  overlayX + col * tileSize,
+                  ry + row * tileSize,
+                  tileSize,
+                  tileSize
+                )
+              }
+            }
+          }
+
+          tctx.globalAlpha = 1
+          tctx.globalCompositeOperation = 'source-over'
           tctx.restore()
         }
         tctx.save()
