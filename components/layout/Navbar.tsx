@@ -10,6 +10,7 @@ const navLinks = {
     calculator: 'Calculadora',
     calculatorHref: '/es/calculadora',
     analyzer: 'Analizador',
+    analyzerHref: '/es/analizador',
     whyUs: '¿Por qué CEPTI?',
     about: 'Sobre nosotros',
     contact: 'Contacto',
@@ -21,6 +22,7 @@ const navLinks = {
     calculator: 'Calculator',
     calculatorHref: '/en/calculadora',
     analyzer: 'Analyzer',
+    analyzerHref: '/en/analyzer',
     whyUs: 'Why CEPTI?',
     about: 'About us',
     contact: 'Contact',
@@ -64,7 +66,7 @@ export default function Navbar({ lang }: { lang: Locale }) {
           links={[
             { href: `/${lang}/productos`, label: t.products },
             { href: t.calculatorHref, label: t.calculator },
-            { href: `/${lang}/analyzer`, label: t.analyzer },
+            { href: t.analyzerHref, label: t.analyzer },
             { href: `/${lang}#porque-cepti`, label: t.whyUs },
             { href: `/${lang}/sobre-nosotros`, label: t.about },
           ]}
