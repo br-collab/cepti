@@ -21,7 +21,7 @@ const META = {
 
 export async function generateMetadata({
   params,
-}: PageProps<'/[lang]/analyzer'>) {
+}: PageProps<'/[lang]/analizador'>) {
   const { lang } = await params
   if (!hasLocale(lang)) return {}
   return META[lang]
@@ -29,7 +29,7 @@ export async function generateMetadata({
 
 export default async function AnalyzerPage({
   params,
-}: PageProps<'/[lang]/analyzer'>) {
+}: PageProps<'/[lang]/analizador'>) {
   const { lang } = await params
   if (!hasLocale(lang)) notFound()
 
