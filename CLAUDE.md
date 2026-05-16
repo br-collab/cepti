@@ -148,9 +148,22 @@ tile overlay with multiply blend mode) at the current opacity.
 **Attribution:** every `wa.me` link the SMA generates uses `lib/sma/wa-link.ts` with a `[ref:platform-post-{id}]` token
 
 **Phase 2+ blockers:**
-- Meta App setup (create app, register OAuth callbacks + webhooks)
-- App Review per permission (2-4 weeks each, ~14 permissions total)
+- Meta App setup (create app, register OAuth callbacks + webhooks) — DONE 2026-05-16
+- App Review per permission (2–4 weeks each, per-permission screencast required)
+  - Threads use case: 8 permissions added in dev mode, locked 2026-05-16
+    - `threads_basic`, `threads_content_publish`, `threads_keyword_search`,
+      `threads_manage_insights`, `threads_manage_mentions`, `threads_manage_replies`,
+      `threads_profile_discovery`, `threads_read_replies`
+    - Skipped: `threads_delete` (hard rule #8), `threads_location_tagging` (out of
+      scope), `threads_share_to_instagram` (wrong direction — CEPTI is IG-first)
+  - Instagram Graph API use case: TBD
+  - Facebook Pages use case: TBD
 - Tech Provider Verification for Threads (~1 week)
+
+**App Review submission rule:** Do not submit any permission for review until
+its corresponding feature is built and demonstrable in `/admin/sma`. Meta requires
+a screencast of the complete user journey for each permission. Submitting empty
+stubs gets the permission rejected and consumes a review cycle.
 
 **Scope split:** Recommend → Schedule/Publish → Draft comment replies.
 No DM handling (ManyChat owns DMs). No autonomous posting — every reply
@@ -289,13 +302,13 @@ DO NOT merge. DO NOT open a PR. Report hash and wait.
 
 ---
 
-## Open work (as of 2026-05-15)
+## Open work (as of 2026-05-16)
 
 Priority order:
 
 | # | Item | Effort | Blocker |
 |---|------|--------|---------|
-| 1 | Meta App setup + App Review submissions | Low build, high calendar | None — start now |
+| 1 | App Review submissions (Threads 8 perms; IG + FB use cases TBD) | High build per perm + high calendar | Each permission blocked on its feature being demonstrable in `/admin/sma` |
 | 2 | SMA issue #2 typecheck fix | Medium (26 errors) | None |
 | 3 | Advisor chatbot KB integration | High | None (PDFs in repo) |
 | 4 | Advisor chat-history logging | Medium-High | Scope TBD with Francisco |
