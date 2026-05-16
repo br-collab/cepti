@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     return [
       { source: '/en/calculator', destination: '/en/calculadora' },
       { source: '/en/analyzer', destination: '/en/analizador' },
+      { source: '/en/privacy', destination: '/en/privacidad' },
     ]
   },
   async redirects() {

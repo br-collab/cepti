@@ -134,5 +134,36 @@
       "Subida del nivel tecnológico de República Dominicana y otros países de América Latina a los primeros puestos entre los líderes de alta tecnología del mundo"
     ],
     "closing": "Todos nuestros productos están protegidas contra la aparición de moho y hongos, son 100% ecológicos y soportan fácilmente la limpieza húmeda. Formulaciones probadas que resisten el clima tropical sin perder color ni textura y que tienen una vida útil de hasta 10 años en diseños de interiores y exteriores. También tenemos una garantía de al menos 5 años en la aplicación de nuestros materiales de acabado, realizada por nuestros expertos."
+  },
+  "privacy": {
+    "metaTitle": "Política de Privacidad — CEPTI",
+    "title": "Política de Privacidad",
+    "lastUpdated": "Última actualización: mayo 2026",
+    "sections": {
+      "intro": {
+        "heading": "Introducción",
+        "body": "CEPTI opera el sitio web cepticorp.com y las herramientas digitales asociadas. Esta política explica cómo recopilamos, usamos y protegemos su información."
+      },
+      "dataCollected": {
+        "heading": "Datos que recopilamos",
+        "body": "Recopilamos información que usted nos proporciona directamente, incluyendo: nombre, número de teléfono y mensajes enviados a través de WhatsApp o formularios de contacto. También recopilamos datos de uso anónimos para mejorar nuestros servicios."
+      },
+      "howWeUse": {
+        "heading": "Cómo usamos sus datos",
+        "body": "Usamos su información para: responder a solicitudes de cotización, mejorar nuestros productos y servicios, y comunicarnos con usted sobre pedidos o consultas. No vendemos ni compartimos su información personal con terceros con fines comerciales."
+      },
+      "socialMedia": {
+        "heading": "Redes sociales",
+        "body": "Nuestra aplicación de gestión de redes sociales accede a datos públicos de Instagram, Facebook y Threads exclusivamente para publicar contenido de CEPTI y responder a comentarios públicos en nombre de CEPTI. No accedemos a mensajes privados de terceros ni a datos de usuarios fuera de nuestra propia cuenta."
+      },
+      "dataDeletion": {
+        "heading": "Eliminación de datos",
+        "body": "Para solicitar la eliminación de sus datos, envíenos un correo a info@cepticorp.com con el asunto 'Eliminación de datos'. Procesaremos su solicitud en un plazo de 30 días."
+      },
+      "contact": {
+        "heading": "Contacto",
+        "body": "Si tiene preguntas sobre esta política, contáctenos en: info@cepticorp.com | +1 (917) 246-1283"
+      }
+    }
   }
 }
