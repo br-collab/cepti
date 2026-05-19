@@ -52,7 +52,7 @@ export default function Footer({
           </svg>
         </a>
         <a
-          href="https://facebook.com/cepticorp"
+          href="https://www.facebook.com/people/CEPTI/61589068903696/"
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Facebook"

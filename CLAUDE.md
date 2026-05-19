@@ -17,16 +17,19 @@ Dominican Republic. Stack: Next.js 15 (App Router), Tailwind CSS,
 dictionary-based i18n (`es.json` / `en.json`), Supabase (Postgres + Auth),
 Vercel (hosting + Cron).
 
-**North-star metric:** WhatsApp quote requests to +1 (917) 246-1283.
+**North-star metric:** WhatsApp quote requests to +1 (829) 449-1104.
 Every feature must be traceable to that metric or be cut.
 
 **Product line:** Pinturas (Aterciopelada, Efecto Piedra, Efecto Granito),
 Granito Líquido (Estándar, Intensivo), Ladriflex, Papelex, Arte con Arena,
 Primer, Pegamento.
 
-**Lead pipeline (do not duplicate):** ManyChat → Zapier → WhatsApp
-Business → Google Sheets. The site plugs into this pipeline via `wa.me`
-links. ManyChat owns all inbound DMs.
+**Lead pipeline (do not duplicate):** Site visitors click a `wa.me` link,
+which opens a WhatsApp conversation with CEPTI's WhatsApp Business account
+at `+1 (829) 449-1104`. No middleware — no ManyChat, no Zapier, no Sheets
+auto-logging. Inbound is handled directly by humans on WhatsApp Business.
+The on-site Advisor chatbot is custom-built and lives in this repo; it
+does not handoff via ManyChat.
 
 ---
 
@@ -166,8 +169,8 @@ a screencast of the complete user journey for each permission. Submitting empty
 stubs gets the permission rejected and consumes a review cycle.
 
 **Scope split:** Recommend → Schedule/Publish → Draft comment replies.
-No DM handling (ManyChat owns DMs). No autonomous posting — every reply
-is human-approved.
+No DM handling — inbound DMs are handled directly by humans on WhatsApp
+Business. No autonomous posting — every reply is human-approved.
 
 ---
 
@@ -213,7 +216,7 @@ locale-aware slugs, not hardcoded paths.
 8. **No autonomous posting** of LLM-generated text. Every reply is
    human-approved via the dashboard.
 
-9. **WhatsApp number is `+1 (917) 246-1283` (`wa.me/19172461283`).**
+9. **WhatsApp number is `+1 (829) 449-1104` (`wa.me/18294491104`).**
    Do not hardcode a different number anywhere.
 
 10. **Spanish is the default language.** English is secondary. When in
@@ -325,7 +328,7 @@ Priority order:
 | Yuri | — | WhatsApp (switching to WhatsApp Business) |
 
 **CEPTI contact info:**
-- WhatsApp: `+1 (917) 246-1283`
+- WhatsApp: `+1 (829) 449-1104`
 - Instagram: `@cepti_rd`
 - Email: `info@cepticorp.com`
 - Address: Av. República de Colombia 10, nave 11, sector los Peralejos, Distrito Nacional, Santo Domingo, DR

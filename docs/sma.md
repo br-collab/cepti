@@ -1,6 +1,6 @@
 # Social Media Agent (SMA)
 
-The SMA recommends posts, schedules them, and drafts replies to public comments across CEPTI's Instagram, Facebook Page, and Threads accounts. A human approves every published post and every reply. Direct messages are out of scope — ManyChat owns inbound DMs.
+The SMA recommends posts, schedules them, and drafts replies to public comments across CEPTI's Instagram, Facebook Page, and Threads accounts. A human approves every published post and every reply. Direct messages are out of scope — inbound DMs are handled directly by humans on WhatsApp Business.
 
 The north-star metric is WhatsApp quote requests attributable to social. Every wa.me link the SMA emits carries a ref-token so leads can be traced back to the post or comment they came from.
 
@@ -127,6 +127,6 @@ Each App Review screencast must demonstrate the end-to-end user flow that needs 
 
 - **Tokens silently expire** if the cron stops running for longer than the longest provider TTL (~60 days). The dashboard will show "Reconnect required" once a row is revoked, but the cron is the first line of defense — alert on `failed` results in its response.
 - **Webhook delivery is best-effort.** Phase 4 will also poll every 15 minutes for comments as a safety net.
-- **No DM handling.** ManyChat → Zapier → WhatsApp → Google Sheets is the inbound DM pipeline; the SMA must not subscribe to DM webhooks.
+- **No DM handling.** Inbound is direct — visitors click a `wa.me` link and humans handle the conversation on WhatsApp Business. No ManyChat, no Zapier, no Sheets auto-logging. The SMA must not subscribe to DM webhooks.
 - **`SMA_TOKEN_ENCRYPTION_KEY` rotation** is destructive: existing ciphertexts cannot be decrypted with the new key. Plan a re-OAuth window when rotating.
 - **Phase 1 does not yet refresh the Supabase auth cookie** in Server Components. If the admin session expires mid-page, they'll be redirected to login on the next request — acceptable for a single-admin tool; revisit in Phase 2 if it becomes noisy.

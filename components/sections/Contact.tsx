@@ -72,7 +72,14 @@ export default function Contact({
 
           <div>
             <p className={labelClass}>{dict.facebook}</p>
-            <p className={`${valueClass} text-cepti-brown/70`}>[{dict.comingSoon}]</p>
+            <a
+              href="https://www.facebook.com/people/CEPTI/61589068903696/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={linkClass}
+            >
+              facebook.com/CEPTI
+            </a>
           </div>
 
           <div>
