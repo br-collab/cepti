@@ -73,12 +73,12 @@ export default function Contact({
           <div>
             <p className={labelClass}>{dict.facebook}</p>
             <a
-              href="https://facebook.com/cepticorp"
+              href="https://www.facebook.com/people/CEPTI/61589068903696/"
               target="_blank"
               rel="noopener noreferrer"
               className={linkClass}
             >
-              facebook.com/cepticorp
+              facebook.com/CEPTI
             </a>
           </div>
 
