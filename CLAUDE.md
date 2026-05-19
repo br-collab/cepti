@@ -17,7 +17,7 @@ Dominican Republic. Stack: Next.js 15 (App Router), Tailwind CSS,
 dictionary-based i18n (`es.json` / `en.json`), Supabase (Postgres + Auth),
 Vercel (hosting + Cron).
 
-**North-star metric:** WhatsApp quote requests to +1 (917) 246-1283.
+**North-star metric:** WhatsApp quote requests to +1 (829) 449-1104.
 Every feature must be traceable to that metric or be cut.
 
 **Product line:** Pinturas (Aterciopelada, Efecto Piedra, Efecto Granito),
@@ -213,7 +213,7 @@ locale-aware slugs, not hardcoded paths.
 8. **No autonomous posting** of LLM-generated text. Every reply is
    human-approved via the dashboard.
 
-9. **WhatsApp number is `+1 (917) 246-1283` (`wa.me/19172461283`).**
+9. **WhatsApp number is `+1 (829) 449-1104` (`wa.me/18294491104`).**
    Do not hardcode a different number anywhere.
 
 10. **Spanish is the default language.** English is secondary. When in
@@ -325,7 +325,7 @@ Priority order:
 | Yuri | — | WhatsApp (switching to WhatsApp Business) |
 
 **CEPTI contact info:**
-- WhatsApp: `+1 (917) 246-1283`
+- WhatsApp: `+1 (829) 449-1104`
 - Instagram: `@cepti_rd`
 - Email: `info@cepticorp.com`
 - Address: Av. República de Colombia 10, nave 11, sector los Peralejos, Distrito Nacional, Santo Domingo, DR
