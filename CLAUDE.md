@@ -24,9 +24,12 @@ Every feature must be traceable to that metric or be cut.
 Granito Líquido (Estándar, Intensivo), Ladriflex, Papelex, Arte con Arena,
 Primer, Pegamento.
 
-**Lead pipeline (do not duplicate):** ManyChat → Zapier → WhatsApp
-Business → Google Sheets. The site plugs into this pipeline via `wa.me`
-links. ManyChat owns all inbound DMs.
+**Lead pipeline (do not duplicate):** Site visitors click a `wa.me` link,
+which opens a WhatsApp conversation with CEPTI's WhatsApp Business account
+at `+1 (829) 449-1104`. No middleware — no ManyChat, no Zapier, no Sheets
+auto-logging. Inbound is handled directly by humans on WhatsApp Business.
+The on-site Advisor chatbot is custom-built and lives in this repo; it
+does not handoff via ManyChat.
 
 ---
 
@@ -166,8 +169,8 @@ a screencast of the complete user journey for each permission. Submitting empty
 stubs gets the permission rejected and consumes a review cycle.
 
 **Scope split:** Recommend → Schedule/Publish → Draft comment replies.
-No DM handling (ManyChat owns DMs). No autonomous posting — every reply
-is human-approved.
+No DM handling — inbound DMs are handled directly by humans on WhatsApp
+Business. No autonomous posting — every reply is human-approved.
 
 ---
 
