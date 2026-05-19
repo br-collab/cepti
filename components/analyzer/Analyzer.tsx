@@ -204,8 +204,8 @@ const STRINGS: Record<Locale, Strings> = {
   },
 }
 
-const WHATSAPP_NUMBER = '19172461283'
-const WHATSAPP_DISPLAY = '+1 (917) 246-1283'
+const WHATSAPP_NUMBER = '18294491104'
+const WHATSAPP_DISPLAY = '+1 (829) 449-1104'
 const HEADER_GREEN: [number, number, number] = [15, 110, 86]
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
