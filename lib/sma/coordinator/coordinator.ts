@@ -50,8 +50,9 @@ import type {
   PauseReason,
   Platform,
   ResumeResult,
-  TaskStatus,
 } from './types';
+import { PLATFORM_AGENTS } from './registry';
+import { ConsoleAuditLogger } from './audit';
 
 // ── Configuration ────────────────────────────────────────────────────
 
@@ -65,9 +66,13 @@ export class SMACoordinator {
   private readonly supabase: SupabaseClient;
   private readonly auditLogger: AuditLogger;
 
-  constructor(supabase: SupabaseClient, auditLogger: AuditLogger) {
+  constructor(supabase: SupabaseClient, auditLogger?: AuditLogger) {
     this.supabase = supabase;
-    this.auditLogger = auditLogger;
+    this.auditLogger = auditLogger || this.getDefaultAuditLogger();
+  }
+
+  private getDefaultAuditLogger(): AuditLogger {
+    return new ConsoleAuditLogger();
   }
 
   // ─── Mandate 1: Dispatch ────────────────────────────────────────────
@@ -81,10 +86,50 @@ export class SMACoordinator {
    *
    * @param intent The originating content intent from Bill or Francisco
    * @param platforms Which platforms to dispatch to (subset of intent.proposed_platforms)
-   * @returns task_id (TSK-XXXXXXXXXXXX)
+   * @returns task_id (task_YYYYMMDD_xxxxxx)
+   * @throws Error if platforms are invalid or intent is missing required fields
    */
   async issueTask(intent: ContentIntent, platforms: Platform[]): Promise<string> {
-    throw new Error('NOT_IMPLEMENTED: issueTask');
+    this.validateIntent(intent);
+    this.validatePlatforms(platforms);
+
+    const taskId = this.makeTaskId();
+    const { error } = await this.supabase
+      .from('sma_coordinator_tasks')
+      .insert({
+        task_id: taskId,
+        intent,
+        platforms,
+        status: 'ACTIVE',
+      });
+
+    if (error) {
+      throw new Error(`Failed to insert task ${taskId}: ${error.message}`);
+    }
+
+    await this.auditLogger.logTaskIssued(taskId, intent, platforms);
+    return taskId;
+  }
+
+  private validateIntent(intent: ContentIntent): void {
+    if (!intent.topic || intent.topic.trim() === '') {
+      throw new Error('ContentIntent.topic is required and cannot be empty');
+    }
+    if (!intent.proposed_by || !['bill', 'francisco'].includes(intent.proposed_by)) {
+      throw new Error('ContentIntent.proposed_by must be "bill" or "francisco"');
+    }
+  }
+
+  private validatePlatforms(platforms: Platform[]): void {
+    if (!platforms || platforms.length === 0) {
+      throw new Error('At least one platform must be specified');
+    }
+    const validPlatforms = Object.keys(PLATFORM_AGENTS);
+    for (const platform of platforms) {
+      if (!validPlatforms.includes(platform)) {
+        throw new Error(`Unknown platform: ${platform}. Valid platforms: ${validPlatforms.join(', ')}`);
+      }
+    }
   }
 
   // ─── Mandate 2: Handoff Governance ──────────────────────────────────
@@ -104,11 +149,11 @@ export class SMACoordinator {
    * @param handoffReason Human-readable reason for audit log
    */
   async handoff(
-    taskId: string,
-    fromAgent: AgentRole,
-    toAgent: AgentRole,
-    payload: unknown,
-    handoffReason: string,
+    _taskId: string,
+    _fromAgent: AgentRole,
+    _toAgent: AgentRole,
+    _payload: unknown,
+    _handoffReason: string,
   ): Promise<HandoffRecord> {
     throw new Error('NOT_IMPLEMENTED: handoff');
   }
@@ -120,7 +165,7 @@ export class SMACoordinator {
    *
    * @returns true if the handoff is valid and Coordinator-authorized
    */
-  async confirmHandoff(record: HandoffRecord): Promise<boolean> {
+  async confirmHandoff(_record: HandoffRecord): Promise<boolean> {
     throw new Error('NOT_IMPLEMENTED: confirmHandoff');
   }
 
@@ -135,9 +180,9 @@ export class SMACoordinator {
    * @param telemetry Agent-specific data payload
    */
   async recordTelemetry(
-    taskId: string,
-    agent: AgentRole,
-    telemetry: AgentTelemetry,
+    _taskId: string,
+    _agent: AgentRole,
+    _telemetry: AgentTelemetry,
   ): Promise<void> {
     throw new Error('NOT_IMPLEMENTED: recordTelemetry');
   }
@@ -149,7 +194,7 @@ export class SMACoordinator {
    *
    * Returns null if the lifecycle is not yet complete.
    */
-  async getContentLifecycle(taskId: string): Promise<ContentLifecycle | null> {
+  async getContentLifecycle(_taskId: string): Promise<ContentLifecycle | null> {
     throw new Error('NOT_IMPLEMENTED: getContentLifecycle');
   }
 
@@ -165,9 +210,9 @@ export class SMACoordinator {
    * @param context Full bundled context for the approver
    */
   async requestApproval(
-    taskId: string,
-    reason: PauseReason,
-    context: ApprovalContext,
+    _taskId: string,
+    _reason: PauseReason,
+    _context: ApprovalContext,
   ): Promise<void> {
     throw new Error('NOT_IMPLEMENTED: requestApproval');
   }
@@ -179,9 +224,9 @@ export class SMACoordinator {
    * surfaces these as the approval queue.
    */
   async pauseLifecycle(
-    taskId: string,
-    reason: PauseReason,
-    context: ApprovalContext,
+    _taskId: string,
+    _reason: PauseReason,
+    _context: ApprovalContext,
   ): Promise<void> {
     throw new Error('NOT_IMPLEMENTED: pauseLifecycle');
   }
@@ -196,9 +241,9 @@ export class SMACoordinator {
    * and rationale before acting.
    */
   async resumeLifecycle(
-    taskId: string,
-    decision: 'APPROVE' | 'DENY',
-    attribution: {
+    _taskId: string,
+    _decision: 'APPROVE' | 'DENY',
+    _attribution: {
       approver_id: string;
       rationale: string;
     },
@@ -214,8 +259,6 @@ export class SMACoordinator {
     throw new Error('NOT_IMPLEMENTED: listPausedLifecycles');
   }
 
-  // ─── Status / Dashboard ─────────────────────────────────────────────
-
   /**
    * Coordinator status snapshot for the dashboard. Counts active tasks,
    * paused tasks, recent handoffs, etc.
@@ -227,16 +270,28 @@ export class SMACoordinator {
   // ─── Private helpers ────────────────────────────────────────────────
 
   /**
-   * Generate a task_id with TSK- prefix.
+   * Generate a task_id: task_YYYYMMDD_xxxxxx (6-char alphanumeric suffix).
    */
-  private makeTaskId(intent: ContentIntent): string {
-    throw new Error('NOT_IMPLEMENTED: makeTaskId');
+  private makeTaskId(): string {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const dateStr = `${year}${month}${day}`;
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let suffix = '';
+    for (let i = 0; i < 6; i++) {
+      suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return `task_${dateStr}_${suffix}`;
   }
 
   /**
    * Generate a handoff_id with HO- prefix.
    */
-  private makeHandoffId(taskId: string, fromAgent: AgentRole, toAgent: AgentRole): string {
+  private makeHandoffId(_taskId: string, _fromAgent: AgentRole, _toAgent: AgentRole): string {
     throw new Error('NOT_IMPLEMENTED: makeHandoffId');
   }
 
@@ -244,7 +299,7 @@ export class SMACoordinator {
    * Compute SHA-256 lineage hash over the assembled ContentLifecycle.
    * Used for audit tamper-evidence (nice to have, not gating).
    */
-  private makeLineageHash(lifecycle: Omit<ContentLifecycle, 'lineage_hash'>): string {
+  private makeLineageHash(_lifecycle: Omit<ContentLifecycle, 'lineage_hash'>): string {
     throw new Error('NOT_IMPLEMENTED: makeLineageHash');
   }
 
@@ -252,7 +307,7 @@ export class SMACoordinator {
    * Check whether all platforms in the task have returned telemetry.
    * If so, the lifecycle is ready for assembly.
    */
-  private async isLifecycleReady(taskId: string): Promise<boolean> {
+  private async isLifecycleReady(_taskId: string): Promise<boolean> {
     throw new Error('NOT_IMPLEMENTED: isLifecycleReady');
   }
 
@@ -261,7 +316,7 @@ export class SMACoordinator {
    * approvals, and publish results. Persists to
    * sma_content_lifecycles.
    */
-  private async assembleLifecycle(taskId: string): Promise<ContentLifecycle> {
+  private async assembleLifecycle(_taskId: string): Promise<ContentLifecycle> {
     throw new Error('NOT_IMPLEMENTED: assembleLifecycle');
   }
 }
