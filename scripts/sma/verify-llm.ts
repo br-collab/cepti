@@ -23,26 +23,53 @@ const loadEnvLocal = () => {
 };
 
 const main = async () => {
-  console.log("Verifying LLM client setup...\n");
+  console.log("=== LLM Connectivity Verification ===\n");
 
   try {
     const apiKey = loadEnvLocal();
     console.log("✓ ANTHROPIC_API_KEY loaded from .env.local");
-    console.log(`  Key starts with: ${apiKey.substring(0, 7)}...`);
 
     if (!apiKey || apiKey === "") {
       throw new Error("ANTHROPIC_API_KEY is empty");
     }
 
-    createLLMClient();
-    console.log("✓ LLM client created successfully");
+    console.log("✓ Environment configured\n");
 
+    // Create client and make live API call
+    console.log("Making live API call...");
+    const client = createLLMClient();
     const model = getSMAModel();
-    console.log(`✓ SMA model configured: ${model}`);
 
-    console.log("\n✓ All verifications passed!");
+    const response = await client.messages.create({
+      model,
+      max_tokens: 100,
+      system: "You are a connectivity test.",
+      messages: [
+        {
+          role: "user",
+          content: "Reply with the single word OK",
+        },
+      ],
+    });
+
+    console.log("✓ API call successful\n");
+
+    // Extract and report results
+    const responseText = response.content
+      .filter((block) => block.type === "text")
+      .map((block) => (block as any).text)
+      .join("");
+
+    const inputTokens = response.usage.input_tokens;
+    const outputTokens = response.usage.output_tokens;
+
+    console.log(`Model: ${model}`);
+    console.log(`Response: ${responseText}`);
+    console.log(`Input tokens: ${inputTokens}`);
+    console.log(`Output tokens: ${outputTokens}`);
+    console.log("\n✓ Verification passed!");
   } catch (error) {
-    console.error("✗ Verification failed:", error);
+    console.error("\n✗ Verification failed:", error);
     process.exit(1);
   }
 };

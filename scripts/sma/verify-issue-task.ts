@@ -15,6 +15,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import ws from 'ws';
 import { createClient } from '@supabase/supabase-js';
 import { SMACoordinator } from '../../lib/sma/coordinator/coordinator';
 import type { ContentIntent, Platform } from '../../lib/sma/coordinator/types';
@@ -68,7 +69,9 @@ const main = async (): Promise<void> => {
       throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
     }
 
-    const supabase = createClient(url, serviceKey);
+    const supabase = createClient(url, serviceKey, {
+      realtime: { transport: ws as any },
+    });
     const coordinator = new SMACoordinator(supabase);
     console.log('✓ Coordinator instance created\n');
 
