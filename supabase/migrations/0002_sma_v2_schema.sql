@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS public.sma_paused_lifecycles (
   context              jsonb NOT NULL,
   paused_at            timestamptz DEFAULT now(),
   resumed_at           timestamptz,
-  approver_id          uuid REFERENCES public.sma_admins(id),
+  approver_id          uuid REFERENCES public.sma_admins(user_id),
   approval_decision    text CHECK (approval_decision IN ('APPROVE', 'DENY')),
   approval_rationale   text
 );
