@@ -48,25 +48,22 @@ export class FacebookAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Load caption prompt template
-    const promptPath = path.join(process.cwd(), 'prompts/facebook/caption.md');
+    // Load engagement framework and platform-specific prompt
+    const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
+    const promptPath = path.join(process.cwd(), 'prompts/facebook/caption-v2.md');
+
+    const framework = fs.readFileSync(frameworkPath, 'utf-8');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
-    // Extract system prompt (between --- markers) and user template
-    const parts = promptTemplate.split('---');
-    const systemPrompt = parts[2].trim();
+    // Build comprehensive system prompt with framework + platform strategy
+    const systemPrompt = `You are an expert social media marketer with 10+ years of experience in creating engaging, conversion-focused content.\n\n${framework}\n\n${promptTemplate}`;
 
-    // Build user message from template
-    const userMessage = systemPrompt
-      .split('\n')
-      .slice(-2)
-      .join('\n')
-      .replace('{topic}', intent.topic)
-      .replace('{notes}', intent.notes || '');
+    // Build user message from template placeholders
+    const userMessage = `Write a compelling Facebook caption using the engagement framework (Hook → Benefit → Social Proof → CTA):\n\nProduct: ${intent.topic}\nContext: ${intent.notes || 'General product promotion'}\n\nRemember: Hook first, build trust, make it conversational and warm.`;
 
     // Generate caption via LLM
     const result = await generateDetailed({
-      system: systemPrompt.substring(0, systemPrompt.lastIndexOf('# User')).trim(),
+      system: systemPrompt,
       userMessage,
       maxTokens: 512,
     });

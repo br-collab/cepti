@@ -27,6 +27,8 @@
  *   - thread-chain.md
  */
 
+import fs from 'fs';
+import path from 'path';
 import type {
   AgentRole,
   DraftResult,
@@ -49,9 +51,27 @@ export class ThreadsAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Threads caption (500 char max, conversational)
-    const caption = `Check out this: ${intent.topic}. ${intent.notes || 'Worth exploring!'}`;
-    const truncatedCaption = caption.substring(0, 500);
+    // Load engagement framework and Threads-specific prompt
+    const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
+    const promptPath = path.join(process.cwd(), 'prompts/threads/caption-v2.md');
+
+    const framework = fs.readFileSync(frameworkPath, 'utf-8');
+    const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
+
+    // Build comprehensive system prompt
+    const systemPrompt = `You are an expert Threads strategist with 10+ years of social media experience. You write conversational, insider-knowledge content that sparks discussion.\n\n${framework}\n\n${promptTemplate}`;
+
+    // Build user message
+    const userMessage = `Write a compelling Threads post using the engagement framework:\n\nProduct: ${intent.topic}\nContext: ${intent.notes || 'Share insider insight about this product'}\n\nRemember: Conversational, authentic, opinionated. Encourage replies.`;
+
+    // Generate caption via LLM
+    const result = await generateDetailed({
+      system: systemPrompt,
+      userMessage,
+      maxTokens: 512,
+    });
+
+    const caption = result.text.substring(0, 500); // Threads 500 char limit
 
     // Load product images (if enabled)
     const draftId = this.makeDraftId();
@@ -65,7 +85,7 @@ export class ThreadsAgent extends PlatformAgentBase {
 
       // Generate video from images if enabled
       if (includeVideo && productImages.length > 0) {
-        const video = await generateProductVideo(productImages, truncatedCaption, draftId);
+        const video = await generateProductVideo(productImages, caption, draftId);
         if (video) {
           attachedAssets = [video.videoPath, ...productImages];
         }
@@ -76,13 +96,13 @@ export class ThreadsAgent extends PlatformAgentBase {
       platform: 'threads',
       draft_id: draftId,
       generated_at: new Date().toISOString(),
-      body: truncatedCaption,
+      body: caption,
       attached_assets: attachedAssets.length > 0 ? attachedAssets : undefined,
-      estimated_character_count: truncatedCaption.length,
-      prompt_version: 'threads-caption-v1',
-      model: 'claude-opus-4-8',
-      tokens_input: 100,
-      tokens_output: 100,
+      estimated_character_count: caption.length,
+      prompt_version: 'threads-caption-v2',
+      model: result.model,
+      tokens_input: result.inputTokens,
+      tokens_output: result.outputTokens,
     };
   }
 

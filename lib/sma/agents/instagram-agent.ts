@@ -30,6 +30,8 @@
  *   - reel-caption.md
  */
 
+import fs from 'fs';
+import path from 'path';
 import type {
   AgentRole,
   DraftResult,
@@ -52,8 +54,27 @@ export class InstagramAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Instagram caption prompt (max 2200 chars, hashtag-heavy)
-    const caption = `[Instagram Caption for ${intent.topic}]\n\n${intent.notes || intent.topic}\n\n#CEPTI #ProductShowcase #Innovation`;
+    // Load engagement framework and Instagram-specific prompt
+    const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
+    const promptPath = path.join(process.cwd(), 'prompts/instagram/caption-v2.md');
+
+    const framework = fs.readFileSync(frameworkPath, 'utf-8');
+    const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
+
+    // Build comprehensive system prompt
+    const systemPrompt = `You are an expert Instagram content strategist with 10+ years of experience creating viral, aspirational content.\n\n${framework}\n\n${promptTemplate}`;
+
+    // Build user message
+    const userMessage = `Write a compelling Instagram caption using the engagement framework:\n\nProduct: ${intent.topic}\nContext: ${intent.notes || 'Showcase the transformation this product enables'}\n\nRemember: Aspirational, visual-first storytelling. Include strategic hashtags.`;
+
+    // Generate caption via LLM
+    const result = await generateDetailed({
+      system: systemPrompt,
+      userMessage,
+      maxTokens: 512,
+    });
+
+    const caption = result.text;
 
     // Load product images (if enabled)
     const draftId = this.makeDraftId();
@@ -81,10 +102,10 @@ export class InstagramAgent extends PlatformAgentBase {
       body: caption,
       attached_assets: attachedAssets.length > 0 ? attachedAssets : undefined,
       estimated_character_count: caption.length,
-      prompt_version: 'ig-caption-v1',
-      model: 'claude-opus-4-8',
-      tokens_input: 100,
-      tokens_output: 100,
+      prompt_version: 'ig-caption-v2',
+      model: result.model,
+      tokens_input: result.inputTokens,
+      tokens_output: result.outputTokens,
     };
   }
 
