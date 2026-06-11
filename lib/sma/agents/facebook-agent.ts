@@ -38,6 +38,8 @@ import type {
 } from '../coordinator/types';
 import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
+import { matchProductsInTopic } from '../products-service';
+import { generateProductVideo } from '../video-generator';
 
 export class FacebookAgent extends PlatformAgentBase {
   readonly platform: Platform = 'facebook';
@@ -82,11 +84,24 @@ export class FacebookAgent extends PlatformAgentBase {
     // Generate draft ID
     const draftId = this.makeDraftId();
 
+    // Load product images matching the topic
+    const productImages = await matchProductsInTopic(intent.topic);
+
+    // Generate video from images if available
+    let attachedAssets = productImages;
+    if (productImages.length > 0) {
+      const video = await generateProductVideo(productImages, result.text, draftId);
+      if (video) {
+        attachedAssets = [video.videoPath, ...productImages];
+      }
+    }
+
     return {
       platform: 'facebook',
       draft_id: draftId,
       generated_at: new Date().toISOString(),
       body: finalBody,
+      attached_assets: attachedAssets.length > 0 ? attachedAssets : undefined,
       estimated_character_count: finalBody.length,
       prompt_version: 'fb-caption-v1',
       model: result.model,
