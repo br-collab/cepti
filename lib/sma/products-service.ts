@@ -7,15 +7,17 @@ interface ProductCatalogEntry {
   images: string[]
 }
 
-let catalogCache: ProductCatalogEntry[] | null = null
+let catalogCache: ProductCatalogEntry[] = []
+let cacheLoaded = false
 
 export async function loadProductsCatalog(): Promise<ProductCatalogEntry[]> {
-  if (catalogCache) return catalogCache
+  if (cacheLoaded) return catalogCache
 
   try {
     const catalogPath = path.join(process.cwd(), 'data/products.json')
     const data = fs.readFileSync(catalogPath, 'utf-8')
     catalogCache = JSON.parse(data)
+    cacheLoaded = true
     return catalogCache
   } catch (error) {
     console.error('Failed to load products catalog:', error)
