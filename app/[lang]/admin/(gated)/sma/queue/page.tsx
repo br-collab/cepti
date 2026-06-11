@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import NewContentForm from '@/components/admin/sma/NewContentForm'
 import ApprovalQueueSection from '@/components/admin/sma/ApprovalQueueSection'
 import ReadyToPostSection from '@/components/admin/sma/ReadyToPostSection'
@@ -35,12 +35,11 @@ export default function QueuePage() {
   }
 
   // Load data on mount
-  if (loading && paused.length === 0 && ready.length === 0) {
-    const mountEffect = async () => {
-      await loadData()
+  useEffect(() => {
+    if (paused.length === 0 && ready.length === 0) {
+      loadData()
     }
-    mountEffect()
-  }
+  }, [])
 
   const handleDraftGenerated = async () => {
     // Refresh both queue and ready lists
