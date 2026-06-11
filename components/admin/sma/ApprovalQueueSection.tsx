@@ -64,7 +64,8 @@ export default function ApprovalQueueSection({
         const draft = item.context.draft
         const caption = draft.body
         const generatedAt = new Date(draft.generated_at).toLocaleString('es-ES')
-        const images = draft.attached_assets?.filter((a) => /\.(jpg|jpeg|png|webp)$/i.test(a)) || []
+        // Filter image files and strip 'public/' prefix for Next.js Image component
+        const images = draft.attached_assets?.filter((a) => /\.(jpg|jpeg|png|webp)$/i.test(a)).map((path) => path.replace(/^public\//, '/')) || []
         const currentIndex = currentImageIndex[item.task_id] || 0
 
         return (
