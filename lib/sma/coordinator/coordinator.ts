@@ -936,6 +936,288 @@ export class SMACoordinator {
   private async assembleLifecycle(_taskId: string): Promise<ContentLifecycle> {
     throw new Error('NOT_IMPLEMENTED: assembleLifecycle');
   }
+
+  // ─── Analytics Queries (Phase 2.5) ──────────────────────────────────
+
+  /**
+   * Get aggregated analytics data for a date range.
+   * Used by the analytics dashboard to display summary metrics.
+   */
+  async getAnalyticsData(startDate: Date, endDate: Date) {
+    const start = startDate.toISOString();
+    const end = endDate.toISOString();
+
+    // Query all published content lifecycles in the date range
+    const { data: lifecycles, error } = await this.supabase
+      .from('sma_content_lifecycles')
+      .select('*')
+      .gte('assembled_at', start)
+      .lte('assembled_at', end);
+
+    if (error) {
+      throw new Error(`Failed to fetch analytics data: ${error.message}`);
+    }
+
+    const posts = (lifecycles || []).map((row: any) => {
+      const lifecycle = row.lifecycle_record as ContentLifecycle;
+      return {
+        taskId: lifecycle.task_id,
+        platform: Object.keys(lifecycle.publications || {})[0] as Platform | undefined,
+        platforms: Object.keys(lifecycle.publications || {}) as Platform[],
+        publishedAt: lifecycle.publications && Object.values(lifecycle.publications)[0]
+          ? (Object.values(lifecycle.publications)[0] as PublishResult).published_at
+          : null,
+        metrics: lifecycle.initial_metrics || {},
+        draft: lifecycle.drafts || {},
+      };
+    });
+
+    return { posts, count: posts.length };
+  }
+
+  /**
+   * Get daily engagement trend data for charting.
+   * Returns daily aggregates of impressions, reach, engagement.
+   */
+  async getEngagementTrend(startDate: Date, endDate: Date) {
+    const start = startDate.toISOString();
+    const end = endDate.toISOString();
+
+    const { data: lifecycles, error } = await this.supabase
+      .from('sma_content_lifecycles')
+      .select('*')
+      .gte('assembled_at', start)
+      .lte('assembled_at', end);
+
+    if (error) {
+      throw new Error(`Failed to fetch engagement trend: ${error.message}`);
+    }
+
+    // Aggregate by date
+    const trendMap = new Map<string, {
+      impressions: number;
+      reach: number;
+      engagement: number;
+      platformSplit: Record<Platform, number>;
+    }>();
+
+    (lifecycles || []).forEach((row: any) => {
+      const lifecycle = row.lifecycle_record as ContentLifecycle;
+      if (!lifecycle.publications) return;
+
+      Object.entries(lifecycle.publications).forEach(([platform, pub]) => {
+        const publishResult = pub as PublishResult;
+        const date = new Date(publishResult.published_at).toISOString().split('T')[0];
+
+        const snapshot = lifecycle.initial_metrics?.[platform as Platform];
+        if (!snapshot) return;
+
+        if (!trendMap.has(date)) {
+          trendMap.set(date, {
+            impressions: 0,
+            reach: 0,
+            engagement: 0,
+            platformSplit: { facebook: 0, instagram: 0, threads: 0 },
+          });
+        }
+
+        const trend = trendMap.get(date)!;
+        trend.impressions += snapshot.impressions || 0;
+        trend.reach += snapshot.reach || 0;
+        trend.engagement += snapshot.engagement || 0;
+        trend.platformSplit[platform as Platform] =
+          (trend.platformSplit[platform as Platform] || 0) + 1;
+      });
+    });
+
+    return Array.from(trendMap.entries())
+      .map(([date, data]) => ({ date, ...data }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }
+
+  /**
+   * Get top products by engagement.
+   * Extracts product name from draft topic field.
+   */
+  async getTopProducts(startDate: Date, endDate: Date, limit = 5) {
+    const start = startDate.toISOString();
+    const end = endDate.toISOString();
+
+    const { data: lifecycles, error } = await this.supabase
+      .from('sma_content_lifecycles')
+      .select('*')
+      .gte('assembled_at', start)
+      .lte('assembled_at', end);
+
+    if (error) {
+      throw new Error(`Failed to fetch top products: ${error.message}`);
+    }
+
+    // Parse products from lifecycle intent.topic field
+    const productMap = new Map<string, {
+      posts_count: number;
+      total_engagement: number;
+      total_impressions: number;
+    }>();
+
+    (lifecycles || []).forEach((row: any) => {
+      const lifecycle = row.lifecycle_record as ContentLifecycle;
+      const topic = lifecycle.intent?.topic || '';
+
+      // Simple extraction: assume first capitalized word or known product name
+      const productMatch = topic.match(/\b([A-Z][a-z]+(?:flex|flow|care|care\+)?)/);
+      const product = productMatch ? productMatch[1] : 'Other';
+
+      if (!productMap.has(product)) {
+        productMap.set(product, {
+          posts_count: 0,
+          total_engagement: 0,
+          total_impressions: 0,
+        });
+      }
+
+      const stats = productMap.get(product)!;
+      stats.posts_count += 1;
+
+      Object.values(lifecycle.initial_metrics || {}).forEach((snapshot: any) => {
+        stats.total_engagement += snapshot.engagement || 0;
+        stats.total_impressions += snapshot.impressions || 0;
+      });
+    });
+
+    return Array.from(productMap.entries())
+      .map(([product, stats]) => ({
+        product,
+        ...stats,
+        avg_engagement:
+          stats.posts_count > 0 ? Math.round(stats.total_engagement / stats.posts_count) : 0,
+      }))
+      .sort((a, b) => b.avg_engagement - a.avg_engagement)
+      .slice(0, limit);
+  }
+
+  /**
+   * Get posting patterns: best times to post by hour of day.
+   * Returns engagement data grouped by hour (0-23).
+   */
+  async getPostingPatterns(startDate: Date, endDate: Date) {
+    const start = startDate.toISOString();
+    const end = endDate.toISOString();
+
+    const { data: lifecycles, error } = await this.supabase
+      .from('sma_content_lifecycles')
+      .select('*')
+      .gte('assembled_at', start)
+      .lte('assembled_at', end);
+
+    if (error) {
+      throw new Error(`Failed to fetch posting patterns: ${error.message}`);
+    }
+
+    // Group by hour of day
+    const hourMap = new Map<number, { post_count: number; total_engagement: number }>();
+
+    for (let h = 0; h < 24; h++) {
+      hourMap.set(h, { post_count: 0, total_engagement: 0 });
+    }
+
+    (lifecycles || []).forEach((row: any) => {
+      const lifecycle = row.lifecycle_record as ContentLifecycle;
+      if (!lifecycle.publications) return;
+
+      Object.entries(lifecycle.publications).forEach(([platform, pub]) => {
+        const publishResult = pub as PublishResult;
+        const hour = new Date(publishResult.published_at).getUTCHours();
+        const stats = hourMap.get(hour);
+        if (!stats) return;
+
+        stats.post_count += 1;
+
+        const snapshot = lifecycle.initial_metrics?.[platform as Platform];
+        if (snapshot) {
+          stats.total_engagement += snapshot.engagement || 0;
+        }
+      });
+    });
+
+    return Array.from(hourMap.entries())
+      .map(([hour, stats]) => ({
+        hour,
+        post_count: stats.post_count,
+        avg_engagement: stats.post_count > 0 ? Math.round(stats.total_engagement / stats.post_count) : 0,
+      }));
+  }
+
+  /**
+   * Get platform breakdown: count of posts by platform.
+   */
+  async getPlatformBreakdown(startDate: Date, endDate: Date) {
+    const start = startDate.toISOString();
+    const end = endDate.toISOString();
+
+    const { data: lifecycles, error } = await this.supabase
+      .from('sma_content_lifecycles')
+      .select('*')
+      .gte('assembled_at', start)
+      .lte('assembled_at', end);
+
+    if (error) {
+      throw new Error(`Failed to fetch platform breakdown: ${error.message}`);
+    }
+
+    const platformCounts: Record<Platform, number> = {
+      facebook: 0,
+      instagram: 0,
+      threads: 0,
+    };
+
+    (lifecycles || []).forEach((row: any) => {
+      const lifecycle = row.lifecycle_record as ContentLifecycle;
+      Object.keys(lifecycle.publications || {}).forEach((p) => {
+        platformCounts[p as Platform] = (platformCounts[p as Platform] || 0) + 1;
+      });
+    });
+
+    return Object.entries(platformCounts).map(([platform, count]) => ({
+      platform: platform as Platform,
+      count,
+    }));
+  }
+
+  /**
+   * Get WhatsApp inquiry data from engagement snapshots with wa_link_clicks.
+   */
+  async getWhatsappInquiries(startDate: Date, endDate: Date) {
+    const start = startDate.toISOString();
+    const end = endDate.toISOString();
+
+    const { data: lifecycles, error } = await this.supabase
+      .from('sma_content_lifecycles')
+      .select('*')
+      .gte('assembled_at', start)
+      .lte('assembled_at', end);
+
+    if (error) {
+      throw new Error(`Failed to fetch whatsapp inquiries: ${error.message}`);
+    }
+
+    let totalClicks = 0;
+    let totalImpressions = 0;
+
+    (lifecycles || []).forEach((row: any) => {
+      const lifecycle = row.lifecycle_record as ContentLifecycle;
+      Object.values(lifecycle.initial_metrics || {}).forEach((snapshot: any) => {
+        totalClicks += snapshot.wa_link_clicks || 0;
+        totalImpressions += snapshot.impressions || 0;
+      });
+    });
+
+    return {
+      total_clicks: totalClicks,
+      total_impressions: totalImpressions,
+      conversion_rate: totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : '0',
+    };
+  }
 }
 
 // ── Audit Logger Interface (separate concern) ────────────────────────

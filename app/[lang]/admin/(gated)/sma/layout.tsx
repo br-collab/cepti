@@ -6,6 +6,7 @@ const TABS = [
   { slug: 'connections', label: 'Connections' },
   { slug: 'recommendations', label: 'Recommendations' },
   { slug: 'scheduled', label: 'Scheduled' },
+  { slug: 'analytics', label: 'Analytics' },
   { slug: 'inbox', label: 'Inbox' },
   { slug: 'insights', label: 'Insights' },
   { slug: 'settings', label: 'Settings' },
