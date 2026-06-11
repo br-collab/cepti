@@ -54,18 +54,20 @@ export class InstagramAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Load engagement framework and Instagram-specific prompt
+    // Load expert system prompt, engagement framework, and Instagram-specific prompt
+    const systemPath = path.join(process.cwd(), 'prompts/system-expert-seo.md');
     const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
     const promptPath = path.join(process.cwd(), 'prompts/instagram/caption-v2.md');
 
+    const expertSystem = fs.readFileSync(systemPath, 'utf-8');
     const framework = fs.readFileSync(frameworkPath, 'utf-8');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
-    // Build comprehensive system prompt
-    const systemPrompt = `You are an expert Instagram content strategist with 10+ years of experience creating viral, aspirational content.\n\n${framework}\n\n${promptTemplate}`;
+    // Build comprehensive system prompt: expert mindset + framework + platform strategy
+    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${promptTemplate}`;
 
     // Build user message
-    const userMessage = `Write a compelling Instagram caption using the engagement framework:\n\nProduct: ${intent.topic}\nContext: ${intent.notes || 'Showcase the transformation this product enables'}\n\nRemember: Aspirational, visual-first storytelling. Include strategic hashtags.`;
+    const userMessage = `Write a compelling Instagram caption for: ${intent.topic}\n\nContext: ${intent.notes || 'Showcase the transformation this product enables'}\n\nApproach: Make people aspire to own/use this. Create visual storytelling through words. Include 8-12 strategic hashtags. Make them save or share this.`;
 
     // Generate caption via LLM
     const result = await generateDetailed({

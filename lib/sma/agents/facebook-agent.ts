@@ -48,18 +48,20 @@ export class FacebookAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Load engagement framework and platform-specific prompt
+    // Load expert system prompt, engagement framework, and platform-specific prompt
+    const systemPath = path.join(process.cwd(), 'prompts/system-expert-seo.md');
     const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
     const promptPath = path.join(process.cwd(), 'prompts/facebook/caption-v2.md');
 
+    const expertSystem = fs.readFileSync(systemPath, 'utf-8');
     const framework = fs.readFileSync(frameworkPath, 'utf-8');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
-    // Build comprehensive system prompt with framework + platform strategy
-    const systemPrompt = `You are an expert social media marketer with 10+ years of experience in creating engaging, conversion-focused content.\n\n${framework}\n\n${promptTemplate}`;
+    // Build comprehensive system prompt: expert mindset + framework + platform strategy
+    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${promptTemplate}`;
 
     // Build user message from template placeholders
-    const userMessage = `Write a compelling Facebook caption using the engagement framework (Hook → Benefit → Social Proof → CTA):\n\nProduct: ${intent.topic}\nContext: ${intent.notes || 'General product promotion'}\n\nRemember: Hook first, build trust, make it conversational and warm.`;
+    const userMessage = `Write a compelling Facebook caption for: ${intent.topic}\n\nContext: ${intent.notes || 'General product promotion'}\n\nApproach: Lead with transformation (how this improves their life), not features. Make them feel understood. Build trust. Ask for a low-friction next step (DM, message, or quote request).`;
 
     // Generate caption via LLM
     const result = await generateDetailed({

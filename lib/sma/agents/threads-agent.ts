@@ -51,18 +51,20 @@ export class ThreadsAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Load engagement framework and Threads-specific prompt
+    // Load expert system prompt, engagement framework, and Threads-specific prompt
+    const systemPath = path.join(process.cwd(), 'prompts/system-expert-seo.md');
     const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
     const promptPath = path.join(process.cwd(), 'prompts/threads/caption-v2.md');
 
+    const expertSystem = fs.readFileSync(systemPath, 'utf-8');
     const framework = fs.readFileSync(frameworkPath, 'utf-8');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
-    // Build comprehensive system prompt
-    const systemPrompt = `You are an expert Threads strategist with 10+ years of social media experience. You write conversational, insider-knowledge content that sparks discussion.\n\n${framework}\n\n${promptTemplate}`;
+    // Build comprehensive system prompt: expert mindset + framework + platform strategy
+    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${promptTemplate}`;
 
     // Build user message
-    const userMessage = `Write a compelling Threads post using the engagement framework:\n\nProduct: ${intent.topic}\nContext: ${intent.notes || 'Share insider insight about this product'}\n\nRemember: Conversational, authentic, opinionated. Encourage replies.`;
+    const userMessage = `Write a compelling Threads post for: ${intent.topic}\n\nContext: ${intent.notes || 'Share insider insight about this product'}\n\nApproach: Be authentic and opinionated. Share insider knowledge. Ask a genuine question. Make people want to reply and share their thoughts.`;
 
     // Generate caption via LLM
     const result = await generateDetailed({
