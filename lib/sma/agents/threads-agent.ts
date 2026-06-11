@@ -51,20 +51,24 @@ export class ThreadsAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Load expert system prompt, engagement framework, and Threads-specific prompt
+    // Load expert system prompt, engagement framework, psychology triggers, power words, and Threads-specific prompt
     const systemPath = path.join(process.cwd(), 'prompts/system-expert-seo.md');
     const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
+    const triggersPath = path.join(process.cwd(), 'prompts/psychology-triggers.md');
+    const powersPath = path.join(process.cwd(), 'prompts/power-words.md');
     const promptPath = path.join(process.cwd(), 'prompts/threads/caption-v2.md');
 
     const expertSystem = fs.readFileSync(systemPath, 'utf-8');
     const framework = fs.readFileSync(frameworkPath, 'utf-8');
+    const triggers = fs.readFileSync(triggersPath, 'utf-8');
+    const powerWords = fs.readFileSync(powersPath, 'utf-8');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
-    // Build comprehensive system prompt: expert mindset + framework + platform strategy
-    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${promptTemplate}`;
+    // Build comprehensive system prompt: expert mindset + framework + psychology + language + platform strategy
+    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
 
     // Build user message
-    const userMessage = `Write a compelling Threads post for: ${intent.topic}\n\nContext: ${intent.notes || 'Share insider insight about this product'}\n\nApproach: Be authentic and opinionated. Share insider knowledge. Ask a genuine question. Make people want to reply and share their thoughts.`;
+    const userMessage = `Write a compelling Threads post for: ${intent.topic}\n\nContext: ${intent.notes || 'Share insider insight about this product'}\n\nApproach:\n1. Start with contrarian take or insider knowledge\n2. Use action/power words (revolutionize, unleash, unlock, transform, etc.)\n3. Add psychology trigger (authority, curiosity gap, or reciprocity)\n4. Be conversational, authentic, and opinionated\n5. End with a genuine question that invites replies\n6. Keep under 280 characters\n\nRemember: Threads is real talk. No hashtags. Encourage discussion.`;
 
     // Generate caption via LLM
     const result = await generateDetailed({
@@ -78,7 +82,9 @@ export class ThreadsAgent extends PlatformAgentBase {
     // Load product images (if enabled)
     const draftId = this.makeDraftId();
     let attachedAssets: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includePictures = (intent as any).include_pictures !== false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includeVideo = (intent as any).include_video !== false;
 
     if (includePictures) {
@@ -124,11 +130,13 @@ export class ThreadsAgent extends PlatformAgentBase {
     return `DFT-${dateStr}_${suffix}`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async draftReply(record: HandoffRecord, inbound: InboundComment): Promise<DraftResult> {
     this.verifyHandoff(record);
     throw new Error('NOT_IMPLEMENTED: ThreadsAgent.draftReply');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async publish(record: HandoffRecord, approvedDraft: ApprovedDraft): Promise<PublishResult> {
     this.verifyHandoff(record);
     // IMMUTABLE STOP 1 enforcement note:
@@ -137,6 +145,7 @@ export class ThreadsAgent extends PlatformAgentBase {
     throw new Error('NOT_IMPLEMENTED: ThreadsAgent.publish');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {
     throw new Error('NOT_IMPLEMENTED: ThreadsAgent.fetchEngagement');
   }

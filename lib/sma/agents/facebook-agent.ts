@@ -48,20 +48,24 @@ export class FacebookAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Load expert system prompt, engagement framework, and platform-specific prompt
+    // Load expert system prompt, engagement framework, psychology triggers, power words, and platform-specific prompt
     const systemPath = path.join(process.cwd(), 'prompts/system-expert-seo.md');
     const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
+    const triggersPath = path.join(process.cwd(), 'prompts/psychology-triggers.md');
+    const powersPath = path.join(process.cwd(), 'prompts/power-words.md');
     const promptPath = path.join(process.cwd(), 'prompts/facebook/caption-v2.md');
 
     const expertSystem = fs.readFileSync(systemPath, 'utf-8');
     const framework = fs.readFileSync(frameworkPath, 'utf-8');
+    const triggers = fs.readFileSync(triggersPath, 'utf-8');
+    const powerWords = fs.readFileSync(powersPath, 'utf-8');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
-    // Build comprehensive system prompt: expert mindset + framework + platform strategy
-    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${promptTemplate}`;
+    // Build comprehensive system prompt: expert mindset + framework + psychology + language + platform strategy
+    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
 
     // Build user message from template placeholders
-    const userMessage = `Write a compelling Facebook caption for: ${intent.topic}\n\nContext: ${intent.notes || 'General product promotion'}\n\nApproach: Lead with transformation (how this improves their life), not features. Make them feel understood. Build trust. Ask for a low-friction next step (DM, message, or quote request).`;
+    const userMessage = `Write a compelling Facebook caption for: ${intent.topic}\n\nContext: ${intent.notes || 'General product promotion'}\n\nApproach: \n1. Hook with transformation or curiosity gap\n2. Use power words (transform, revolutionize, unlock, etc.)\n3. Add 1-2 psychology triggers (social proof, authority, urgency, or FOMO)\n4. Build trust and make them feel understood\n5. Low-friction CTA (DM, message, quote request)\n\nRemember: Feel authentic and earned, not salesy.`;
 
     // Generate caption via LLM
     const result = await generateDetailed({
@@ -85,7 +89,9 @@ export class FacebookAgent extends PlatformAgentBase {
 
     // Load product images matching the topic (if enabled)
     let attachedAssets: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includePictures = (intent as any).include_pictures !== false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includeVideo = (intent as any).include_video !== false;
 
     console.log('[FacebookAgent] Draft generation:', {
@@ -149,11 +155,13 @@ export class FacebookAgent extends PlatformAgentBase {
     return `DFT-${dateStr}_${suffix}`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async draftReply(record: HandoffRecord, inbound: InboundComment): Promise<DraftResult> {
     this.verifyHandoff(record);
     throw new Error('NOT_IMPLEMENTED: FacebookAgent.draftReply');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async publish(record: HandoffRecord, approvedDraft: ApprovedDraft): Promise<PublishResult> {
     this.verifyHandoff(record);
     // IMMUTABLE STOP 1 enforcement note:
@@ -162,6 +170,7 @@ export class FacebookAgent extends PlatformAgentBase {
     throw new Error('NOT_IMPLEMENTED: FacebookAgent.publish');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {
     throw new Error('NOT_IMPLEMENTED: FacebookAgent.fetchEngagement');
   }

@@ -54,20 +54,24 @@ export class InstagramAgent extends PlatformAgentBase {
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
 
-    // Load expert system prompt, engagement framework, and Instagram-specific prompt
+    // Load expert system prompt, engagement framework, psychology triggers, power words, and Instagram-specific prompt
     const systemPath = path.join(process.cwd(), 'prompts/system-expert-seo.md');
     const frameworkPath = path.join(process.cwd(), 'prompts/engagement-framework.md');
+    const triggersPath = path.join(process.cwd(), 'prompts/psychology-triggers.md');
+    const powersPath = path.join(process.cwd(), 'prompts/power-words.md');
     const promptPath = path.join(process.cwd(), 'prompts/instagram/caption-v2.md');
 
     const expertSystem = fs.readFileSync(systemPath, 'utf-8');
     const framework = fs.readFileSync(frameworkPath, 'utf-8');
+    const triggers = fs.readFileSync(triggersPath, 'utf-8');
+    const powerWords = fs.readFileSync(powersPath, 'utf-8');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
-    // Build comprehensive system prompt: expert mindset + framework + platform strategy
-    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${promptTemplate}`;
+    // Build comprehensive system prompt: expert mindset + framework + psychology + language + platform strategy
+    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
 
     // Build user message
-    const userMessage = `Write a compelling Instagram caption for: ${intent.topic}\n\nContext: ${intent.notes || 'Showcase the transformation this product enables'}\n\nApproach: Make people aspire to own/use this. Create visual storytelling through words. Include 8-12 strategic hashtags. Make them save or share this.`;
+    const userMessage = `Write a compelling Instagram caption for: ${intent.topic}\n\nContext: ${intent.notes || 'Showcase the transformation this product enables'}\n\nApproach:\n1. Hook with aspirational vision or curiosity gap\n2. Use sensory/desire power words (captivate, exquisite, luminous, refined, etc.)\n3. Add psychology trigger (social proof, exclusivity, FOMO, or aspiration)\n4. Use 1-2 strategic emojis that enhance the message\n5. Include 8-12 strategic hashtags (high-volume + niche combo)\n6. Make it saveable and shareable\n\nRemember: Visual storytelling through words. Make them feel the aspiration.`;
 
     // Generate caption via LLM
     const result = await generateDetailed({
@@ -81,7 +85,9 @@ export class InstagramAgent extends PlatformAgentBase {
     // Load product images (if enabled)
     const draftId = this.makeDraftId();
     let attachedAssets: string[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includePictures = (intent as any).include_pictures !== false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includeVideo = (intent as any).include_video !== false;
 
     if (includePictures) {
@@ -127,11 +133,13 @@ export class InstagramAgent extends PlatformAgentBase {
     return `DFT-${dateStr}_${suffix}`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async draftReply(record: HandoffRecord, inbound: InboundComment): Promise<DraftResult> {
     this.verifyHandoff(record);
     throw new Error('NOT_IMPLEMENTED: InstagramAgent.draftReply');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async publish(record: HandoffRecord, approvedDraft: ApprovedDraft): Promise<PublishResult> {
     this.verifyHandoff(record);
     // IMMUTABLE STOP 1 enforcement note:
@@ -140,6 +148,7 @@ export class InstagramAgent extends PlatformAgentBase {
     throw new Error('NOT_IMPLEMENTED: InstagramAgent.publish');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {
     throw new Error('NOT_IMPLEMENTED: InstagramAgent.fetchEngagement');
   }
