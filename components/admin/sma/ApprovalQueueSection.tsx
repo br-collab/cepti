@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { PausedLifecycle } from '@/lib/sma/coordinator/types'
 
 export default function ApprovalQueueSection({
@@ -12,6 +13,7 @@ export default function ApprovalQueueSection({
 }) {
   const [deciding, setDeciding] = useState<string | null>(null)
   const [rationales, setRationales] = useState<Record<string, string>>({})
+  const [currentImageIndex, setCurrentImageIndex] = useState<Record<string, number>>({})
 
   const handleDecision = async (taskId: string, decision: 'APPROVE' | 'DENY') => {
     const rationale = rationales[taskId]
@@ -62,6 +64,8 @@ export default function ApprovalQueueSection({
         const draft = item.context.draft
         const caption = draft.body
         const generatedAt = new Date(draft.generated_at).toLocaleString('es-ES')
+        const images = draft.attached_assets?.filter((a) => /\.(jpg|jpeg|png|webp)$/i.test(a)) || []
+        const currentIndex = currentImageIndex[item.task_id] || 0
 
         return (
           <div key={item.task_id} className="border border-zinc-200 rounded-lg p-4 space-y-3">
@@ -72,6 +76,52 @@ export default function ApprovalQueueSection({
                 {draft.tokens_output}
               </p>
             </div>
+
+            {images.length > 0 && (
+              <div className="space-y-2">
+                <div className="relative bg-zinc-100 rounded-lg overflow-hidden w-full h-48">
+                  <Image
+                    src={images[currentIndex]}
+                    alt={`Product image ${currentIndex + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                {images.length > 1 && (
+                  <div className="flex items-center justify-between text-xs text-zinc-600">
+                    <button
+                      onClick={() =>
+                        setCurrentImageIndex((prev) => ({
+                          ...prev,
+                          [item.task_id]: (currentIndex - 1 + images.length) % images.length,
+                        }))
+                      }
+                      className="px-2 py-1 rounded border border-zinc-300 hover:bg-zinc-50"
+                    >
+                      ← Prev
+                    </button>
+                    <span>
+                      {currentIndex + 1} / {images.length} images
+                    </span>
+                    <button
+                      onClick={() =>
+                        setCurrentImageIndex((prev) => ({
+                          ...prev,
+                          [item.task_id]: (currentIndex + 1) % images.length,
+                        }))
+                      }
+                      className="px-2 py-1 rounded border border-zinc-300 hover:bg-zinc-50"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {images.length === 0 && (
+              <p className="text-xs text-zinc-400 italic">No product images attached</p>
+            )}
 
             <div className="bg-zinc-50 rounded p-3 text-sm text-zinc-900 whitespace-pre-wrap max-h-60 overflow-y-auto">
               {caption}
