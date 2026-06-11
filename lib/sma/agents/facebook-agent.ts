@@ -24,6 +24,8 @@
  *   - product-feature.md
  */
 
+import fs from 'fs';
+import path from 'path';
 import type {
   AgentRole,
   DraftResult,
@@ -35,6 +37,7 @@ import type {
   PublishResult,
 } from '../coordinator/types';
 import { PlatformAgentBase, ApprovedDraft } from './platform-base';
+import { generateDetailed } from '../llm-client';
 
 export class FacebookAgent extends PlatformAgentBase {
   readonly platform: Platform = 'facebook';
@@ -42,7 +45,70 @@ export class FacebookAgent extends PlatformAgentBase {
 
   async draftPost(record: HandoffRecord, intent: ContentIntent): Promise<DraftResult> {
     this.verifyHandoff(record);
-    throw new Error('NOT_IMPLEMENTED: FacebookAgent.draftPost');
+
+    // Load caption prompt template
+    const promptPath = path.join(__dirname, '../../../prompts/facebook/caption.md');
+    const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
+
+    // Extract system prompt (between --- markers) and user template
+    const parts = promptTemplate.split('---');
+    const systemPrompt = parts[2].trim();
+
+    // Build user message from template
+    const userMessage = systemPrompt
+      .split('\n')
+      .slice(-2)
+      .join('\n')
+      .replace('{topic}', intent.topic)
+      .replace('{notes}', intent.notes || '');
+
+    // Generate caption via LLM
+    const result = await generateDetailed({
+      system: systemPrompt.substring(0, systemPrompt.lastIndexOf('# User')).trim(),
+      userMessage,
+      maxTokens: 512,
+    });
+
+    // Build wa.me link with task_id attribution
+    // Per CLAUDE.md: WhatsApp number is +1 (829) 449-1104, stored as 18294491104
+    const inquiryText = `Hola CEPTI, vi su publicación y me gustaría una cotización.`;
+    const refTag = ` [ref:fb-post-${record.task_id}]`;
+    const encodedMessage = encodeURIComponent(`${inquiryText}${refTag}`);
+    const waLink = `https://wa.me/18294491104?text=${encodedMessage}`;
+
+    // Append wa.me link to caption body
+    const finalBody = `${result.text}\n\n${waLink}`;
+
+    // Generate draft ID
+    const draftId = this.makeDraftId();
+
+    return {
+      platform: 'facebook',
+      draft_id: draftId,
+      generated_at: new Date().toISOString(),
+      body: finalBody,
+      estimated_character_count: finalBody.length,
+      prompt_version: 'fb-caption-v1',
+      model: result.model,
+      tokens_input: result.inputTokens,
+      tokens_output: result.outputTokens,
+    };
+  }
+
+  private makeDraftId(): string {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const dateStr = `${year}${month}${day}`;
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let suffix = '';
+    for (let i = 0; i < 6; i++) {
+      suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return `DFT-${dateStr}_${suffix}`;
   }
 
   async draftReply(record: HandoffRecord, inbound: InboundComment): Promise<DraftResult> {

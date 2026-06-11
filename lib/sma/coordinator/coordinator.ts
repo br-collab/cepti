@@ -149,13 +149,45 @@ export class SMACoordinator {
    * @param handoffReason Human-readable reason for audit log
    */
   async handoff(
-    _taskId: string,
-    _fromAgent: AgentRole,
-    _toAgent: AgentRole,
-    _payload: unknown,
-    _handoffReason: string,
+    taskId: string,
+    fromAgent: AgentRole,
+    toAgent: AgentRole,
+    payload: unknown,
+    handoffReason: string,
   ): Promise<HandoffRecord> {
-    throw new Error('NOT_IMPLEMENTED: handoff');
+    const handoffId = this.makeHandoffId(taskId, fromAgent, toAgent);
+    const ts = new Date().toISOString();
+
+    const record: HandoffRecord = {
+      handoff_id: handoffId,
+      task_id: taskId,
+      ts,
+      from_agent: fromAgent,
+      to_agent: toAgent,
+      payload,
+      handoff_reason: handoffReason,
+      status: 'ISSUED',
+      coordinator_authorized: true,
+    };
+
+    const { error } = await this.supabase
+      .from('sma_handoffs')
+      .insert({
+        handoff_id: record.handoff_id,
+        task_id: record.task_id,
+        from_agent: record.from_agent,
+        to_agent: record.to_agent,
+        payload: record.payload,
+        handoff_reason: record.handoff_reason,
+        status: record.status,
+      });
+
+    if (error) {
+      throw new Error(`Failed to insert handoff ${handoffId}: ${error.message}`);
+    }
+
+    await this.auditLogger.logHandoff(record);
+    return record;
   }
 
   /**
@@ -289,10 +321,22 @@ export class SMACoordinator {
   }
 
   /**
-   * Generate a handoff_id with HO- prefix.
+   * Generate a handoff_id: HO-YYYYMMDD_xxxxxx (6-char alphanumeric suffix).
    */
   private makeHandoffId(_taskId: string, _fromAgent: AgentRole, _toAgent: AgentRole): string {
-    throw new Error('NOT_IMPLEMENTED: makeHandoffId');
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const dateStr = `${year}${month}${day}`;
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let suffix = '';
+    for (let i = 0; i < 6; i++) {
+      suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return `HO-${dateStr}_${suffix}`;
   }
 
   /**
