@@ -29,6 +29,7 @@ import path from 'path';
 import type {
   AgentRole,
   DraftResult,
+  DraftImage,
   EngagementSnapshot,
   HandoffRecord,
   InboundComment,
@@ -38,6 +39,8 @@ import type {
 } from '../coordinator/types';
 import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
+import { matchProductsInTopic } from '../products-service';
+import { generateProductVideo } from '../video-generator';
 
 export class FacebookAgent extends PlatformAgentBase {
   readonly platform: Platform = 'facebook';
@@ -47,7 +50,7 @@ export class FacebookAgent extends PlatformAgentBase {
     this.verifyHandoff(record);
 
     // Load caption prompt template
-    const promptPath = path.join(__dirname, '../../../prompts/facebook/caption.md');
+    const promptPath = path.join(process.cwd(), 'prompts/facebook/caption.md');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
     // Extract system prompt (between --- markers) and user template
@@ -82,17 +85,56 @@ export class FacebookAgent extends PlatformAgentBase {
     // Generate draft ID
     const draftId = this.makeDraftId();
 
-    return {
+    // Match products in topic and collect images
+    let images: DraftImage[] = [];
+    try {
+      const matchedProducts = matchProductsInTopic(intent.topic);
+      for (const product of matchedProducts) {
+        // Use first 3 images per product
+        for (let i = 0; i < Math.min(product.images.length, 3); i++) {
+          images.push({
+            url: product.images[i],
+            productName: product.name,
+          });
+        }
+      }
+    } catch (error) {
+      // Log but don't fail on image matching error
+      console.warn('Failed to match product images:', error);
+    }
+
+    // Generate video if images are available
+    let videoData;
+    try {
+      if (images.length > 0) {
+        const videoImages = images.map((img) => img.url);
+        const videoResult = await generateProductVideo(videoImages, intent.topic, draftId);
+        videoData = {
+          url: videoResult.videoPath,
+          duration: videoResult.duration,
+          thumbnail: videoResult.thumbnailPath,
+        };
+      }
+    } catch (error) {
+      // Log but don't fail on video generation error
+      console.warn('Failed to generate video:', error);
+    }
+
+    const draftResult: DraftResult = {
       platform: 'facebook',
       draft_id: draftId,
       generated_at: new Date().toISOString(),
       body: finalBody,
+      images: images.length > 0 ? images : undefined,
+      video: videoData,
       estimated_character_count: finalBody.length,
       prompt_version: 'fb-caption-v1',
       model: result.model,
       tokens_input: result.inputTokens,
       tokens_output: result.outputTokens,
     };
+
+    return draftResult;
   }
 
   private makeDraftId(): string {

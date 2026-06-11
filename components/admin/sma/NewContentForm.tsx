@@ -50,14 +50,14 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="topic" className="block text-sm font-medium text-zinc-700 mb-1">
-          Tema *
+          Topic *
         </label>
         <input
           id="topic"
           type="text"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          placeholder="Ej: Ladriflex — ventajas del ladrillo flexible"
+          placeholder="E.g. Ladriflex — benefits of flexible brick"
           disabled={loading}
           className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
         />
@@ -65,13 +65,13 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium text-zinc-700 mb-1">
-          Notas (opcional)
+          Notes (optional)
         </label>
         <textarea
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Contexto adicional para el borrador"
+          placeholder="Additional context for the draft"
           disabled={loading}
           rows={3}
           className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
@@ -88,10 +88,10 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
         {loading ? (
           <>
             <span className="animate-spin mr-2">⏳</span>
-            Generando...
+            Generating...
           </>
         ) : (
-          'Generar borrador'
+          'Generate Draft'
         )}
       </button>
     </form>

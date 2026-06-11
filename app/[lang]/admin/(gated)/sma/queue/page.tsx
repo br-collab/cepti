@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import NewContentForm from '@/components/admin/sma/NewContentForm'
 import ApprovalQueueSection from '@/components/admin/sma/ApprovalQueueSection'
 import ReadyToPostSection from '@/components/admin/sma/ReadyToPostSection'
@@ -35,12 +35,9 @@ export default function QueuePage() {
   }
 
   // Load data on mount
-  if (loading && paused.length === 0 && ready.length === 0) {
-    const mountEffect = async () => {
-      await loadData()
-    }
-    mountEffect()
-  }
+  useEffect(() => {
+    loadData()
+  }, [])
 
   const handleDraftGenerated = async () => {
     // Refresh both queue and ready lists
@@ -56,19 +53,19 @@ export default function QueuePage() {
     <div className="space-y-8">
       {/* New Content Form */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <h2 className="text-lg font-semibold mb-4">Nuevo Contenido</h2>
+        <h2 className="text-lg font-semibold mb-4">New Content</h2>
         <NewContentForm onSuccess={handleDraftGenerated} />
       </section>
 
       {/* Approval Queue */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <h2 className="text-lg font-semibold mb-4">Cola de Aprobación</h2>
+        <h2 className="text-lg font-semibold mb-4">Approval Queue</h2>
         <ApprovalQueueSection items={paused} onDecision={handleDecisionMade} />
       </section>
 
       {/* Ready to Post */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <h2 className="text-lg font-semibold mb-4">Listo para Publicar</h2>
+        <h2 className="text-lg font-semibold mb-4">Ready to Post</h2>
         <ReadyToPostSection items={ready} />
       </section>
     </div>

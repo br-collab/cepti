@@ -98,12 +98,26 @@ export interface AgentTelemetry {
 
 // ── Draft and Publish Results ────────────────────────────────────────
 
+export interface DraftImage {
+  url: string;                         // Relative path from /public or full URL
+  productName: string;                 // Product being featured
+  caption?: string;                    // Optional image-specific caption
+}
+
+export interface DraftVideo {
+  url: string;                         // Relative path from /public or full URL
+  duration: number;                    // Duration in seconds
+  thumbnail: string;                   // Thumbnail image URL
+}
+
 export interface DraftResult {
   platform: Platform;
   draft_id: string;                    // DFT-XXXX
   generated_at: string;
   body: string;                        // Caption / post text
   hashtags?: string[];
+  images?: DraftImage[];               // Product images to accompany the post
+  video?: DraftVideo;                  // Generated video (optional)
   attached_assets?: string[];          // Storage paths
   estimated_character_count: number;
   prompt_version: string;              // Which prompt template was used
