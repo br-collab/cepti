@@ -42,10 +42,12 @@ import type {
   AgentTelemetry,
   ApprovalContext,
   ApprovalRecord,
+  ApprovalSummary,
   ContentIntent,
   ContentLifecycle,
   CoordinatorStatus,
   DraftResult,
+  EngagementSnapshot,
   HandoffRecord,
   PausedLifecycle,
   PauseReason,
@@ -297,13 +299,15 @@ export class SMACoordinator {
   }
 
   /**
-   * Resume a paused lifecycle with the approver's decision. On
-   * APPROVE, the appropriate platform agent is dispatched to publish.
-   * On DENY, the lifecycle terminates and the audit record reflects
-   * denial.
+   * Resume a paused lifecycle with the approver's decision.
    *
-   * Validates that attribution contains approver_id (from sma_admins)
-   * and rationale before acting.
+   * PHASE 2.4: Multi-User Approvals
+   * - Appends this approval to sma_approval_decisions
+   * - Prevents same user from approving twice (returns error if found)
+   * - Checks combined approval status:
+   *   - If any DENY: return DENIED (no second approval needed)
+   *   - If both APPROVE: return COMPLETE (ready to publish)
+   *   - Otherwise: return PENDING (waiting for other approver)
    *
    * @param scheduled_for Optional ISO timestamp for future publication. If provided,
    *                       must be a valid future datetime. Null = publish immediately.
@@ -339,6 +343,16 @@ export class SMACoordinator {
       }
     }
 
+    // Check if user already approved/denied
+    const alreadyApproved = await this.hasUserApproved(taskId, attribution.decided_by);
+    if (alreadyApproved) {
+      return {
+        status: 'INVALID_APPROVAL',
+        task_id: taskId,
+        missing: [`${attribution.decided_by} has already approved or denied this task`],
+      };
+    }
+
     // Read paused lifecycle row
     const { data: pausedRow, error: readError } = await this.supabase
       .from('sma_paused_lifecycles')
@@ -365,89 +379,182 @@ export class SMACoordinator {
     const context = pausedRow.context as ApprovalContext;
     const draft = context.draft as DraftResult;
 
-    // Create approval record
-    const approvalRecord: ApprovalRecord = {
+    // Insert approval decision into sma_approval_decisions
+    const { error: insertApprovalError } = await this.supabase
+      .from('sma_approval_decisions')
+      .insert({
+        task_id: taskId,
+        decided_by: attribution.decided_by,
+        decision,
+        rationale: attribution.rationale,
+        decided_at: new Date().toISOString(),
+        approver_id: attribution.approver_id,
+        scheduled_for: attribution.scheduled_for || null,
+      });
+
+    if (insertApprovalError) {
+      throw new Error(
+        `Failed to insert approval decision for ${taskId}: ${insertApprovalError.message}`,
+      );
+    }
+
+    // Get updated approval summary
+    const approvalSummary = await this.getApprovalSummary(taskId);
+
+    // If any DENY, the entire task is DENIED regardless of other approvals
+    if (approvalSummary.status === 'DENIED') {
+      // Update task status to DENIED
+      const { error: updateTaskError } = await this.supabase
+        .from('sma_coordinator_tasks')
+        .update({ status: 'DENIED' })
+        .eq('task_id', taskId);
+
+      if (updateTaskError) {
+        throw new Error(`Failed to update task status for ${taskId}: ${updateTaskError.message}`);
+      }
+
+      // Create denial lifecycle
+      const denialLifecycle: ContentLifecycle = {
+        task_id: taskId,
+        intent,
+        drafts: { [context.platform]: draft },
+        approvals: approvalSummary.all_approvals,
+        publications: {},
+        initial_metrics: {},
+        assembled_at: new Date().toISOString(),
+        status: 'DENIED',
+        lineage_hash: '', // Will be computed below
+      };
+
+      // Compute lineage hash
+      const { createHash } = await import('crypto');
+      const lifecycleJson = JSON.stringify(
+        { ...denialLifecycle, lineage_hash: '' },
+        null,
+        0,
+      );
+      const lineageHash = createHash('sha256').update(lifecycleJson).digest('hex');
+      denialLifecycle.lineage_hash = lineageHash;
+
+      // Insert denial lifecycle
+      const { error: insertLifecycleError } = await this.supabase
+        .from('sma_content_lifecycles')
+        .insert({
+          task_id: taskId,
+          lifecycle_record: denialLifecycle,
+          lineage_hash: lineageHash,
+        });
+
+      if (insertLifecycleError) {
+        throw new Error(
+          `Failed to insert denial lifecycle for ${taskId}: ${insertLifecycleError.message}`,
+        );
+      }
+
+      // Audit log
+      await this.auditLogger.logApprovalDecision(taskId, {
+        task_id: taskId,
+        decision,
+        decided_by: attribution.decided_by,
+        decided_at: new Date().toISOString(),
+        rationale: attribution.rationale,
+        scheduled_for: attribution.scheduled_for || null,
+      });
+
+      return { status: 'DENIED', task_id: taskId, rationale: attribution.rationale };
+    }
+
+    // If both approved, task is COMPLETE
+    if (approvalSummary.status === 'APPROVED') {
+      // Create complete lifecycle with all approvals
+      const completeLifecycle: ContentLifecycle = {
+        task_id: taskId,
+        intent,
+        drafts: { [context.platform]: draft },
+        approvals: approvalSummary.all_approvals,
+        publications: {},
+        initial_metrics: {},
+        assembled_at: new Date().toISOString(),
+        status: 'COMPLETE',
+        lineage_hash: '', // Will be computed below
+      };
+
+      // Compute lineage hash
+      const { createHash } = await import('crypto');
+      const lifecycleJson = JSON.stringify(
+        { ...completeLifecycle, lineage_hash: '' },
+        null,
+        0,
+      );
+      const lineageHash = createHash('sha256').update(lifecycleJson).digest('hex');
+      completeLifecycle.lineage_hash = lineageHash;
+
+      // Insert complete lifecycle
+      const { error: insertLifecycleError } = await this.supabase
+        .from('sma_content_lifecycles')
+        .insert({
+          task_id: taskId,
+          lifecycle_record: completeLifecycle,
+          lineage_hash: lineageHash,
+          scheduled_for: attribution.scheduled_for || null,
+        });
+
+      if (insertLifecycleError) {
+        throw new Error(
+          `Failed to insert complete lifecycle for ${taskId}: ${insertLifecycleError.message}`,
+        );
+      }
+
+      // Update task status to COMPLETE
+      const { error: updateTaskError } = await this.supabase
+        .from('sma_coordinator_tasks')
+        .update({ status: 'COMPLETE' })
+        .eq('task_id', taskId);
+
+      if (updateTaskError) {
+        throw new Error(`Failed to update task status for ${taskId}: ${updateTaskError.message}`);
+      }
+
+      // Audit log
+      await this.auditLogger.logApprovalDecision(taskId, {
+        task_id: taskId,
+        decision,
+        decided_by: attribution.decided_by,
+        decided_at: new Date().toISOString(),
+        rationale: attribution.rationale,
+        scheduled_for: attribution.scheduled_for || null,
+      });
+      await this.auditLogger.logLifecycleAssembled(completeLifecycle);
+
+      return { status: 'COMPLETE', task_id: taskId, lifecycle: completeLifecycle };
+    }
+
+    // Otherwise PENDING: waiting for the other approver
+    // Don't update task status; keep it PAUSED
+    await this.auditLogger.logApprovalDecision(taskId, {
       task_id: taskId,
       decision,
       decided_by: attribution.decided_by,
       decided_at: new Date().toISOString(),
       rationale: attribution.rationale,
       scheduled_for: attribution.scheduled_for || null,
-    };
+    });
 
-    // Determine new task status
-    const newTaskStatus: TaskStatus = decision === 'APPROVE' ? 'COMPLETE' : 'DENIED';
-
-    // Assemble ContentLifecycle (without lineage_hash for canonical JSON)
-    const lifecycleForHash: Omit<ContentLifecycle, 'lineage_hash'> = {
+    return {
+      status: 'COMPLETE',
       task_id: taskId,
-      intent,
-      drafts: { [context.platform]: draft },
-      approvals: [approvalRecord],
-      publications: {},
-      initial_metrics: {},
-      assembled_at: new Date().toISOString(),
-      status: newTaskStatus,
-    };
-
-    // Compute lineage hash (SHA-256 of canonical JSON)
-    const { createHash } = await import('crypto');
-    const lifecycleJson = JSON.stringify(lifecycleForHash, null, 0);
-    const lineageHash = createHash('sha256').update(lifecycleJson).digest('hex');
-
-    const completeLifecycle: ContentLifecycle = {
-      ...lifecycleForHash,
-      lineage_hash: lineageHash,
-    };
-
-    // Insert ContentLifecycle
-    const { error: insertLifecycleError } = await this.supabase
-      .from('sma_content_lifecycles')
-      .insert({
+      lifecycle: {
         task_id: taskId,
-        lifecycle_record: completeLifecycle,
-        lineage_hash: lineageHash,
-        scheduled_for: attribution.scheduled_for || null,
-      });
-
-    if (insertLifecycleError) {
-      throw new Error(
-        `Failed to assemble lifecycle for ${taskId}: ${insertLifecycleError.message}`,
-      );
-    }
-
-    // Update paused row with approval info and resumed_at
-    const { error: updatePausedError } = await this.supabase
-      .from('sma_paused_lifecycles')
-      .update({
-        approval_decision: decision,
-        approval_rationale: attribution.rationale,
-        approver_id: attribution.approver_id,
-        resumed_at: new Date().toISOString(),
-      })
-      .eq('task_id', taskId);
-
-    if (updatePausedError) {
-      throw new Error(`Failed to update paused row for ${taskId}: ${updatePausedError.message}`);
-    }
-
-    // Update task status
-    const { error: updateTaskError } = await this.supabase
-      .from('sma_coordinator_tasks')
-      .update({ status: newTaskStatus })
-      .eq('task_id', taskId);
-
-    if (updateTaskError) {
-      throw new Error(`Failed to update task status for ${taskId}: ${updateTaskError.message}`);
-    }
-
-    // Audit log the approval decision
-    await this.auditLogger.logApprovalDecision(taskId, approvalRecord);
-
-    // Audit log the lifecycle assembly
-    await this.auditLogger.logLifecycleAssembled(completeLifecycle);
-
-    return { status: 'COMPLETE', task_id: taskId, lifecycle: completeLifecycle };
+        intent,
+        drafts: { [context.platform]: draft },
+        approvals: approvalSummary.all_approvals,
+        publications: {},
+        initial_metrics: {},
+        assembled_at: new Date().toISOString(),
+        status: 'PAUSED',
+        lineage_hash: 'pending',
+      },
+    };
   }
 
   /**
@@ -466,6 +573,103 @@ export class SMACoordinator {
     }
 
     return data as PausedLifecycle[];
+  }
+
+  /**
+   * Check if a user has already approved or denied a task.
+   * Used to prevent double-approval by the same person.
+   *
+   * @param taskId The task to check
+   * @param decidedBy 'bill' or 'francisco'
+   * @returns true if user already has an approval/denial record
+   */
+  private async hasUserApproved(taskId: string, decidedBy: 'bill' | 'francisco'): Promise<boolean> {
+    const { data, error } = await this.supabase
+      .from('sma_approval_decisions')
+      .select('id')
+      .eq('task_id', taskId)
+      .eq('decided_by', decidedBy)
+      .maybeSingle();
+
+    if (error && error.code !== 'PGRST116') {
+      throw new Error(`Failed to check approval status: ${error.message}`);
+    }
+
+    return !!data;
+  }
+
+  /**
+   * Get the combined approval summary for a task.
+   * Returns who approved/denied and the overall status.
+   *
+   * Status logic:
+   * - DENIED: if any person denied (one deny blocks all)
+   * - APPROVED: if both bill and francisco approved
+   * - PENDING: otherwise (waiting for other approver)
+   *
+   * @param taskId The task to summarize
+   * @returns ApprovalSummary with approved_by, denied_by, status, and all_approvals
+   */
+  private async getApprovalSummary(taskId: string): Promise<ApprovalSummary> {
+    const { data: approvals, error } = await this.supabase
+      .from('sma_approval_decisions')
+      .select('*')
+      .eq('task_id', taskId)
+      .order('decided_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`Failed to get approval summary: ${error.message}`);
+    }
+
+    const approvedBy: Array<'bill' | 'francisco'> = [];
+    const deniedBy: Array<'bill' | 'francisco'> = [];
+
+    (approvals || []).forEach((approval: {
+      decided_by: string;
+      decision: string;
+      task_id: string;
+      rationale: string;
+      decided_at: string;
+      scheduled_for?: string | null;
+    }) => {
+      if (approval.decision === 'APPROVE') {
+        approvedBy.push(approval.decided_by as 'bill' | 'francisco');
+      } else if (approval.decision === 'DENY') {
+        deniedBy.push(approval.decided_by as 'bill' | 'francisco');
+      }
+    });
+
+    // Determine overall status
+    let status: 'PENDING' | 'APPROVED' | 'DENIED' = 'PENDING';
+    if (deniedBy.length > 0) {
+      status = 'DENIED';
+    } else if (approvedBy.length === 2) {
+      status = 'APPROVED';
+    }
+
+    // Convert approval rows to ApprovalRecord format
+    const allApprovals: ApprovalRecord[] = (approvals || []).map((a: {
+      decided_by: string;
+      decision: string;
+      task_id: string;
+      rationale: string;
+      decided_at: string;
+      scheduled_for?: string | null;
+    }) => ({
+      task_id: a.task_id,
+      decision: a.decision as 'APPROVE' | 'DENY',
+      decided_by: a.decided_by as 'bill' | 'francisco',
+      decided_at: a.decided_at,
+      rationale: a.rationale,
+      scheduled_for: a.scheduled_for || null,
+    }));
+
+    return {
+      approved_by: approvedBy,
+      denied_by: deniedBy,
+      status,
+      all_approvals: allApprovals,
+    };
   }
 
   /**
@@ -611,6 +815,63 @@ export class SMACoordinator {
     );
   }
 
+  /**
+   * Record engagement metrics for a published post.
+   * Updates the sma_content_lifecycles row with initial_metrics[platform].
+   *
+   * @param taskId The task whose content lifecycle we're updating
+   * @param snapshot The engagement snapshot to record
+   * @throws Error if task or lifecycle not found
+   */
+  async recordEngagement(taskId: string, snapshot: EngagementSnapshot): Promise<void> {
+    console.log(
+      `[Coordinator] Recording engagement metrics for task ${taskId}, platform ${snapshot.platform}`,
+    );
+
+    // Read the content lifecycle record
+    const { data: lifecycleRow, error: readError } = await this.supabase
+      .from('sma_content_lifecycles')
+      .select('lifecycle_record')
+      .eq('task_id', taskId)
+      .maybeSingle();
+
+    if (readError || !lifecycleRow) {
+      throw new Error(`Task ${taskId} not found in content_lifecycles`);
+    }
+
+    const lifecycle = lifecycleRow.lifecycle_record as ContentLifecycle;
+
+    // Update initial_metrics for this platform
+    const updatedLifecycle: ContentLifecycle = {
+      ...lifecycle,
+      initial_metrics: {
+        ...lifecycle.initial_metrics,
+        [snapshot.platform]: snapshot,
+      },
+    };
+
+    // Update the lifecycle record in database
+    const { error: updateError } = await this.supabase
+      .from('sma_content_lifecycles')
+      .update({
+        lifecycle_record: updatedLifecycle,
+      })
+      .eq('task_id', taskId);
+
+    if (updateError) {
+      throw new Error(
+        `Failed to update lifecycle metrics for ${taskId}: ${updateError.message}`,
+      );
+    }
+
+    // Audit log the engagement recording
+    await this.auditLogger.logEngagementRecorded(taskId, snapshot.platform, snapshot);
+
+    console.log(
+      `[Coordinator] Successfully recorded metrics for task ${taskId}, platform ${snapshot.platform}`,
+    );
+  }
+
   // ─── Private helpers ────────────────────────────────────────────────
 
   /**
@@ -691,5 +952,6 @@ export interface AuditLogger {
   logApprovalDecision(taskId: string, approval: ApprovalRecord): Promise<void>;
   logLifecycleAssembled(lifecycle: ContentLifecycle): Promise<void>;
   logPublished(taskId: string, platforms: Platform[]): Promise<void>;
+  logEngagementRecorded(taskId: string, platform: Platform, snapshot: EngagementSnapshot): Promise<void>;
   logImmutableStopViolation(stop: 1 | 2 | 3 | 4 | 5, detail: string): Promise<void>;
 }

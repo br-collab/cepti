@@ -57,14 +57,33 @@ export async function POST(
       scheduled_for: scheduled_for || null,
     })
 
-    if (result.status !== 'COMPLETE' && result.status !== 'DENIED') {
+    if (result.status === 'INVALID_APPROVAL') {
+      // User already approved or missing required fields
+      const message = result.missing && result.missing.length > 0
+        ? result.missing[0]
+        : 'Invalid approval';
       return NextResponse.json(
-        { error: `Resume failed: ${result.status}`, detail: result },
+        { error: message },
         { status: 400 },
       )
     }
 
-    return NextResponse.json({ status: result.status })
+    if (result.status === 'NOT_FOUND') {
+      return NextResponse.json(
+        { error: `Task ${taskId} not found` },
+        { status: 404 },
+      )
+    }
+
+    // COMPLETE can mean either fully approved (both approved) or partially approved (pending)
+    // Check lifecycle status to determine
+    const lifecycleStatus = result.status === 'DENIED' ? 'DENIED' : (result.status === 'COMPLETE' && result.lifecycle ? result.lifecycle.status : 'UNKNOWN');
+
+    return NextResponse.json({
+      status: result.status,
+      task_status: lifecycleStatus,
+      lifecycle_status: lifecycleStatus,
+    })
   } catch (error) {
     console.error('POST /api/sma/coordinator/decide/[taskId] error:', error)
     return NextResponse.json(

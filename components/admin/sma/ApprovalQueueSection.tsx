@@ -1,20 +1,57 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { PausedLifecycle, DraftImage, DraftVideo } from '@/lib/sma/coordinator/types'
+
+interface ApprovalData {
+  approved_by: string[]
+  denied_by: string[]
+  status: 'PENDING' | 'APPROVED' | 'DENIED'
+  all_approvals: Array<{
+    task_id: string
+    decided_by: string
+    decision: string
+    decided_at: string
+    rationale: string
+  }>
+}
 
 export default function ApprovalQueueSection({
   items,
   onDecision,
+  currentUser,
 }: {
   items: PausedLifecycle[]
   onDecision: () => Promise<void>
+  currentUser?: 'bill' | 'francisco'
 }) {
   const [deciding, setDeciding] = useState<string | null>(null)
   const [editing, setEditing] = useState<string | null>(null)
   const [rationales, setRationales] = useState<Record<string, string>>({})
   const [editedCaptions, setEditedCaptions] = useState<Record<string, string>>({})
   const [scheduledTimes, setScheduledTimes] = useState<Record<string, string | null>>({})
+  const [approvalStatus, setApprovalStatus] = useState<Record<string, ApprovalData>>({})
+
+  // Fetch approval status for all items
+  useEffect(() => {
+    const fetchApprovalStatus = async () => {
+      const statuses: Record<string, ApprovalData> = {}
+      for (const item of items) {
+        try {
+          const res = await fetch(`/api/sma/coordinator/approval-status/${item.task_id}`)
+          if (res.ok) {
+            statuses[item.task_id] = await res.json()
+          }
+        } catch (err) {
+          console.error(`Failed to fetch approval status for ${item.task_id}:`, err)
+        }
+      }
+      setApprovalStatus(statuses)
+    }
+    if (items.length > 0) {
+      fetchApprovalStatus()
+    }
+  }, [items])
 
   const handleDecision = async (taskId: string, decision: 'APPROVE' | 'DENY') => {
     const rationale = rationales[taskId]
@@ -246,21 +283,72 @@ export default function ApprovalQueueSection({
               )}
             </div>
 
+            {/* Approval status badge and audit trail */}
+            {approvalStatus[item.task_id] && (
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-3 space-y-2">
+                <div className="text-sm font-medium text-blue-900">
+                  Approval Status: {approvalStatus[item.task_id].status === 'APPROVED' && '2/2 Both Approved'}
+                  {approvalStatus[item.task_id].status === 'PENDING' && '1/2 Awaiting Second Approval'}
+                  {approvalStatus[item.task_id].status === 'DENIED' && 'Denied'}
+                </div>
+
+                {/* Audit trail of existing approvals */}
+                {approvalStatus[item.task_id].all_approvals && approvalStatus[item.task_id].all_approvals.length > 0 && (
+                  <div className="space-y-1">
+                    {approvalStatus[item.task_id].all_approvals.map((approval, idx) => {
+                      const approvalDate = new Date(approval.decided_at).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                      return (
+                        <div key={idx} className="text-xs text-blue-800">
+                          {approval.decision === 'APPROVE' ? '✓' : '✗'} {approval.decided_by} {approval.decision === 'APPROVE' ? 'Approved' : 'Denied'} {approvalDate}
+                          {approval.rationale && <span className="ml-2 italic">({approval.rationale.substring(0, 30)}...)</span>}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Approve/Deny buttons */}
             <div className="flex gap-2">
-              <button
-                onClick={() => handleDecision(item.task_id, 'APPROVE')}
-                disabled={deciding === item.task_id}
-                className="flex-1 rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {deciding === item.task_id ? 'Processing...' : 'Approve'}
-              </button>
-              <button
-                onClick={() => handleDecision(item.task_id, 'DENY')}
-                disabled={deciding === item.task_id}
-                className="flex-1 rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                {deciding === item.task_id ? 'Processing...' : 'Deny'}
-              </button>
+              {currentUser && approvalStatus[item.task_id] && approvalStatus[item.task_id].approved_by.includes(currentUser) ? (
+                <button
+                  disabled
+                  className="flex-1 rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white opacity-50 cursor-not-allowed"
+                >
+                  ✓ You Approved
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleDecision(item.task_id, 'APPROVE')}
+                  disabled={deciding === item.task_id || (approvalStatus[item.task_id]?.status === 'DENIED')}
+                  className="flex-1 rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deciding === item.task_id ? 'Processing...' : 'Approve'}
+                </button>
+              )}
+
+              {currentUser && approvalStatus[item.task_id] && approvalStatus[item.task_id].denied_by.includes(currentUser) ? (
+                <button
+                  disabled
+                  className="flex-1 rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white opacity-50 cursor-not-allowed"
+                >
+                  ✗ You Denied
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleDecision(item.task_id, 'DENY')}
+                  disabled={deciding === item.task_id || (approvalStatus[item.task_id]?.status === 'DENIED')}
+                  className="flex-1 rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deciding === item.task_id ? 'Processing...' : 'Deny'}
+                </button>
+              )}
             </div>
           </div>
         )

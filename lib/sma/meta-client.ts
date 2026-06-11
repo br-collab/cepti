@@ -1,7 +1,7 @@
 import 'server-only'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { PLATFORM_GRAPH_BASE, type Platform } from './platforms'
-import type { DraftResult, PublishResult } from './coordinator/types'
+import type { DraftResult, PublishResult, EngagementSnapshot } from './coordinator/types'
 import { SupabaseClient } from '@supabase/supabase-js'
 
 const FB_OAUTH_BASE = 'https://www.facebook.com/v25.0/dialog/oauth'
@@ -474,4 +474,169 @@ async function uploadFacebookVideo(token: string, pageId: string, videoUrl: stri
 
   const data = (await res.json()) as { id: string; [key: string]: unknown }
   return data.id
+}
+
+// ── Engagement Metrics Fetching ──────────────────────────────────────
+
+/**
+ * Fetch engagement metrics for a published post from Meta Graph API.
+ * Handles all three platforms (Facebook, Instagram, Threads) with
+ * platform-specific metric fields and graceful fallback for unavailable data.
+ *
+ * @param platform The platform (facebook, instagram, threads)
+ * @param platformPostId The platform-assigned post ID
+ * @param token Meta access token
+ * @returns EngagementSnapshot with available metrics (missing fields undefined)
+ * @throws Error only on authentication errors; returns empty snapshot on rate limits
+ */
+export async function getPostMetrics(
+  platform: Platform,
+  platformPostId: string,
+  token: string,
+): Promise<EngagementSnapshot> {
+  console.log(`[Meta] Fetching metrics for ${platform} post ${platformPostId}`)
+
+  const snapshot: EngagementSnapshot = {
+    platform,
+    platform_post_id: platformPostId,
+    snapshot_at: new Date().toISOString(),
+  }
+
+  try {
+    if (platform === 'facebook') {
+      // Facebook: GET /{postId}?fields=impressions,reach,engagement,comments.limit(0).summary(total_count),shares,type
+      const url = `${FB_GRAPH_BASE}/${platformPostId}`
+      const params = new URLSearchParams({
+        access_token: token,
+        fields: 'impressions,reach,engagement,comments.limit(0).summary(total_count),shares,type',
+      })
+
+      const res = await fetch(`${url}?${params.toString()}`, { cache: 'no-store' })
+
+      if (res.status === 429) {
+        // Rate limited — return empty snapshot gracefully
+        console.warn(`[Meta/Facebook] Rate limited fetching metrics for ${platformPostId}`)
+        return snapshot
+      }
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(`Facebook metrics fetch failed: ${res.status} ${errorText}`)
+      }
+
+      const data = (await res.json()) as Record<string, unknown>
+      snapshot.impressions = typeof data.impressions === 'number' ? data.impressions : undefined
+      snapshot.reach = typeof data.reach === 'number' ? data.reach : undefined
+      snapshot.engagement = typeof data.engagement === 'number' ? data.engagement : undefined
+      snapshot.shares_count = typeof data.shares === 'number' ? data.shares : undefined
+
+      // Extract comment count from comments.summary.total_count
+      if (data.comments && typeof data.comments === 'object' && 'summary' in data.comments) {
+        const summary = (data.comments as Record<string, unknown>).summary
+        if (summary && typeof summary === 'object' && 'total_count' in summary) {
+          snapshot.comments_count = summary.total_count as number | undefined
+        }
+      }
+
+      console.log(`[Meta/Facebook] Retrieved metrics: impressions=${snapshot.impressions}, reach=${snapshot.reach}, engagement=${snapshot.engagement}`)
+    } else if (platform === 'instagram') {
+      // Instagram: GET /{mediaId}/insights?metric=impressions,reach,engagement,saved
+      const url = `${IG_GRAPH_BASE}/${platformPostId}/insights`
+      const params = new URLSearchParams({
+        access_token: token,
+        metric: 'impressions,reach,engagement,saved',
+      })
+
+      const res = await fetch(`${url}?${params.toString()}`, { cache: 'no-store' })
+
+      if (res.status === 429) {
+        console.warn(`[Meta/Instagram] Rate limited fetching metrics for ${platformPostId}`)
+        return snapshot
+      }
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(`Instagram metrics fetch failed: ${res.status} ${errorText}`)
+      }
+
+      const data = (await res.json()) as Record<string, unknown>
+      const insights = Array.isArray(data.data) ? data.data : []
+
+      // Map insights array to individual fields
+      for (const insight of insights) {
+        if (typeof insight === 'object' && insight !== null) {
+          const insightObj = insight as Record<string, unknown>
+          const name = insightObj.name as string
+          const value = insightObj.values as Array<Record<string, unknown>> | undefined
+          const metricValue = value && value.length > 0 ? value[0].value : undefined
+
+          if (name === 'impressions' && typeof metricValue === 'number') {
+            snapshot.impressions = metricValue
+          } else if (name === 'reach' && typeof metricValue === 'number') {
+            snapshot.reach = metricValue
+          } else if (name === 'engagement' && typeof metricValue === 'number') {
+            snapshot.engagement = metricValue
+          } else if (name === 'saved' && typeof metricValue === 'number') {
+            snapshot.saves_count = metricValue
+          }
+        }
+      }
+
+      console.log(`[Meta/Instagram] Retrieved metrics: impressions=${snapshot.impressions}, reach=${snapshot.reach}, engagement=${snapshot.engagement}, saved=${snapshot.saves_count}`)
+    } else if (platform === 'threads') {
+      // Threads: GET /{threadId}?fields=insights.metric(views,engagement,replies)
+      const url = `https://graph.threads.net/v1.0/${platformPostId}`
+      const params = new URLSearchParams({
+        access_token: token,
+        fields: 'insights.metric(views,engagement,replies)',
+      })
+
+      const res = await fetch(`${url}?${params.toString()}`, { cache: 'no-store' })
+
+      if (res.status === 429) {
+        console.warn(`[Meta/Threads] Rate limited fetching metrics for ${platformPostId}`)
+        return snapshot
+      }
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(`Threads metrics fetch failed: ${res.status} ${errorText}`)
+      }
+
+      const data = (await res.json()) as Record<string, unknown>
+      const insights = data.insights as Record<string, unknown> | undefined
+
+      if (insights) {
+        const insightsData = Array.isArray(insights.data) ? insights.data : []
+        // Map insights to individual fields
+        for (const insight of insightsData) {
+          if (typeof insight === 'object' && insight !== null) {
+            const insightObj = insight as Record<string, unknown>
+            const name = insightObj.name as string
+            const value = insightObj.values as Array<Record<string, unknown>> | undefined
+            const metricValue = value && value.length > 0 ? value[0].value : undefined
+
+            if (name === 'views' && typeof metricValue === 'number') {
+              snapshot.impressions = metricValue
+            } else if (name === 'engagement' && typeof metricValue === 'number') {
+              snapshot.engagement = metricValue
+            } else if (name === 'replies' && typeof metricValue === 'number') {
+              snapshot.comments_count = metricValue
+            }
+          }
+        }
+      }
+
+      console.log(`[Meta/Threads] Retrieved metrics: views=${snapshot.impressions}, engagement=${snapshot.engagement}, replies=${snapshot.comments_count}`)
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('401')) {
+      // Auth error — rethrow
+      throw error
+    }
+    // For all other errors (network, parsing, etc), log and return empty snapshot
+    console.warn(`[Meta] Failed to fetch metrics for ${platform}/${platformPostId}:`, error)
+  }
+
+  return snapshot
 }

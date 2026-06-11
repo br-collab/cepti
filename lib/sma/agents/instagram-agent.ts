@@ -22,7 +22,7 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base'
 import { generateDetailed } from '../llm-client'
 import { matchProductsInTopic } from '../products-service'
 import { generateProductVideo } from '../video-generator'
-import { getMetaToken, publishToInstagram } from '../meta-client'
+import { getMetaToken, publishToInstagram, getPostMetrics } from '../meta-client'
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
 
 export class InstagramAgent extends PlatformAgentBase {
@@ -147,6 +147,18 @@ export class InstagramAgent extends PlatformAgentBase {
   }
 
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {
-    throw new Error('NOT_IMPLEMENTED: InstagramAgent.fetchEngagement')
+    console.log(`[InstagramAgent] Fetching engagement metrics for post ${platformPostId}`)
+
+    const supabase = await getSupabaseServiceRoleClient()
+    const token = await getMetaToken('instagram', supabase)
+
+    if (!token) {
+      throw new Error('Instagram platform not connected: missing or revoked access token')
+    }
+
+    const snapshot = await getPostMetrics('instagram', platformPostId, token)
+    console.log(`[InstagramAgent] Retrieved engagement snapshot: ${JSON.stringify(snapshot)}`)
+
+    return snapshot
   }
 }

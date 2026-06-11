@@ -15,6 +15,7 @@ import type {
   ApprovalRecord,
   ContentIntent,
   ContentLifecycle,
+  EngagementSnapshot,
   HandoffRecord,
   Platform,
   PauseReason,
@@ -84,6 +85,25 @@ export class ConsoleAuditLogger implements AuditLogger {
       taskId,
       platforms,
       platformCount: platforms.length,
+    });
+  }
+
+  async logEngagementRecorded(
+    taskId: string,
+    platform: Platform,
+    snapshot: EngagementSnapshot,
+  ): Promise<void> {
+    this.logJSON('ENGAGEMENT_RECORDED', {
+      taskId,
+      platform,
+      snapshotAt: snapshot.snapshot_at,
+      impressions: snapshot.impressions,
+      reach: snapshot.reach,
+      engagement: snapshot.engagement,
+      commentsCount: snapshot.comments_count,
+      sharesCount: snapshot.shares_count,
+      savesCount: snapshot.saves_count,
+      waLinkClicks: snapshot.wa_link_clicks,
     });
   }
 

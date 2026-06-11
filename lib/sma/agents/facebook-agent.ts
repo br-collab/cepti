@@ -41,7 +41,7 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
 import { generateProductVideo } from '../video-generator';
-import { getMetaToken, publishToFacebook } from '../meta-client';
+import { getMetaToken, publishToFacebook, getPostMetrics } from '../meta-client';
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server';
 
 export class FacebookAgent extends PlatformAgentBase {
@@ -182,6 +182,18 @@ export class FacebookAgent extends PlatformAgentBase {
   }
 
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {
-    throw new Error('NOT_IMPLEMENTED: FacebookAgent.fetchEngagement');
+    console.log(`[FacebookAgent] Fetching engagement metrics for post ${platformPostId}`);
+
+    const supabase = await getSupabaseServiceRoleClient();
+    const token = await getMetaToken('facebook', supabase);
+
+    if (!token) {
+      throw new Error('Facebook platform not connected: missing or revoked access token');
+    }
+
+    const snapshot = await getPostMetrics('facebook', platformPostId, token);
+    console.log(`[FacebookAgent] Retrieved engagement snapshot: ${JSON.stringify(snapshot)}`);
+
+    return snapshot;
   }
 }

@@ -160,6 +160,17 @@ export interface ApprovalRecord {
   scheduled_for?: string | null;       // ISO timestamp; null = publish immediately
 }
 
+/**
+ * Summary of all approvals for a task. Used to determine overall status
+ * when multiple approvers are required.
+ */
+export interface ApprovalSummary {
+  approved_by: Array<'bill' | 'francisco'>;
+  denied_by: Array<'bill' | 'francisco'>;
+  status: 'PENDING' | 'APPROVED' | 'DENIED';
+  all_approvals: ApprovalRecord[];
+}
+
 // ── Content Lifecycle (the Audit Record) ─────────────────────────────
 
 /**
