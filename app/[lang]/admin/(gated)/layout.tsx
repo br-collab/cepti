@@ -8,7 +8,10 @@ export const dynamic = 'force-dynamic'
 export default async function AdminGatedLayout({
   children,
   params,
-}: LayoutProps<'/[lang]/admin'>) {
+}: {
+  children: React.ReactNode
+  params: Promise<{ lang: string }>
+}) {
   const { lang } = await params
   const user = await getAdminUser()
   if (!user) redirect(`/${lang}/admin/login`)
