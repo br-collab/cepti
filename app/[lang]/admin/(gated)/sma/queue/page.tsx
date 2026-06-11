@@ -55,19 +55,19 @@ export default function QueuePage() {
     <div className="space-y-8">
       {/* New Content Form */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <h2 className="text-lg font-semibold mb-4">Nuevo Contenido</h2>
+        <h2 className="text-lg font-semibold mb-4">New Content</h2>
         <NewContentForm onSuccess={handleDraftGenerated} />
       </section>
 
       {/* Approval Queue */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <h2 className="text-lg font-semibold mb-4">Cola de Aprobación</h2>
+        <h2 className="text-lg font-semibold mb-4">Approval Queue</h2>
         <ApprovalQueueSection items={paused} onDecision={handleDecisionMade} />
       </section>
 
       {/* Ready to Post */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-6">
-        <h2 className="text-lg font-semibold mb-4">Listo para Publicar</h2>
+        <h2 className="text-lg font-semibold mb-4">Ready to Publish</h2>
         <ReadyToPostSection items={ready} />
       </section>
     </div>

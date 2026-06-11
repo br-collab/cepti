@@ -53,7 +53,7 @@ export default function ApprovalQueueSection({
   }
 
   if (items.length === 0) {
-    return <p className="text-sm text-zinc-500">No items pending approval</p>
+    return <p className="text-sm text-zinc-500">No pending approvals</p>
   }
 
   return (
@@ -85,7 +85,7 @@ export default function ApprovalQueueSection({
                   [item.task_id]: e.target.value,
                 }))
               }
-              placeholder="Razonamiento de la decisión"
+              placeholder="Reason for your decision"
               disabled={deciding === item.task_id}
               rows={2}
               className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
@@ -97,14 +97,14 @@ export default function ApprovalQueueSection({
                 disabled={deciding === item.task_id}
                 className="flex-1 rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
               >
-                {deciding === item.task_id ? 'Procesando...' : 'Aprobar'}
+                {deciding === item.task_id ? 'Processing...' : 'Approve'}
               </button>
               <button
                 onClick={() => handleDecision(item.task_id, 'DENY')}
                 disabled={deciding === item.task_id}
                 className="flex-1 rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
               >
-                {deciding === item.task_id ? 'Procesando...' : 'Denegar'}
+                {deciding === item.task_id ? 'Processing...' : 'Deny'}
               </button>
             </div>
           </div>

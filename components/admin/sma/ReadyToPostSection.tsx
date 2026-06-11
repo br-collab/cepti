@@ -21,7 +21,7 @@ export default function ReadyToPostSection({
   }
 
   if (items.length === 0) {
-    return <p className="text-sm text-zinc-500">No approved content ready to post</p>
+    return <p className="text-sm text-zinc-500">No approved content ready to publish</p>
   }
 
   return (
@@ -49,7 +49,7 @@ export default function ReadyToPostSection({
               onClick={() => handleCopy(item.task_id, caption)}
               className="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
             >
-              {copied === item.task_id ? '✓ Copiado' : 'Copiar'}
+              {copied === item.task_id ? '✓ Copied' : 'Copy'}
             </button>
           </div>
         )
