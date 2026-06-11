@@ -100,21 +100,26 @@ export class FacebookAgent extends PlatformAgentBase {
       includeVideo,
     });
 
-    if (includePictures) {
+    // Load images if either pictures or video is requested
+    if (includePictures || includeVideo) {
       const productImages = await matchProductsInTopic(intent.topic);
       console.log('[FacebookAgent] Matched product images:', {
         topic: intent.topic,
         imageCount: productImages.length,
         images: productImages,
       });
-      attachedAssets = productImages;
+
+      // Attach individual images only if requested
+      if (includePictures) {
+        attachedAssets = productImages;
+      }
 
       // Generate video from images if enabled
       if (includeVideo && productImages.length > 0) {
         const video = await generateProductVideo(productImages, result.text, draftId);
         if (video) {
           console.log('[FacebookAgent] Generated video:', video);
-          attachedAssets = [video.videoPath, ...productImages];
+          attachedAssets = [video.videoPath, ...attachedAssets];
         }
       }
     }
