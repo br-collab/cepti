@@ -38,8 +38,17 @@ export async function generateProductVideo(
     const concatContent = images.map((img) => `file '${path.join(process.cwd(), img)}'`).join('\n')
     fs.writeFileSync(concatFile, concatContent)
 
+    // Extract short text overlay from caption (just first sentence/hook, stripped of special chars)
+    // Video text overlay should be simple and readable, full caption goes in social post
+    const textOverlay = caption
+      .split('\n')[0] // Take first line
+      .replace(/\*\*/g, '') // Remove markdown bold
+      .replace(/[^\w\s\?\!\-\.]/g, '') // Remove emojis and special chars
+      .substring(0, 80) // Max 80 chars for readability
+      .trim()
+
     // FFmpeg command: concat images, scale, add text overlay, export as MP4
-    const ffmpegCmd = `ffmpeg -f concat -safe 0 -i "${concatFile}" -vf "scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)/2:(oh-ih)/2,drawtext=text='${caption.replace(/'/g, "\\'")}':fontfile=/System/Library/Fonts/Helvetica.ttc:fontsize=24:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2" -c:v libx264 -preset medium -crf 23 -r 30 -t ${duration} "${videoPath}" -y 2>&1`
+    const ffmpegCmd = `ffmpeg -f concat -safe 0 -i "${concatFile}" -vf "scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)/2:(oh-ih)/2,drawtext=text='${textOverlay}':fontfile=/System/Library/Fonts/Helvetica.ttc:fontsize=28:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2:box=1:boxcolor=black@0.5" -c:v libx264 -preset medium -crf 23 -r 30 -t ${duration} "${videoPath}" -y 2>&1`
 
     try {
       execSync(ffmpegCmd, { stdio: 'pipe' })
