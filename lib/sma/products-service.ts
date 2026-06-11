@@ -15,23 +15,47 @@ let catalogCache: ProductEntry[] = []
 let cacheLoaded = false
 
 export async function loadProductsCatalog(): Promise<ProductEntry[]> {
-  if (cacheLoaded) return catalogCache
+  if (cacheLoaded && Array.isArray(catalogCache)) {
+    return catalogCache
+  }
 
   try {
     const catalogPath = path.join(process.cwd(), 'data/products.json')
+    if (!fs.existsSync(catalogPath)) {
+      console.warn('Products catalog not found at', catalogPath)
+      catalogCache = []
+      cacheLoaded = true
+      return []
+    }
+
     const data = fs.readFileSync(catalogPath, 'utf-8')
-    const parsed: ProductsCatalog = JSON.parse(data)
-    catalogCache = parsed.products || []
+    const parsed = JSON.parse(data) as ProductsCatalog
+
+    if (!Array.isArray(parsed.products)) {
+      console.error('Products catalog invalid: products is not an array', typeof parsed.products)
+      catalogCache = []
+      cacheLoaded = true
+      return []
+    }
+
+    catalogCache = parsed.products
     cacheLoaded = true
     return catalogCache
   } catch (error) {
     console.error('Failed to load products catalog:', error)
+    catalogCache = []
+    cacheLoaded = true
     return []
   }
 }
 
 export async function matchProductsInTopic(topic: string): Promise<string[]> {
   const catalog = await loadProductsCatalog()
+
+  if (!Array.isArray(catalog)) {
+    console.error('Catalog is not iterable:', typeof catalog)
+    return []
+  }
 
   const topicLower = topic.toLowerCase()
   const matchedImages: string[] = []
