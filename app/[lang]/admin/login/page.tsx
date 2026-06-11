@@ -7,7 +7,10 @@ export const dynamic = 'force-dynamic'
 export default async function AdminLoginPage({
   params,
   searchParams,
-}: PageProps<'/[lang]/admin/login'>) {
+}: {
+  params: Promise<{ lang: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const { lang } = await params
   const sp = await searchParams
   const error = typeof sp?.error === 'string' ? sp.error : null
