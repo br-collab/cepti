@@ -60,6 +60,7 @@ export async function matchProductsInTopic(topic: string): Promise<string[]> {
   const topicLower = topic.toLowerCase()
   const matchedImages: string[] = []
   const seen = new Set<string>()
+  const MAX_IMAGES_PER_PRODUCT = 3
 
   for (const product of catalog) {
     const nameEn = (product.name.en || '').toLowerCase()
@@ -72,7 +73,16 @@ export async function matchProductsInTopic(topic: string): Promise<string[]> {
       try {
         const folderPath = path.join(process.cwd(), 'public', product.image_folder)
         if (fs.existsSync(folderPath)) {
-          const files = fs.readdirSync(folderPath).filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f))
+          let files = fs.readdirSync(folderPath).filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f))
+
+          // Prioritize hero and card images if they exist
+          const priorityFiles = files.filter((f) => f.includes('hero') || f.includes('card'))
+          if (priorityFiles.length > 0) {
+            files = priorityFiles.slice(0, MAX_IMAGES_PER_PRODUCT)
+          } else {
+            // Otherwise, take the first N images
+            files = files.slice(0, MAX_IMAGES_PER_PRODUCT)
+          }
 
           for (const file of files) {
             const imagePath = `${product.image_folder}${file}`
@@ -97,10 +107,22 @@ export async function getProductImages(slug: string): Promise<string[]> {
 
   if (!product?.image_folder) return []
 
+  const MAX_IMAGES_PER_PRODUCT = 3
+
   try {
     const folderPath = path.join(process.cwd(), 'public', product.image_folder)
     if (fs.existsSync(folderPath)) {
-      const files = fs.readdirSync(folderPath).filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f))
+      let files = fs.readdirSync(folderPath).filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f))
+
+      // Prioritize hero and card images if they exist
+      const priorityFiles = files.filter((f) => f.includes('hero') || f.includes('card'))
+      if (priorityFiles.length > 0) {
+        files = priorityFiles.slice(0, MAX_IMAGES_PER_PRODUCT)
+      } else {
+        // Otherwise, take the first N images
+        files = files.slice(0, MAX_IMAGES_PER_PRODUCT)
+      }
+
       return files.map((f) => `${product.image_folder}${f}`)
     }
   } catch (error) {
