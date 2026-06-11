@@ -20,7 +20,7 @@ export type AgentRole =
   | 'COORDINATOR'
   | 'FACEBOOK_AGENT'
   | 'INSTAGRAM_AGENT'
-  | 'THREADS_AGENT';
+  | 'THREADS_AGENT'
 
 export const PLATFORM_TO_AGENT: Record<Platform, AgentRole> = {
   facebook: 'FACEBOOK_AGENT',
