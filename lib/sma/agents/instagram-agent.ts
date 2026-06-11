@@ -55,16 +55,22 @@ export class InstagramAgent extends PlatformAgentBase {
     // Instagram caption prompt (max 2200 chars, hashtag-heavy)
     const caption = `[Instagram Caption for ${intent.topic}]\n\n${intent.notes || intent.topic}\n\n#CEPTI #ProductShowcase #Innovation`;
 
-    // Load product images
-    const productImages = await matchProductsInTopic(intent.topic);
-
-    // Generate video from images
+    // Load product images (if enabled)
     const draftId = this.makeDraftId();
-    let attachedAssets = productImages;
-    if (productImages.length > 0) {
-      const video = await generateProductVideo(productImages, caption, draftId);
-      if (video) {
-        attachedAssets = [video.videoPath, ...productImages];
+    let attachedAssets: string[] = [];
+    const includePictures = (intent as any).include_pictures !== false;
+    const includeVideo = (intent as any).include_video !== false;
+
+    if (includePictures) {
+      const productImages = await matchProductsInTopic(intent.topic);
+      attachedAssets = productImages;
+
+      // Generate video from images if enabled
+      if (includeVideo && productImages.length > 0) {
+        const video = await generateProductVideo(productImages, caption, draftId);
+        if (video) {
+          attachedAssets = [video.videoPath, ...productImages];
+        }
       }
     }
 

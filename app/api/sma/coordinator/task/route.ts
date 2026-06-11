@@ -16,7 +16,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { topic, notes } = body as { topic?: string; notes?: string }
+    const { topic, notes, includePictures, includeVideo } = body as {
+      topic?: string
+      notes?: string
+      includePictures?: boolean
+      includeVideo?: boolean
+    }
 
     if (!topic || typeof topic !== 'string' || topic.trim() === '') {
       return NextResponse.json({ error: 'topic is required and must be a non-empty string' }, { status: 400 })
@@ -28,8 +33,8 @@ export async function POST(req: NextRequest) {
     const coordinator = new SMACoordinator(supabase, auditLogger)
     const facebookAgent = new FacebookAgent()
 
-    // Create intent
-    const intent: ContentIntent = {
+    // Create intent with visual content preferences
+    const intent: ContentIntent & { include_pictures?: boolean; include_video?: boolean } = {
       intent_id: `INT-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       proposed_by: 'bill',
       proposed_at: new Date().toISOString(),
@@ -37,6 +42,8 @@ export async function POST(req: NextRequest) {
       notes: notes?.trim(),
       proposed_platforms: ['facebook'],
       scheduled_for: null,
+      include_pictures: includePictures !== false,
+      include_video: includeVideo !== false,
     }
 
     // Full coordinator chain

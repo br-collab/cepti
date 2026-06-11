@@ -84,15 +84,21 @@ export class FacebookAgent extends PlatformAgentBase {
     // Generate draft ID
     const draftId = this.makeDraftId();
 
-    // Load product images matching the topic
-    const productImages = await matchProductsInTopic(intent.topic);
+    // Load product images matching the topic (if enabled)
+    let attachedAssets: string[] = [];
+    const includePictures = (intent as any).include_pictures !== false;
+    const includeVideo = (intent as any).include_video !== false;
 
-    // Generate video from images if available
-    let attachedAssets = productImages;
-    if (productImages.length > 0) {
-      const video = await generateProductVideo(productImages, result.text, draftId);
-      if (video) {
-        attachedAssets = [video.videoPath, ...productImages];
+    if (includePictures) {
+      const productImages = await matchProductsInTopic(intent.topic);
+      attachedAssets = productImages;
+
+      // Generate video from images if enabled
+      if (includeVideo && productImages.length > 0) {
+        const video = await generateProductVideo(productImages, result.text, draftId);
+        if (video) {
+          attachedAssets = [video.videoPath, ...productImages];
+        }
       }
     }
 

@@ -5,6 +5,8 @@ import { useState } from 'react'
 export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise<void> }) {
   const [topic, setTopic] = useState('')
   const [notes, setNotes] = useState('')
+  const [includePictures, setIncludePictures] = useState(true)
+  const [includeVideo, setIncludeVideo] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,6 +27,8 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
         body: JSON.stringify({
           topic: topic.trim(),
           notes: notes.trim() || undefined,
+          includePictures,
+          includeVideo,
         }),
       })
 
@@ -76,6 +80,38 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
           rows={3}
           className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
         />
+      </div>
+
+      <div className="space-y-3 border-t border-zinc-200 pt-4">
+        <label className="block text-sm font-medium text-zinc-700">Visual Content</label>
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <input
+              id="pictures"
+              type="checkbox"
+              checked={includePictures}
+              onChange={(e) => setIncludePictures(e.target.checked)}
+              disabled={loading}
+              className="rounded border-zinc-300 text-zinc-900 shadow-sm focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
+            />
+            <label htmlFor="pictures" className="ml-2 text-sm text-zinc-700 cursor-pointer">
+              Include Product Pictures
+            </label>
+          </div>
+          <div className="flex items-center">
+            <input
+              id="video"
+              type="checkbox"
+              checked={includeVideo}
+              onChange={(e) => setIncludeVideo(e.target.checked)}
+              disabled={loading}
+              className="rounded border-zinc-300 text-zinc-900 shadow-sm focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
+            />
+            <label htmlFor="video" className="ml-2 text-sm text-zinc-700 cursor-pointer">
+              Generate Video from Pictures
+            </label>
+          </div>
+        </div>
       </div>
 
       {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>}
