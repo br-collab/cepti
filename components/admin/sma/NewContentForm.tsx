@@ -1,20 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface Product {
+  slug: string
+  name: { en: string; es: string }
+}
 
 export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise<void> }) {
-  const [topic, setTopic] = useState('')
-  const [notes, setNotes] = useState('')
+  const [productSlug, setProductSlug] = useState('')
+  const [products, setProducts] = useState<Product[]>([])
+  const [angle, setAngle] = useState('')
   const [mediaMode, setMediaMode] = useState<'pictures' | 'video' | 'both'>('both')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Load products on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const response = await fetch('/api/products')
+        const data = await response.json()
+        setProducts(data.products || [])
+      } catch (err) {
+        console.error('Failed to load products:', err)
+      }
+    }
+    loadProducts()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    if (!topic.trim()) {
-      setError('Topic is required and cannot be empty')
+    if (!productSlug) {
+      setError('Please select a product')
       return
     }
 
@@ -27,8 +47,8 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          topic: topic.trim(),
-          notes: notes.trim() || undefined,
+          topic: productSlug, // Send product slug as topic for backward compatibility
+          notes: angle.trim() || undefined,
           includePictures,
           includeVideo,
         }),
@@ -40,8 +60,8 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
       }
 
       // Clear form
-      setTopic('')
-      setNotes('')
+      setProductSlug('')
+      setAngle('')
 
       // Refresh queue
       await onSuccess()
@@ -55,29 +75,34 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="topic" className="block text-sm font-medium text-zinc-700 mb-1">
-          Topic *
+        <label htmlFor="product" className="block text-sm font-medium text-zinc-700 mb-1">
+          Product *
         </label>
-        <input
-          id="topic"
-          type="text"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="E.g: Ladriflex — benefits of flexible brick"
-          disabled={loading}
-          className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
-        />
+        <select
+          id="product"
+          value={productSlug}
+          onChange={(e) => setProductSlug(e.target.value)}
+          disabled={loading || products.length === 0}
+          className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
+        >
+          <option value="">Select a product...</option>
+          {products.map((product) => (
+            <option key={product.slug} value={product.slug}>
+              {product.name.en}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>
-        <label htmlFor="notes" className="block text-sm font-medium text-zinc-700 mb-1">
-          Notes (optional)
+        <label htmlFor="angle" className="block text-sm font-medium text-zinc-700 mb-1">
+          Content Angle / Focus (optional)
         </label>
         <textarea
-          id="notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Additional context for the draft"
+          id="angle"
+          value={angle}
+          onChange={(e) => setAngle(e.target.value)}
+          placeholder="E.g: emphasize installation speed, highlight eco-friendly aspects, focus on premium quality"
           disabled={loading}
           rows={3}
           className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
