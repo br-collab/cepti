@@ -55,7 +55,7 @@ declare -a TESTS=(
 declare -a RESULTS
 declare -a DURATIONS
 
-TOTAL_START=$(date +%s%3N)
+TOTAL_START=$(date +%s)
 PASSED=0
 FAILED=0
 
@@ -73,7 +73,7 @@ for TEST in "${TESTS[@]}"; do
   echo "Running: ${TEST}"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-  TEST_START=$(date +%s%3N)
+  TEST_START=$(date +%s)
   LOG_FILE="$RESULTS_DIR/${TEST}.log"
 
   if npx tsx "$TEST_FILE" > "$LOG_FILE" 2>&1; then
@@ -86,9 +86,9 @@ for TEST in "${TESTS[@]}"; do
     STATUS="${RED}✗ FAIL${NC}"
   fi
 
-  TEST_END=$(date +%s%3N)
+  TEST_END=$(date +%s)
   DURATION=$((TEST_END - TEST_START))
-  DURATIONS+=("$DURATION")
+  DURATIONS+=("${DURATION}s")
 
   echo -e "$STATUS (${DURATION}ms)"
   echo "Log: $LOG_FILE"
@@ -96,7 +96,7 @@ for TEST in "${TESTS[@]}"; do
 done
 
 # Summary report
-TOTAL_END=$(date +%s%3N)
+TOTAL_END=$(date +%s)
 TOTAL_DURATION=$((TOTAL_END - TOTAL_START))
 
 echo "═══════════════════════════════════════════════════════════════"
@@ -107,7 +107,7 @@ echo ""
 for i in "${!TESTS[@]}"; do
   TEST="${TESTS[$i]}"
   RESULT="${RESULTS[$i]}"
-  DURATION="${DURATIONS[$i]:-0}"
+  DURATION="${DURATIONS[$i]:-0s}"
 
   if [ "$RESULT" = "PASS" ]; then
     STATUS="${GREEN}✓${NC}"
@@ -117,12 +117,12 @@ for i in "${!TESTS[@]}"; do
     STATUS="${YELLOW}⚠${NC}"
   fi
 
-  printf "%s %-20s %s (%dms)\n" "$STATUS" "$TEST" "$RESULT" "$DURATION"
+  printf "%s %-20s %s (%s)\n" "$STATUS" "$TEST" "$RESULT" "$DURATION"
 done
 
 echo ""
 echo "Total: ${PASSED} passed, ${FAILED} failed"
-echo "Duration: ${TOTAL_DURATION}ms"
+echo "Duration: ${TOTAL_DURATION}s"
 echo ""
 
 if [ $FAILED -eq 0 ]; then
