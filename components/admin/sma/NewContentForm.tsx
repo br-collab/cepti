@@ -5,8 +5,7 @@ import { useState } from 'react'
 export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise<void> }) {
   const [topic, setTopic] = useState('')
   const [notes, setNotes] = useState('')
-  const [includePictures, setIncludePictures] = useState(true)
-  const [includeVideo, setIncludeVideo] = useState(true)
+  const [mediaMode, setMediaMode] = useState<'pictures' | 'video' | 'both'>('both')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,6 +20,9 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
 
     setLoading(true)
     try {
+      const includePictures = mediaMode === 'pictures' || mediaMode === 'both'
+      const includeVideo = mediaMode === 'video' || mediaMode === 'both'
+
       const res = await fetch('/api/sma/coordinator/task', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,32 +87,49 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
       <div className="space-y-3 border-t border-zinc-200 pt-4">
         <label className="block text-sm font-medium text-zinc-700">Visual Content</label>
         <div className="space-y-2">
-          <div className="flex items-center">
-            <input
-              id="pictures"
-              type="checkbox"
-              checked={includePictures}
-              onChange={(e) => setIncludePictures(e.target.checked)}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setMediaMode('pictures')}
               disabled={loading}
-              className="rounded border-zinc-300 text-zinc-900 shadow-sm focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
-            />
-            <label htmlFor="pictures" className="ml-2 text-sm text-zinc-700 cursor-pointer">
-              Include Product Pictures
-            </label>
-          </div>
-          <div className="flex items-center">
-            <input
-              id="video"
-              type="checkbox"
-              checked={includeVideo}
-              onChange={(e) => setIncludeVideo(e.target.checked)}
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                mediaMode === 'pictures'
+                  ? 'bg-zinc-900 text-white border-zinc-900'
+                  : 'bg-white text-zinc-900 border-zinc-300 hover:border-zinc-900'
+              } disabled:opacity-50`}
+            >
+              🖼️ Pictures Only
+            </button>
+            <button
+              type="button"
+              onClick={() => setMediaMode('video')}
               disabled={loading}
-              className="rounded border-zinc-300 text-zinc-900 shadow-sm focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
-            />
-            <label htmlFor="video" className="ml-2 text-sm text-zinc-700 cursor-pointer">
-              Generate Video from Pictures
-            </label>
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                mediaMode === 'video'
+                  ? 'bg-zinc-900 text-white border-zinc-900'
+                  : 'bg-white text-zinc-900 border-zinc-300 hover:border-zinc-900'
+              } disabled:opacity-50`}
+            >
+              🎬 Video Only
+            </button>
+            <button
+              type="button"
+              onClick={() => setMediaMode('both')}
+              disabled={loading}
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                mediaMode === 'both'
+                  ? 'bg-zinc-900 text-white border-zinc-900'
+                  : 'bg-white text-zinc-900 border-zinc-300 hover:border-zinc-900'
+              } disabled:opacity-50`}
+            >
+              🎬📸 Both
+            </button>
           </div>
+          <p className="text-xs text-zinc-500">
+            {mediaMode === 'video' && 'Generates a 45-second narrative video showcasing the product transformation.'}
+            {mediaMode === 'pictures' && 'Attaches 1-3 representative product images.'}
+            {mediaMode === 'both' && 'Generates video + attaches individual product images.'}
+          </p>
         </div>
       </div>
 

@@ -18,18 +18,32 @@ You don't list features. You show **how someone's life/business improves**.
 
 You don't ask for generic CTAs. You create **specific, urgent, irresistible next steps**.
 
+## CEPTI's Core Positioning (The Hook)
+
+Traditional decorative materials have a problem:
+- **Boring**: Same old options everyone else uses
+- **Expensive**: Premium price tags without premium innovation
+- **Lack spark**: No decorative creativity or personality
+
+CEPTI solves this with transformative materials that are:
+- **Visually stunning**: Authentic textures, sophisticated finishes, design-forward
+- **Affordable innovation**: Premium quality at competitive prices
+- **Installation-fast**: Days, not weeks
+
+**Every piece of content must answer this**: "Why would I choose CEPTI over traditional boring, expensive materials?"
+
 ## Core Principles
 
 ### 1. Lead with Value, Not Vanity
 Never start with company info or product specs. Start with the **transformation the customer experiences**.
 - ❌ "Ladriflex is a flexible brick system"
-- ✅ "Your boring brick installation just became 10x faster"
+- ✅ "Tired of boring brick that costs a fortune? Ladriflex transforms your vision in days—not weeks"
 
 ### 2. Solve Before You Sell
 Identify the customer's **real problem** (often unstated), then show how the product solves it.
 - Customer's stated need: "I want flexible brick"
-- Customer's real problem: "I don't want to wait weeks and I care about authenticity"
-- Your angle: "Real brick looks, installed in days"
+- Customer's real problem: "I'm tired of boring materials, installation takes forever, I want something unique"
+- Your angle: "Real brick beauty, installed in days, that stands out from everything else"
 
 ### 3. Build Curiosity Gaps
 Leave strategic questions unanswered to drive engagement and comments.

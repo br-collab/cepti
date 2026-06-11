@@ -12,6 +12,7 @@ export async function generateProductVideo(
   images: string[],
   caption: string,
   videoId: string,
+  targetDurationSeconds: number = 45,
 ): Promise<GeneratedVideo | null> {
   if (images.length === 0) {
     console.warn('No images provided for video generation')
@@ -27,9 +28,10 @@ export async function generateProductVideo(
     const videoPath = path.join(outputDir, `${videoId}.mp4`)
     const thumbnailPath = path.join(outputDir, `${videoId}-thumb.jpg`)
 
-    // Build ffmpeg command to concatenate images
-    // Each image displayed for 3 seconds, then add text overlay with caption
-    const duration = images.length * 3
+    // Calculate duration: target 45 seconds with multiple images
+    // Each image gets proportional time (e.g., 6 images × 7.5 sec = 45 sec)
+    const secondsPerImage = Math.max(3, Math.floor(targetDurationSeconds / images.length))
+    const duration = secondsPerImage * images.length
 
     // Create a concat demuxer file
     const concatFile = path.join(outputDir, `${videoId}-concat.txt`)
