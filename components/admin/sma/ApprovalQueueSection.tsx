@@ -11,7 +11,9 @@ export default function ApprovalQueueSection({
   onDecision: () => Promise<void>
 }) {
   const [deciding, setDeciding] = useState<string | null>(null)
+  const [editing, setEditing] = useState<string | null>(null)
   const [rationales, setRationales] = useState<Record<string, string>>({})
+  const [editedCaptions, setEditedCaptions] = useState<Record<string, string>>({})
 
   const handleDecision = async (taskId: string, decision: 'APPROVE' | 'DENY') => {
     const rationale = rationales[taskId]
@@ -60,7 +62,9 @@ export default function ApprovalQueueSection({
     <div className="space-y-4">
       {items.map((item) => {
         const draft = item.context.draft
-        const caption = draft.body
+        const originalCaption = draft.body
+        const isEditing = editing === item.task_id
+        const displayCaption = editedCaptions[item.task_id] ?? originalCaption
         const generatedAt = new Date(draft.generated_at).toLocaleString('en-US')
         const images = draft.images as DraftImage[] | undefined
         const video = draft.video as DraftVideo | undefined
@@ -79,13 +83,15 @@ export default function ApprovalQueueSection({
             {images && images.length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {images.slice(0, 4).map((img, idx) => (
-                  <div key={idx} className="flex-shrink-0">
+                  <div key={idx} className="flex-shrink-0 relative">
                     <img
                       src={img.url}
                       alt={img.productName}
                       className="h-24 w-24 object-cover rounded border border-zinc-300"
-                      title={img.productName}
                     />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 rounded-b text-center truncate">
+                      {img.productName}
+                    </div>
                   </div>
                 ))}
                 {images.length > 4 && (
@@ -110,8 +116,52 @@ export default function ApprovalQueueSection({
               </div>
             )}
 
-            <div className="bg-zinc-50 rounded p-3 text-sm text-zinc-900 whitespace-pre-wrap max-h-60 overflow-y-auto">
-              {caption}
+            {isEditing ? (
+              <div className="space-y-2">
+                <textarea
+                  value={displayCaption}
+                  onChange={(e) =>
+                    setEditedCaptions((prev) => ({
+                      ...prev,
+                      [item.task_id]: e.target.value,
+                    }))
+                  }
+                  disabled={deciding === item.task_id}
+                  rows={6}
+                  className="w-full px-3 py-2 border border-blue-300 rounded-md text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                />
+                <button
+                  onClick={() => setEditing(null)}
+                  disabled={deciding === item.task_id}
+                  className="text-sm px-3 py-1 rounded bg-blue-100 text-blue-900 hover:bg-blue-200 disabled:opacity-50"
+                >
+                  Done Editing
+                </button>
+              </div>
+            ) : (
+              <div className="bg-zinc-50 rounded p-3 text-sm text-zinc-900 whitespace-pre-wrap max-h-60 overflow-y-auto">
+                {displayCaption}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <button
+                onClick={() => {
+                  if (!isEditing) {
+                    setEditing(item.task_id)
+                    if (!editedCaptions[item.task_id]) {
+                      setEditedCaptions((prev) => ({
+                        ...prev,
+                        [item.task_id]: originalCaption,
+                      }))
+                    }
+                  }
+                }}
+                disabled={deciding === item.task_id || isEditing}
+                className="text-sm px-3 py-1 rounded bg-zinc-100 text-zinc-700 hover:bg-zinc-200 disabled:opacity-50"
+              >
+                {isEditing ? 'Editing...' : 'Edit Caption'}
+              </button>
             </div>
 
             <textarea

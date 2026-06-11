@@ -48,13 +48,15 @@ export default function ReadyToPostSection({
             {images && images.length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {images.slice(0, 4).map((img, idx) => (
-                  <div key={idx} className="flex-shrink-0">
+                  <div key={idx} className="flex-shrink-0 relative">
                     <img
                       src={img.url}
                       alt={img.productName}
                       className="h-24 w-24 object-cover rounded border border-zinc-300"
-                      title={img.productName}
                     />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 rounded-b text-center truncate">
+                      {img.productName}
+                    </div>
                   </div>
                 ))}
                 {images.length > 4 && (

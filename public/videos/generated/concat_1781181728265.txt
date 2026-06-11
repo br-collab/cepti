@@ -1,0 +1,6 @@
+file '/Users/guillermoravelo/cepticorp/public/images/products/ladriflex/card.jpg'
+duration 3
+file '/Users/guillermoravelo/cepticorp/public/images/products/ladriflex/hero.jpg'
+duration 3
+file '/Users/guillermoravelo/cepticorp/public/images/products/ladriflex/project-01.jpg'
+duration 3

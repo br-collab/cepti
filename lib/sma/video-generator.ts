@@ -51,44 +51,43 @@ export async function generateProductVideo(
     const concatContent = imagePaths.map((img) => `file '${img}'\nduration 3\n`).join('')
     fs.writeFileSync(concatFile, concatContent)
 
-    // Prepare text for overlay (escape quotes for ffmpeg)
-    const escapedText = captionText.replace(/'/g, "'\\''").substring(0, 100) // Limit to 100 chars
+    // Prepare text for overlay (limit to 80 chars for readability)
+    const textForOverlay = captionText.substring(0, 80).replace(/'/g, "\\'")
 
-    // Build ffmpeg command
-    // Display each image for 3 seconds, add text overlay, output as MP4
-    const ffmpegCmd = [
+    // Build ffmpeg command using execSync with proper argument handling
+    // Chain filters with single -vf: concat -> drawtext -> scale
+    const cmd = [
       'ffmpeg',
       '-f', 'concat',
       '-safe', '0',
       '-i', concatFile,
-      '-vf', `drawtext=text='${escapedText}':fontsize=32:fontcolor=white:x=10:y=10:shadowcolor=black:shadowx=2:shadowy=2:line_spacing=10:box=1:boxcolor=black@0.5`,
+      '-vf', `[0:v]fps=30,scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)\\2:(oh-ih)\\2,drawtext=text='${textForOverlay}':fontsize=32:fontcolor=white:x=10:y=10:shadowcolor=black:shadowx=2:shadowy=2:line_spacing=10:box=1:boxcolor=black@0.5[v]`,
+      '-map', '[v]',
       '-c:v', 'libx264',
       '-preset', 'medium',
       '-crf', '23',
-      '-r', '30',
-      '-vf', `fps=30,scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)/2:(oh-ih)/2`,
-      '-y', // Overwrite output file
+      '-y',
       videoPath,
-    ].join(' ')
+    ]
 
     // Execute ffmpeg
-    execSync(ffmpegCmd, { stdio: 'pipe', timeout: 60000 })
+    execSync(cmd.join(' '), { stdio: 'pipe', timeout: 120000, shell: '/bin/bash' })
 
     // Generate thumbnail from first image
-    const ffmpegThumbCmd = [
+    const thumbCmd = [
       'ffmpeg',
       '-i', imagePaths[0],
-      '-vf', 'scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)/2:(oh-ih)/2',
-      '-y', // Overwrite
+      '-vf', 'scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)\\2:(oh-ih)\\2',
+      '-y',
       thumbnailPath,
-    ].join(' ')
+    ]
 
-    execSync(ffmpegThumbCmd, { stdio: 'pipe', timeout: 30000 })
+    execSync(thumbCmd.join(' '), { stdio: 'pipe', timeout: 30000, shell: '/bin/bash' })
 
     // Clean up concat file
     fs.unlinkSync(concatFile)
 
-    // Calculate duration: 3 seconds per image + transition time
+    // Calculate duration: 3 seconds per image + 1 second transition
     const duration = images.length * 3 + 1
 
     // Return relative paths
@@ -106,6 +105,14 @@ export async function generateProductVideo(
       // Ignore cleanup errors
     }
 
-    throw new Error(`Video generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    // Check if ffmpeg is installed
+    if (errorMsg.includes('ENOENT') || errorMsg.includes('not found')) {
+      throw new Error(
+        'ffmpeg is not installed. Video generation requires ffmpeg to be installed on the system. Captions and images will still be generated.',
+      )
+    }
+
+    throw new Error(`Video generation failed: ${errorMsg}`)
   }
 }
