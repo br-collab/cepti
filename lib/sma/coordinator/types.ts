@@ -157,6 +157,7 @@ export interface ApprovalRecord {
   decided_by: 'bill' | 'francisco';
   decided_at: string;                  // ISO timestamp
   rationale: string;                   // Required: short note from the approver
+  scheduled_for?: string | null;       // ISO timestamp; null = publish immediately
 }
 
 // ── Content Lifecycle (the Audit Record) ─────────────────────────────

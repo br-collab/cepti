@@ -22,6 +22,8 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base'
 import { generateDetailed } from '../llm-client'
 import { matchProductsInTopic } from '../products-service'
 import { generateProductVideo } from '../video-generator'
+import { getMetaToken, publishToInstagram } from '../meta-client'
+import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
 
 export class InstagramAgent extends PlatformAgentBase {
   readonly platform: Platform = 'instagram'
@@ -128,7 +130,20 @@ export class InstagramAgent extends PlatformAgentBase {
 
   async publish(record: HandoffRecord, approvedDraft: ApprovedDraft): Promise<PublishResult> {
     this.verifyHandoff(record)
-    throw new Error('NOT_IMPLEMENTED: InstagramAgent.publish')
+
+    console.log(`[InstagramAgent] Publishing approved draft for task ${record.task_id}`)
+
+    const supabase = await getSupabaseServiceRoleClient()
+    const token = await getMetaToken('instagram', supabase)
+
+    if (!token) {
+      throw new Error('Instagram platform not connected: missing or revoked access token')
+    }
+
+    const result = await publishToInstagram(token, approvedDraft)
+    console.log(`[InstagramAgent] Successfully published to Instagram: ${result.platform_post_id}`)
+
+    return result
   }
 
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {

@@ -19,7 +19,11 @@ export async function POST(
   try {
     const { taskId } = await params
     const body = await req.json()
-    const { decision, rationale } = body as { decision?: string; rationale?: string }
+    const { decision, rationale, scheduled_for } = body as {
+      decision?: string;
+      rationale?: string;
+      scheduled_for?: string | null;
+    }
 
     if (!decision || !['APPROVE', 'DENY'].includes(decision)) {
       return NextResponse.json({ error: 'decision must be APPROVE or DENY' }, { status: 400 })
@@ -27,6 +31,17 @@ export async function POST(
 
     if (!rationale || typeof rationale !== 'string' || rationale.trim() === '') {
       return NextResponse.json({ error: 'rationale is required and must be a non-empty string' }, { status: 400 })
+    }
+
+    // Validate scheduled_for if provided
+    if (scheduled_for) {
+      const scheduledDate = new Date(scheduled_for)
+      if (isNaN(scheduledDate.getTime())) {
+        return NextResponse.json({ error: 'scheduled_for must be a valid ISO timestamp' }, { status: 400 })
+      }
+      if (scheduledDate <= new Date()) {
+        return NextResponse.json({ error: 'scheduled_for must be in the future' }, { status: 400 })
+      }
     }
 
     // Set up coordinator
@@ -39,6 +54,7 @@ export async function POST(
       approver_id: user.id,
       decided_by: getDecidedByName(user.id),
       rationale: rationale.trim(),
+      scheduled_for: scheduled_for || null,
     })
 
     if (result.status !== 'COMPLETE' && result.status !== 'DENIED') {

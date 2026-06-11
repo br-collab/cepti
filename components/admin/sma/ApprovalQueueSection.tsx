@@ -14,12 +14,24 @@ export default function ApprovalQueueSection({
   const [editing, setEditing] = useState<string | null>(null)
   const [rationales, setRationales] = useState<Record<string, string>>({})
   const [editedCaptions, setEditedCaptions] = useState<Record<string, string>>({})
+  const [scheduledTimes, setScheduledTimes] = useState<Record<string, string | null>>({})
 
   const handleDecision = async (taskId: string, decision: 'APPROVE' | 'DENY') => {
     const rationale = rationales[taskId]
     if (!rationale?.trim()) {
       alert('Rationale is required')
       return
+    }
+
+    const scheduledTime = scheduledTimes[taskId] || null
+
+    // Validate scheduled time is in future if provided
+    if (scheduledTime) {
+      const scheduledDate = new Date(scheduledTime)
+      if (scheduledDate <= new Date()) {
+        alert('Scheduled time must be in the future')
+        return
+      }
     }
 
     setDeciding(taskId)
@@ -30,6 +42,7 @@ export default function ApprovalQueueSection({
         body: JSON.stringify({
           decision,
           rationale: rationale.trim(),
+          scheduled_for: scheduledTime ? new Date(scheduledTime).toISOString() : null,
         }),
       })
 
@@ -38,8 +51,13 @@ export default function ApprovalQueueSection({
         throw new Error(errorData.error || 'Decision failed')
       }
 
-      // Clear rationale for this task
+      // Clear rationale and scheduled time for this task
       setRationales((prev) => {
+        const next = { ...prev }
+        delete next[taskId]
+        return next
+      })
+      setScheduledTimes((prev) => {
         const next = { ...prev }
         delete next[taskId]
         return next
@@ -177,6 +195,56 @@ export default function ApprovalQueueSection({
               rows={2}
               className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
             />
+
+            <div className="space-y-2 p-3 bg-zinc-50 rounded-md border border-zinc-200">
+              <div className="text-sm font-medium text-zinc-700">Publishing</div>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name={`publish-mode-${item.task_id}`}
+                  checked={!scheduledTimes[item.task_id]}
+                  onChange={() =>
+                    setScheduledTimes((prev) => ({
+                      ...prev,
+                      [item.task_id]: null,
+                    }))
+                  }
+                  disabled={deciding === item.task_id}
+                  className="w-4 h-4 cursor-pointer disabled:opacity-50"
+                />
+                <span className="text-sm text-zinc-700">Publish immediately after approval</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name={`publish-mode-${item.task_id}`}
+                  checked={!!scheduledTimes[item.task_id]}
+                  onChange={() =>
+                    setScheduledTimes((prev) => ({
+                      ...prev,
+                      [item.task_id]: new Date(Date.now() + 3600000).toISOString().slice(0, 16),
+                    }))
+                  }
+                  disabled={deciding === item.task_id}
+                  className="w-4 h-4 cursor-pointer disabled:opacity-50"
+                />
+                <span className="text-sm text-zinc-700">Schedule for:</span>
+              </label>
+              {scheduledTimes[item.task_id] && (
+                <input
+                  type="datetime-local"
+                  value={scheduledTimes[item.task_id]!.slice(0, 16)}
+                  onChange={(e) =>
+                    setScheduledTimes((prev) => ({
+                      ...prev,
+                      [item.task_id]: new Date(e.target.value).toISOString(),
+                    }))
+                  }
+                  disabled={deciding === item.task_id}
+                  className="ml-6 px-2 py-1 border border-zinc-300 rounded text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
+                />
+              )}
+            </div>
 
             <div className="flex gap-2">
               <button

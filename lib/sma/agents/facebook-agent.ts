@@ -41,6 +41,8 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
 import { generateProductVideo } from '../video-generator';
+import { getMetaToken, publishToFacebook } from '../meta-client';
+import { getSupabaseServiceRoleClient } from '@/lib/supabase/server';
 
 export class FacebookAgent extends PlatformAgentBase {
   readonly platform: Platform = 'facebook';
@@ -163,7 +165,20 @@ export class FacebookAgent extends PlatformAgentBase {
     // IMMUTABLE STOP 1 enforcement note:
     // This is the ONLY place in the SMA codebase where Facebook publish
     // APIs are called. The Coordinator never calls them directly.
-    throw new Error('NOT_IMPLEMENTED: FacebookAgent.publish');
+
+    console.log(`[FacebookAgent] Publishing approved draft for task ${record.task_id}`);
+
+    const supabase = await getSupabaseServiceRoleClient();
+    const token = await getMetaToken('facebook', supabase);
+
+    if (!token) {
+      throw new Error('Facebook platform not connected: missing or revoked access token');
+    }
+
+    const result = await publishToFacebook(token, approvedDraft);
+    console.log(`[FacebookAgent] Successfully published to Facebook: ${result.platform_post_id}`);
+
+    return result;
   }
 
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {

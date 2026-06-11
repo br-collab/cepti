@@ -50,12 +50,14 @@ import type {
   PausedLifecycle,
   PauseReason,
   Platform,
+  PublishResult,
   ResumeResult,
   TaskStatus,
 } from './types';
-import { PLATFORM_AGENTS } from './registry';
+import { PLATFORM_AGENTS, getPlatformAgent } from './registry';
 import { ConsoleAuditLogger } from './audit';
 import { assertApprovalContextComplete } from './guardrails';
+import type { ApprovedDraft } from '../agents/platform-base';
 
 // ── Configuration ────────────────────────────────────────────────────
 
@@ -302,6 +304,9 @@ export class SMACoordinator {
    *
    * Validates that attribution contains approver_id (from sma_admins)
    * and rationale before acting.
+   *
+   * @param scheduled_for Optional ISO timestamp for future publication. If provided,
+   *                       must be a valid future datetime. Null = publish immediately.
    */
   async resumeLifecycle(
     taskId: string,
@@ -310,6 +315,7 @@ export class SMACoordinator {
       approver_id: string;
       decided_by: 'bill' | 'francisco';
       rationale: string;
+      scheduled_for?: string | null;
     },
   ): Promise<ResumeResult> {
     // Validate attribution
@@ -320,6 +326,17 @@ export class SMACoordinator {
 
     if (missing.length > 0) {
       return { status: 'INVALID_APPROVAL', task_id: taskId, missing };
+    }
+
+    // Validate scheduled_for if provided
+    if (attribution.scheduled_for) {
+      const scheduledDate = new Date(attribution.scheduled_for);
+      if (isNaN(scheduledDate.getTime())) {
+        return { status: 'INVALID_APPROVAL', task_id: taskId, missing: ['scheduled_for: invalid ISO timestamp'] };
+      }
+      if (scheduledDate <= new Date()) {
+        return { status: 'INVALID_APPROVAL', task_id: taskId, missing: ['scheduled_for: must be in the future'] };
+      }
     }
 
     // Read paused lifecycle row
@@ -355,6 +372,7 @@ export class SMACoordinator {
       decided_by: attribution.decided_by,
       decided_at: new Date().toISOString(),
       rationale: attribution.rationale,
+      scheduled_for: attribution.scheduled_for || null,
     };
 
     // Determine new task status
@@ -389,6 +407,7 @@ export class SMACoordinator {
         task_id: taskId,
         lifecycle_record: completeLifecycle,
         lineage_hash: lineageHash,
+        scheduled_for: attribution.scheduled_for || null,
       });
 
     if (insertLifecycleError) {
@@ -455,6 +474,141 @@ export class SMACoordinator {
    */
   async getStatus(): Promise<CoordinatorStatus> {
     throw new Error('NOT_IMPLEMENTED: getStatus');
+  }
+
+  /**
+   * Publish a scheduled content lifecycle to Meta platforms.
+   * Dispatches to appropriate platform agents and updates published_at.
+   *
+   * IMMUTABLE STOP 1: This method dispatches to platform agents;
+   * the Coordinator never publishes directly to Meta APIs.
+   *
+   * @param taskId The task to publish
+   * @throws Error if task not found or publication fails
+   */
+  async publishContent(taskId: string): Promise<void> {
+    console.log(`[Coordinator] Publishing content for task ${taskId}`);
+
+    // Read the content lifecycle record
+    const { data: lifecycleRow, error: readError } = await this.supabase
+      .from('sma_content_lifecycles')
+      .select('lifecycle_record')
+      .eq('task_id', taskId)
+      .maybeSingle();
+
+    if (readError || !lifecycleRow) {
+      throw new Error(`Task ${taskId} not found in content_lifecycles`);
+    }
+
+    const lifecycle = lifecycleRow.lifecycle_record as ContentLifecycle;
+
+    // Check status is COMPLETE (approved)
+    if (lifecycle.status !== 'COMPLETE') {
+      throw new Error(`Task ${taskId} has status ${lifecycle.status}, expected COMPLETE`);
+    }
+
+    // Check not already published
+    if (lifecycle.publications && Object.keys(lifecycle.publications).length > 0) {
+      console.warn(`[Coordinator] Task ${taskId} already has publications, skipping`);
+      return;
+    }
+
+    const publications: Partial<Record<Platform, PublishResult>> = {};
+    const publishedPlatforms: Platform[] = [];
+    const errors: Array<{ platform: Platform; error: string }> = [];
+
+    // For each draft in the lifecycle, dispatch to the appropriate agent
+    for (const platform of Object.keys(lifecycle.drafts) as Platform[]) {
+      const draft = lifecycle.drafts[platform];
+      if (!draft) continue;
+
+      try {
+        console.log(`[Coordinator] Dispatching publish to ${platform} agent for task ${taskId}`);
+
+        // Create handoff record per Immutable Stop 3
+        const handoffRecord = await this.handoff(
+          taskId,
+          'COORDINATOR',
+          platform === 'facebook'
+            ? 'FACEBOOK_AGENT'
+            : platform === 'instagram'
+              ? 'INSTAGRAM_AGENT'
+              : 'THREADS_AGENT',
+          draft,
+          `Publish approved draft to ${platform}`,
+        );
+
+        // Get platform agent and call publish
+        const agent = getPlatformAgent(platform);
+
+        // Build ApprovedDraft from draft + approval info
+        const approval = lifecycle.approvals[0];
+        if (!approval) {
+          throw new Error(`No approval record found for task ${taskId}`);
+        }
+
+        const approvedDraft: ApprovedDraft = {
+          ...draft,
+          approval_record_id: `${taskId}-approval-0`,
+          approved_by: approval.decided_by,
+          approved_at: approval.decided_at,
+        };
+
+        // Call agent's publish method
+        const result = await agent.publish(handoffRecord, approvedDraft);
+        publications[platform] = result;
+        publishedPlatforms.push(platform);
+
+        console.log(`[Coordinator] Successfully published to ${platform}: ${result.permalink}`);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error(`[Coordinator] Failed to publish to ${platform}:`, errorMessage);
+        errors.push({ platform, error: errorMessage });
+      }
+    }
+
+    // Update the lifecycle record with published_at and publications
+    const updatedLifecycle: ContentLifecycle = {
+      ...lifecycle,
+      publications: { ...lifecycle.publications, ...publications },
+    };
+
+    const now = new Date().toISOString();
+    const { error: updateError } = await this.supabase
+      .from('sma_content_lifecycles')
+      .update({
+        lifecycle_record: updatedLifecycle,
+        published_at: now,
+      })
+      .eq('task_id', taskId);
+
+    if (updateError) {
+      console.error(`[Coordinator] Failed to update lifecycle for ${taskId}:`, updateError);
+      throw new Error(
+        `Failed to persist publications for ${taskId}: ${updateError.message}`,
+      );
+    }
+
+    // Audit log the publication
+    await this.auditLogger.logPublished(taskId, publishedPlatforms);
+
+    // If there were errors, log them but don't fail if at least one platform succeeded
+    if (errors.length > 0) {
+      console.warn(
+        `[Coordinator] ${errors.length} platform(s) failed for task ${taskId}:`,
+        errors,
+      );
+      if (publishedPlatforms.length === 0) {
+        // All platforms failed
+        throw new Error(
+          `All platforms failed for task ${taskId}: ${errors.map((e) => `${e.platform}: ${e.error}`).join('; ')}`,
+        );
+      }
+    }
+
+    console.log(
+      `[Coordinator] Publish complete for task ${taskId}: ${publishedPlatforms.length} platform(s)`,
+    );
   }
 
   // ─── Private helpers ────────────────────────────────────────────────
@@ -536,5 +690,6 @@ export interface AuditLogger {
   logApprovalRequested(taskId: string, reason: PauseReason): Promise<void>;
   logApprovalDecision(taskId: string, approval: ApprovalRecord): Promise<void>;
   logLifecycleAssembled(lifecycle: ContentLifecycle): Promise<void>;
+  logPublished(taskId: string, platforms: Platform[]): Promise<void>;
   logImmutableStopViolation(stop: 1 | 2 | 3 | 4 | 5, detail: string): Promise<void>;
 }

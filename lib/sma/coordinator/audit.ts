@@ -79,6 +79,14 @@ export class ConsoleAuditLogger implements AuditLogger {
     });
   }
 
+  async logPublished(taskId: string, platforms: Platform[]): Promise<void> {
+    this.logJSON('CONTENT_PUBLISHED', {
+      taskId,
+      platforms,
+      platformCount: platforms.length,
+    });
+  }
+
   async logImmutableStopViolation(
     stop: 1 | 2 | 3 | 4 | 5,
     detail: string,

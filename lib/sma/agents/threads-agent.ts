@@ -22,6 +22,8 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base'
 import { generateDetailed } from '../llm-client'
 import { matchProductsInTopic } from '../products-service'
 import { generateProductVideo } from '../video-generator'
+import { getMetaToken, publishToThreads } from '../meta-client'
+import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
 
 export class ThreadsAgent extends PlatformAgentBase {
   readonly platform: Platform = 'threads'
@@ -129,7 +131,20 @@ export class ThreadsAgent extends PlatformAgentBase {
 
   async publish(record: HandoffRecord, approvedDraft: ApprovedDraft): Promise<PublishResult> {
     this.verifyHandoff(record)
-    throw new Error('NOT_IMPLEMENTED: ThreadsAgent.publish')
+
+    console.log(`[ThreadsAgent] Publishing approved draft for task ${record.task_id}`)
+
+    const supabase = await getSupabaseServiceRoleClient()
+    const token = await getMetaToken('threads', supabase)
+
+    if (!token) {
+      throw new Error('Threads platform not connected: missing or revoked access token')
+    }
+
+    const result = await publishToThreads(token, approvedDraft)
+    console.log(`[ThreadsAgent] Successfully published to Threads: ${result.platform_post_id}`)
+
+    return result
   }
 
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {
