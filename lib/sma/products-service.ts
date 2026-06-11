@@ -1,22 +1,27 @@
 import fs from 'fs'
 import path from 'path'
 
-interface ProductCatalogEntry {
+interface ProductEntry {
   slug: string
-  name: string
-  images: string[]
+  name: { es: string; en: string }
+  image_folder: string
 }
 
-let catalogCache: ProductCatalogEntry[] = []
+interface ProductsCatalog {
+  products: ProductEntry[]
+}
+
+let catalogCache: ProductEntry[] = []
 let cacheLoaded = false
 
-export async function loadProductsCatalog(): Promise<ProductCatalogEntry[]> {
+export async function loadProductsCatalog(): Promise<ProductEntry[]> {
   if (cacheLoaded) return catalogCache
 
   try {
     const catalogPath = path.join(process.cwd(), 'data/products.json')
     const data = fs.readFileSync(catalogPath, 'utf-8')
-    catalogCache = JSON.parse(data)
+    const parsed: ProductsCatalog = JSON.parse(data)
+    catalogCache = parsed.products || []
     cacheLoaded = true
     return catalogCache
   } catch (error) {
@@ -29,29 +34,54 @@ export async function matchProductsInTopic(topic: string): Promise<string[]> {
   const catalog = await loadProductsCatalog()
 
   const topicLower = topic.toLowerCase()
-  const matchedProducts: string[] = []
+  const matchedImages: string[] = []
   const seen = new Set<string>()
 
   for (const product of catalog) {
-    const nameMatch = product.name.toLowerCase().includes(topicLower)
-    const slugMatch = product.slug.toLowerCase().includes(topicLower)
-    const topicMatch = topicLower.includes(product.slug.toLowerCase()) || topicLower.includes(product.name.toLowerCase())
+    const nameEn = (product.name.en || '').toLowerCase()
+    const nameEs = (product.name.es || '').toLowerCase()
+    const slugMatch = product.slug.toLowerCase()
 
-    if (nameMatch || slugMatch || topicMatch) {
-      for (const image of product.images) {
-        if (!seen.has(image)) {
-          matchedProducts.push(image)
-          seen.add(image)
+    const isMatch = topicLower.includes(nameEn) || topicLower.includes(nameEs) || topicLower.includes(slugMatch) || nameEn.includes(topicLower) || nameEs.includes(topicLower)
+
+    if (isMatch && product.image_folder) {
+      try {
+        const folderPath = path.join(process.cwd(), 'public', product.image_folder)
+        if (fs.existsSync(folderPath)) {
+          const files = fs.readdirSync(folderPath).filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f))
+
+          for (const file of files) {
+            const imagePath = `${product.image_folder}${file}`
+            if (!seen.has(imagePath)) {
+              matchedImages.push(imagePath)
+              seen.add(imagePath)
+            }
+          }
         }
+      } catch (error) {
+        console.warn(`Failed to read images for ${product.slug}:`, error)
       }
     }
   }
 
-  return matchedProducts
+  return matchedImages
 }
 
 export async function getProductImages(slug: string): Promise<string[]> {
   const catalog = await loadProductsCatalog()
   const product = catalog.find((p) => p.slug.toLowerCase() === slug.toLowerCase())
-  return product?.images || []
+
+  if (!product?.image_folder) return []
+
+  try {
+    const folderPath = path.join(process.cwd(), 'public', product.image_folder)
+    if (fs.existsSync(folderPath)) {
+      const files = fs.readdirSync(folderPath).filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f))
+      return files.map((f) => `${product.image_folder}${f}`)
+    }
+  } catch (error) {
+    console.warn(`Failed to read images for ${slug}:`, error)
+  }
+
+  return []
 }
