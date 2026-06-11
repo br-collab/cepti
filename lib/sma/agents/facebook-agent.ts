@@ -47,7 +47,7 @@ export class FacebookAgent extends PlatformAgentBase {
     this.verifyHandoff(record);
 
     // Load caption prompt template
-    const promptPath = path.join(__dirname, '../../../prompts/facebook/caption.md');
+    const promptPath = path.join(process.cwd(), 'prompts/facebook/caption.md');
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
     // Extract system prompt (between --- markers) and user template
