@@ -45,14 +45,17 @@ import type {
   ContentIntent,
   ContentLifecycle,
   CoordinatorStatus,
+  DraftResult,
   HandoffRecord,
   PausedLifecycle,
   PauseReason,
   Platform,
   ResumeResult,
+  TaskStatus,
 } from './types';
 import { PLATFORM_AGENTS } from './registry';
 import { ConsoleAuditLogger } from './audit';
+import { assertApprovalContextComplete } from './guardrails';
 
 // ── Configuration ────────────────────────────────────────────────────
 
@@ -242,11 +245,18 @@ export class SMACoordinator {
    * @param context Full bundled context for the approver
    */
   async requestApproval(
-    _taskId: string,
-    _reason: PauseReason,
-    _context: ApprovalContext,
+    taskId: string,
+    reason: PauseReason,
+    context: ApprovalContext,
   ): Promise<void> {
-    throw new Error('NOT_IMPLEMENTED: requestApproval');
+    // Per Immutable Stop 5: assert context is complete
+    assertApprovalContextComplete(context);
+
+    // Pause the lifecycle
+    await this.pauseLifecycle(taskId, reason, context);
+
+    // Audit log the approval request
+    await this.auditLogger.logApprovalRequested(taskId, reason);
   }
 
   // ─── Pause / Resume ─────────────────────────────────────────────────
@@ -256,11 +266,32 @@ export class SMACoordinator {
    * surfaces these as the approval queue.
    */
   async pauseLifecycle(
-    _taskId: string,
-    _reason: PauseReason,
-    _context: ApprovalContext,
+    taskId: string,
+    reason: PauseReason,
+    context: ApprovalContext,
   ): Promise<void> {
-    throw new Error('NOT_IMPLEMENTED: pauseLifecycle');
+    // Update task status to PAUSED
+    const { error: updateError } = await this.supabase
+      .from('sma_coordinator_tasks')
+      .update({ status: 'PAUSED' })
+      .eq('task_id', taskId);
+
+    if (updateError) {
+      throw new Error(`Failed to pause task ${taskId}: ${updateError.message}`);
+    }
+
+    // Insert pause record with full context
+    const { error: insertError } = await this.supabase
+      .from('sma_paused_lifecycles')
+      .insert({
+        task_id: taskId,
+        pause_reason: reason,
+        context,
+      });
+
+    if (insertError) {
+      throw new Error(`Failed to insert pause record for ${taskId}: ${insertError.message}`);
+    }
   }
 
   /**
@@ -273,14 +304,131 @@ export class SMACoordinator {
    * and rationale before acting.
    */
   async resumeLifecycle(
-    _taskId: string,
-    _decision: 'APPROVE' | 'DENY',
-    _attribution: {
+    taskId: string,
+    decision: 'APPROVE' | 'DENY',
+    attribution: {
       approver_id: string;
+      decided_by: 'bill' | 'francisco';
       rationale: string;
     },
   ): Promise<ResumeResult> {
-    throw new Error('NOT_IMPLEMENTED: resumeLifecycle');
+    // Validate attribution
+    const missing: string[] = [];
+    if (!attribution.approver_id) missing.push('approver_id');
+    if (!attribution.decided_by) missing.push('decided_by');
+    if (!attribution.rationale) missing.push('rationale');
+
+    if (missing.length > 0) {
+      return { status: 'INVALID_APPROVAL', task_id: taskId, missing };
+    }
+
+    // Read paused lifecycle row
+    const { data: pausedRow, error: readError } = await this.supabase
+      .from('sma_paused_lifecycles')
+      .select('*')
+      .eq('task_id', taskId)
+      .single();
+
+    if (readError || !pausedRow) {
+      return { status: 'NOT_FOUND', task_id: taskId };
+    }
+
+    // Read task row for intent
+    const { data: taskRow, error: taskError } = await this.supabase
+      .from('sma_coordinator_tasks')
+      .select('intent')
+      .eq('task_id', taskId)
+      .single();
+
+    if (taskError || !taskRow) {
+      return { status: 'NOT_FOUND', task_id: taskId };
+    }
+
+    const intent = taskRow.intent as ContentIntent;
+    const context = pausedRow.context as ApprovalContext;
+    const draft = context.draft as DraftResult;
+
+    // Create approval record
+    const approvalRecord: ApprovalRecord = {
+      task_id: taskId,
+      decision,
+      decided_by: attribution.decided_by,
+      decided_at: new Date().toISOString(),
+      rationale: attribution.rationale,
+    };
+
+    // Determine new task status
+    const newTaskStatus: TaskStatus = decision === 'APPROVE' ? 'COMPLETE' : 'DENIED';
+
+    // Assemble ContentLifecycle (without lineage_hash for canonical JSON)
+    const lifecycleForHash: Omit<ContentLifecycle, 'lineage_hash'> = {
+      task_id: taskId,
+      intent,
+      drafts: { [context.platform]: draft },
+      approvals: [approvalRecord],
+      publications: {},
+      initial_metrics: {},
+      assembled_at: new Date().toISOString(),
+      status: newTaskStatus,
+    };
+
+    // Compute lineage hash (SHA-256 of canonical JSON)
+    const { createHash } = await import('crypto');
+    const lifecycleJson = JSON.stringify(lifecycleForHash, null, 0);
+    const lineageHash = createHash('sha256').update(lifecycleJson).digest('hex');
+
+    const completeLifecycle: ContentLifecycle = {
+      ...lifecycleForHash,
+      lineage_hash: lineageHash,
+    };
+
+    // Insert ContentLifecycle
+    const { error: insertLifecycleError } = await this.supabase
+      .from('sma_content_lifecycles')
+      .insert({
+        task_id: taskId,
+        lifecycle_record: completeLifecycle,
+        lineage_hash: lineageHash,
+      });
+
+    if (insertLifecycleError) {
+      throw new Error(
+        `Failed to assemble lifecycle for ${taskId}: ${insertLifecycleError.message}`,
+      );
+    }
+
+    // Update paused row with approval info and resumed_at
+    const { error: updatePausedError } = await this.supabase
+      .from('sma_paused_lifecycles')
+      .update({
+        approval_decision: decision,
+        approval_rationale: attribution.rationale,
+        approver_id: attribution.approver_id,
+        resumed_at: new Date().toISOString(),
+      })
+      .eq('task_id', taskId);
+
+    if (updatePausedError) {
+      throw new Error(`Failed to update paused row for ${taskId}: ${updatePausedError.message}`);
+    }
+
+    // Update task status
+    const { error: updateTaskError } = await this.supabase
+      .from('sma_coordinator_tasks')
+      .update({ status: newTaskStatus })
+      .eq('task_id', taskId);
+
+    if (updateTaskError) {
+      throw new Error(`Failed to update task status for ${taskId}: ${updateTaskError.message}`);
+    }
+
+    // Audit log the approval decision
+    await this.auditLogger.logApprovalDecision(taskId, approvalRecord);
+
+    // Audit log the lifecycle assembly
+    await this.auditLogger.logLifecycleAssembled(completeLifecycle);
+
+    return { status: 'COMPLETE', task_id: taskId, lifecycle: completeLifecycle };
   }
 
   /**
@@ -288,7 +436,17 @@ export class SMACoordinator {
    * /admin/sma/approval-queue page.
    */
   async listPausedLifecycles(): Promise<PausedLifecycle[]> {
-    throw new Error('NOT_IMPLEMENTED: listPausedLifecycles');
+    const { data, error } = await this.supabase
+      .from('sma_paused_lifecycles')
+      .select('*')
+      .is('resumed_at', null)
+      .order('paused_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`Failed to list paused lifecycles: ${error.message}`);
+    }
+
+    return data as PausedLifecycle[];
   }
 
   /**
