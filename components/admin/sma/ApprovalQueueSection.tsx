@@ -64,8 +64,9 @@ export default function ApprovalQueueSection({
         const draft = item.context.draft
         const caption = draft.body
         const generatedAt = new Date(draft.generated_at).toLocaleString('es-ES')
-        // Filter image files and strip 'public/' prefix for Next.js Image component
+        // Filter image and video files, strip 'public/' prefix
         const images = draft.attached_assets?.filter((a) => /\.(jpg|jpeg|png|webp)$/i.test(a)).map((path) => path.replace(/^public\//, '/')) || []
+        const videos = draft.attached_assets?.filter((a) => /\.(mp4|webm|mov)$/i.test(a)).map((path) => path.replace(/^public\//, '/')) || []
         const currentIndex = currentImageIndex[item.task_id] || 0
 
         return (
@@ -120,8 +121,20 @@ export default function ApprovalQueueSection({
               </div>
             )}
 
-            {images.length === 0 && (
-              <p className="text-xs text-zinc-400 italic">No product images attached</p>
+            {videos.length > 0 && (
+              <div className="space-y-2">
+                <video
+                  src={videos[0]}
+                  controls
+                  className="w-full rounded-lg bg-zinc-900"
+                  style={{ maxHeight: '400px' }}
+                />
+                <p className="text-xs text-zinc-500">Generated video preview</p>
+              </div>
+            )}
+
+            {images.length === 0 && videos.length === 0 && (
+              <p className="text-xs text-zinc-400 italic">No product images or video attached</p>
             )}
 
             <div className="bg-zinc-50 rounded p-3 text-sm text-zinc-900 whitespace-pre-wrap max-h-60 overflow-y-auto">
