@@ -10,7 +10,7 @@ export interface GeneratedVideo {
 
 export async function generateProductVideo(
   images: string[],
-  caption: string,
+  _caption: string,
   videoId: string,
   targetDurationSeconds: number = 45,
 ): Promise<GeneratedVideo | null> {
@@ -42,18 +42,10 @@ export async function generateProductVideo(
     }).join('\n')
     fs.writeFileSync(concatFile, concatContent)
 
-    // Extract short text overlay from caption (just first sentence/hook, stripped of special chars)
-    // Video text overlay should be simple and readable, full caption goes in social post
-    const textOverlay = caption
-      .split('\n')[0] // Take first line
-      .replace(/\*\*/g, '') // Remove markdown bold
-      .replace(/[^\w\s\?\!\-\.]/g, '') // Remove emojis and special chars
-      .substring(0, 80) // Max 80 chars for readability
-      .trim()
-
     // FFmpeg command: concat images and export as MP4
-    // Use simpler filter without complex scaling to avoid format compatibility issues
-    const ffmpegCmd = `ffmpeg -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset medium -crf 23 -r 30 -t ${duration} "${videoPath}" -y 2>&1`
+    // scale=trunc(iw/2)*2:trunc(ih/2)*2 forces even dimensions (libx264 requirement)
+    // pix_fmt yuv420p ensures broad compatibility
+    const ffmpegCmd = `ffmpeg -f concat -safe 0 -i "${concatFile}" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -preset medium -crf 23 -r 30 -pix_fmt yuv420p -t ${duration} "${videoPath}" -y 2>&1`
 
     try {
       execSync(ffmpegCmd, { stdio: 'pipe' })
