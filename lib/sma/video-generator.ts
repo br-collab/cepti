@@ -40,7 +40,7 @@ async function generateOpenAITTS(text: string, outputPath: string): Promise<bool
       },
       body: JSON.stringify({
         model: 'tts-1-hd',
-        voice: 'fable',
+        voice: 'nova',
         input: text,
         response_format: 'mp3',
         speed: 1.0,
