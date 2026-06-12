@@ -116,10 +116,14 @@ export class FacebookAgent extends PlatformAgentBase {
 
       // Generate video from images if enabled
       if (includeVideo && productImages.length > 0) {
-        const video = await generateProductVideo(productImages, result.text, draftId);
-        if (video) {
-          console.log('[FacebookAgent] Generated video:', video);
-          attachedAssets = [video.videoPath, ...attachedAssets];
+        // Filter to JPEG/WEBP only for video generation (FFmpeg concat has issues with PNG)
+        const videoImages = productImages.filter((img) => /\.(jpg|jpeg|webp)$/i.test(img));
+        if (videoImages.length > 0) {
+          const video = await generateProductVideo(videoImages, result.text, draftId);
+          if (video) {
+            console.log('[FacebookAgent] Generated video:', video);
+            attachedAssets = [video.videoPath, ...attachedAssets];
+          }
         }
       }
     }
