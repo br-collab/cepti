@@ -51,8 +51,9 @@ export async function generateProductVideo(
       .substring(0, 80) // Max 80 chars for readability
       .trim()
 
-    // FFmpeg command: concat images, scale, add text overlay, export as MP4
-    const ffmpegCmd = `ffmpeg -f concat -safe 0 -i "${concatFile}" -vf "scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)/2:(oh-ih)/2,drawtext=text='${textOverlay}':fontfile=/System/Library/Fonts/Helvetica.ttc:fontsize=28:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2:box=1:boxcolor=black@0.5" -c:v libx264 -preset medium -crf 23 -r 30 -t ${duration} "${videoPath}" -y 2>&1`
+    // FFmpeg command: concat images and export as MP4
+    // Use simpler filter without complex scaling to avoid format compatibility issues
+    const ffmpegCmd = `ffmpeg -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset medium -crf 23 -r 30 -t ${duration} "${videoPath}" -y 2>&1`
 
     try {
       execSync(ffmpegCmd, { stdio: 'pipe' })
