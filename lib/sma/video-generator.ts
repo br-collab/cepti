@@ -35,7 +35,11 @@ export async function generateProductVideo(
 
     // Create a concat demuxer file
     const concatFile = path.join(outputDir, `${videoId}-concat.txt`)
-    const concatContent = images.map((img) => `file '${path.join(process.cwd(), img)}'`).join('\n')
+    // Paths are /images/... format, convert to filesystem-compatible public/images/...
+    const concatContent = images.map((img) => {
+      const fsPath = img.startsWith('/') ? `public${img}` : img
+      return `file '${path.join(process.cwd(), fsPath)}'`
+    }).join('\n')
     fs.writeFileSync(concatFile, concatContent)
 
     // Extract short text overlay from caption (just first sentence/hook, stripped of special chars)
@@ -63,7 +67,9 @@ export async function generateProductVideo(
 
     // Generate thumbnail from first image
     try {
-      const thumbnailCmd = `ffmpeg -i "${path.join(process.cwd(), images[0])}" -vf "scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)/2:(oh-ih)/2" -y "${thumbnailPath}" 2>&1`
+      const firstImg = images[0]
+      const fsPath = firstImg.startsWith('/') ? `public${firstImg}` : firstImg
+      const thumbnailCmd = `ffmpeg -i "${path.join(process.cwd(), fsPath)}" -vf "scale=1200:675:force_original_aspect_ratio=decrease,pad=1200:675:(ow-iw)/2:(oh-ih)/2" -y "${thumbnailPath}" 2>&1`
       execSync(thumbnailCmd, { stdio: 'pipe' })
     } catch (error) {
       console.warn('Thumbnail generation failed:', error)

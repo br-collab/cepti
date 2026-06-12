@@ -85,7 +85,7 @@ export async function matchProductsInTopic(topic: string): Promise<string[]> {
           }
 
           for (const file of files) {
-            const imagePath = `public${product.image_folder}${file}`
+            const imagePath = `${product.image_folder}${file}`
             if (!seen.has(imagePath)) {
               matchedImages.push(imagePath)
               seen.add(imagePath)
@@ -123,7 +123,7 @@ export async function getProductImages(slug: string): Promise<string[]> {
         files = files.slice(0, MAX_IMAGES_PER_PRODUCT)
       }
 
-      return files.map((f) => `public${product.image_folder}${f}`)
+      return files.map((f) => `${product.image_folder}${f}`)
     }
   } catch (error) {
     console.warn(`Failed to read images for ${slug}:`, error)
