@@ -32,6 +32,7 @@ Requirements:
 6. Warm, professional, conversational tone
 7. NO generic product descriptions
 8. Include WhatsApp contact information naturally
+9. **Write entirely in Spanish** — CEPTI's audience is Spanish-speaking. Output ONLY the caption text, no preamble, no "Here's your caption:", no English framing.
 
 ## Tone Examples
 - ❌ "Ladriflex is a flexible brick system with authentic appearance"

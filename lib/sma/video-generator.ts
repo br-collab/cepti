@@ -9,8 +9,11 @@ export interface GeneratedVideo {
 }
 
 // Strip markdown/URLs/emoji from caption so it can be spoken by TTS.
+// Also removes common LLM preamble lines ("Here's your caption for X:")
+// which would trigger macOS voice switching away from the Spanish voice.
 function cleanTextForTTS(raw: string): string {
   return raw
+    .replace(/^[^\n]*(here['’]?s|here is|below is|the following)[^\n]*\n+/im, '')
     .replace(/\*\*/g, '')
     .replace(/\*/g, '')
     .replace(/_/g, ' ')
