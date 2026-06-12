@@ -1,228 +1,137 @@
-# Power Words Library for Social Media Content
+# Biblioteca de Palabras Poderosas — Mercado Dominicano
 
-## What Are Power Words?
+## Principio fundamental
 
-Power words are **high-impact verbs and adjectives** that trigger emotional responses and command attention. They replace weak, generic language with language that makes people *feel* something.
+Las palabras poderosas no son superlativos. Son palabras que hacen que el lector se imagine el resultado, confíe en el producto, y sienta que el siguiente paso (WhatsApp) es natural.
 
-## Categories & Usage
+En el mercado dominicano, las palabras que más convierten son **específicas, honestas y visuales** — no grandiosas ni exageradas.
 
-### TRANSFORMATION WORDS
-*Use when showing before → after, change, growth*
+---
 
-- Transform
-- Revolutionize
-- Reimagine
-- Reshape
-- Elevate
-- Amplify
-- Evolve
-- Metamorphose
-- Breakthrough
-- Overhaul
+## TRANSFORMACIÓN
+*Para mostrar el antes → después, el cambio real*
 
-**Example:**
-- ❌ "This product is better for your building projects"
-- ✅ "This product transforms your entire building process"
+| Español | Cuándo usarlo |
+|---|---|
+| Transforma | Cambio total de un espacio |
+| Renueva | Darle vida nueva a algo existente |
+| Convierte | Cambiar la función o el look de una superficie |
+| Revive | Espacios deteriorados que vuelven a brillar |
+| Actualiza | Para clientes con gusto moderno |
+| Dale otro nivel | Más coloquial, efectivo en Facebook |
 
-### ACTION/POWER WORDS
-*Use in CTAs and when showing momentum*
+**Ejemplo:**
+❌ "Este producto es mejor para tu proyecto"
+✅ "Transforma esa pared en el punto focal de toda la habitación"
 
-- Unlock
-- Unleash
-- Ignite
-- Activate
-- Accelerate
-- Propel
-- Surge
-- Harness
-- Catalyze
-- Trigger
+---
 
-**Example:**
-- ❌ "Use Ladriflex to get results faster"
-- ✅ "Unleash your design potential with Ladriflex"
+## ACCIÓN / CTA
+*Para ganchos y llamadas a la acción*
 
-### PREMIUM/QUALITY WORDS
-*Use for positioning, status, aspiration*
+| Español | Cuándo usarlo |
+|---|---|
+| Descubre | Invitación suave, sin presión |
+| Consigue | Resultado concreto al alcance |
+| Logra | Para resultados de calidad |
+| Dile adiós a | Para hablar del problema que elimina |
+| Imagina | Para activar la visualización del resultado |
+| Escríbenos | El CTA principal — siempre hacia WhatsApp |
 
-- Exclusive
-- Premium
-- Refined
-- Exquisite
-- Bespoke
-- Curated
-- Artisan
-- Sophisticated
-- Elegant
-- Prestige
+---
 
-**Example:**
-- ❌ "Good quality brick"
-- ✅ "Refined brick craftsmanship"
+## CALIDAD / CONFIANZA
+*Lo más importante para el mercado dominicano*
 
-### EMOTIONAL/DESIRE WORDS
-*Use to make people FEEL the benefit*
+| Español | Cuándo usarlo |
+|---|---|
+| Duradero | Climática tropical: humedad, sol, lluvia |
+| Resistente | Uso diario, tráfico, impacto |
+| Probado | Con experiencia real, no teórica |
+| Sólido | Para transmitir confianza en el producto |
+| Garantizado | Solo si hay garantía real que respaldar |
+| Confiable | Para la relación con el cliente |
+| Fabricado aquí | Orgullo local, calidad verificable |
 
-- Crave
-- Desire
-- Yearn
-- Captivated
-- Obsessed
-- Magnetized
-- Intoxicated (by beauty)
-- Enchanted
-- Mesmerized
-- Addicted
+---
 
-**Example:**
-- ❌ "You will like this color"
-- ✅ "You'll be captivated by this color"
+## FACILIDAD / RAPIDEZ
+*Eliminan el miedo al proceso*
 
-### CREDIBILITY/TRUST WORDS
-*Use to build authority and confidence*
+| Español | Cuándo usarlo |
+|---|---|
+| Sin demoler | El diferenciador más poderoso de CEPTI |
+| Sin obra pesada | Para remodelaciones sin trauma |
+| En días | Específico y creíble (no "rápido") |
+| Sin complicaciones | Reduce el miedo a fallar |
+| Fácil de aplicar | Para propietarios que harán el trabajo |
+| Cualquier maestro | Amplía el mercado, reduce la percepción de riesgo |
 
-- Proven
-- Verified
-- Tested
-- Certified
-- Validated
-- Established
-- Trusted
-- Renowned
-- Acclaimed
-- Vetted
+**Ejemplo:**
+❌ "Instalación rápida y sencilla"
+✅ "Cualquier maestro lo instala en un día — sin demoler, sin polvo"
 
-**Example:**
-- ❌ "Many people use this"
-- ✅ "Proven by 5,000+ architects"
+---
 
-### URGENCY/SCARCITY WORDS
-*Use for time-sensitive or limited offers*
+## VISUAL / SENSORIAL
+*Para que el lector lo imagine en su espacio*
 
-- Rare
-- Fleeting
-- Moments away
-- On the verge
-- Ticking
-- Unprecedented
-- Singular
-- Vanishing
-- Dwindling
-- Final
+| Español | Cuándo usarlo |
+|---|---|
+| Acabado de revista | Aspiracional pero creíble |
+| Textura real | Autenticidad del producto |
+| Efecto impresionante | Para materiales de alto impacto visual |
+| Como si fuera obra civil | Para productos que imitan materiales pesados |
+| No parece pintura | Para pinturas texturizadas |
+| Lo vas a querer tocar | Sensorial, activa el deseo |
 
-**Example:**
-- ❌ "Offer ends Friday"
-- ✅ "This rare opportunity vanishes Friday"
+---
 
-### INTENSITY/SUPERLATIVE WORDS
-*Use to emphasize exceptional value*
+## VALOR / AHORRO
+*Para justificar la inversión*
 
-- Revolutionary
-- Unprecedented
-- Unmatched
-- Incomparable
-- Extraordinary
-- Phenomenal
-- Remarkable
-- Exceptional
-- Singular
-- Legendary
+| Español | Cuándo usarlo |
+|---|---|
+| Sin reventar el presupuesto | Directo, auténtico |
+| Invierte en acabados, no en demolición | Reencuadra el costo |
+| Lo que antes costaba el triple | Comparación honesta |
+| Ahorra en mano de obra | Beneficio concreto y calculable |
+| Por una fracción del costo | Para comparar con materiales tradicionales |
 
-**Example:**
-- ❌ "This is very different"
-- ✅ "This is unprecedented in the industry"
+---
 
-### SENSORY WORDS
-*Use to help people visualize and feel*
+## PRUEBA LOCAL
+*El trigger más efectivo en el mercado dominicano*
 
-- Sleek
-- Vibrant
-- Silky
-- Luminous
-- Rich
-- Warm
-- Crisp
-- Radiant
-- Textured
-- Vivid
+| Español | Cuándo usarlo |
+|---|---|
+| Fabricado en la República Dominicana | Orgullo, calidad verificable |
+| Usado en proyectos por todo el país | Prueba de adopción local |
+| Lo conocen los mejores maestros | Autoridad por asociación |
+| Aguanta el clima dominicano | Relevancia climática (humedad, calor) |
 
-**Example:**
-- ❌ "This brick looks nice"
-- ✅ "This brick's rich, textured surface catches light like authentic masonry"
+---
 
-## Word Combinations That Work
+## Lo que NO funciona en el mercado dominicano
 
-### Power + Benefit
-- "Transform your vision"
-- "Revolutionize your workflow"
-- "Unlock hidden potential"
+❌ "Revolucionar" — suena político, no persuasivo
+❌ "Unprecedented / Singular / Legendary" — grandiosos, no creíbles
+❌ "Exclusivo" sin contexto — suena elitista, aleja
+❌ "Últimas unidades" sin que sea verdad — genera desconfianza
+❌ Superlativos vacíos ("el mejor", "el más increíble") — nadie los cree
+❌ Anglicismos directos ("upgrade tu espacio", "level up") — suenan artificiales
 
-### Emotional + Action
-- "Captivated by design"
-- "Obsessed with results"
-- "Magnetized by authenticity"
+---
 
-### Credibility + Urgency
-- "Proven solution—limited access"
-- "Tested by thousands—spots filling"
-- "Trusted by leaders—now available to you"
+## Sustituciones rápidas
 
-### Status + Transformation
-- "Exclusive access to revolutionary design"
-- "Premium experience that transforms spaces"
-- "Bespoke solution that elevates projects"
-
-## What NOT to Do
-
-❌ Use power words when not earned (false claims)
-❌ Stack too many in one sentence (feels inauthentic)
-❌ Use same power word repeatedly (loses impact)
-❌ Overstate benefit ("revolutionary" for minor improvement)
-❌ Use outdated slang ("epic," "amazing," "awesome")
-
-## Platform-Specific Guidance
-
-### Facebook
-- Trust words: "proven," "trusted," "verified"
-- Community words: "join," "together," "thousands"
-- Action words: "discover," "explore," "learn"
-
-### Instagram
-- Aspirational: "exclusive," "curated," "refined"
-- Sensory: "vibrant," "sleek," "luminous"
-- Desire: "crave," "obsessed," "captivated"
-
-### Threads
-- Authentic: "real," "honest," "genuine"
-- Authority: "proven," "tested," "established"
-- Conversation: "think," "discuss," "share"
-
-## Quick Reference: Replace Weak Words
-
-| Weak | Power |
-|------|-------|
-| good | elevated, refined, exceptional |
-| better | revolutionized, transformed, surpassed |
-| nice | exquisite, captivating, remarkable |
-| make | unlock, unleash, catalyze |
-| get | harness, propel, amplify |
-| help | transform, revolutionize, elevate |
-| fast | accelerated, surge, ignite |
-| new | unprecedented, revolutionary, singular |
-| popular | proven, trusted, legendary |
-| beautiful | exquisite, luminous, enchanting |
-
-## Using Power Words in Copy
-
-**Weak example:**
-"Our flexible brick is good and works well for many building projects."
-
-**Strong example:**
-"Unleash authentic brick beauty—revolutionize your workflow with unprecedented flexibility that's proven on 5,000+ elite projects."
-
-Notice:
-- Verb choice (unleash, revolutionize)
-- Credibility (proven, 5,000+)
-- Emotional resonance (beauty, unprecedented)
-- Status (elite)
-- All earned, not exaggerated
+| Evita | Usa en cambio |
+|---|---|
+| Revolucionario | Que cambia todo |
+| Exquisito | Acabado de revista |
+| Bespoke | Hecho a tu medida |
+| Transformativo | Que transforma |
+| Unprecedented | Como nunca antes |
+| Legendary | Que deja huella |
+| Captivated | No lo vas a poder dejar de mirar |
+| Unleash | Saca todo el potencial de |

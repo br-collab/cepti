@@ -64,14 +64,23 @@ export class FacebookAgent extends PlatformAgentBase {
     // Build comprehensive system prompt: expert mindset + framework + psychology + language + platform strategy
     const systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
 
-    // Build user message from template placeholders
-    const userMessage = `Write a compelling Facebook caption for: ${intent.topic}\n\nContext: ${intent.notes || 'General product promotion'}\n\nApproach: \n1. Hook with transformation or curiosity gap\n2. Use power words (transform, revolutionize, unlock, etc.)\n3. Add 1-2 psychology triggers (social proof, authority, urgency, or FOMO)\n4. Build trust and make them feel understood\n5. Low-friction CTA (DM, message, quote request)\n\nRemember: Feel authentic and earned, not salesy.`;
+    // Build user message in Spanish — matches the Spanish-first system prompt
+    const userMessage = `Escribe un caption de Facebook para: ${intent.topic}\n\nContexto: ${intent.notes || 'Promoción general del producto'}\n\nRecuerda: gancho que pare el scroll, beneficio específico en segunda persona, prueba creíble, un solo CTA al WhatsApp. Español dominicano, tono de amigo de confianza. Entre 350 y 450 caracteres.`;
 
     // Generate caption via LLM
     const result = await generateDetailed({
       system: systemPrompt,
       userMessage,
       maxTokens: 512,
+    });
+
+    // Generate a short video narration script — separate from the caption.
+    // The caption is optimized for reading; the video script is optimized for listening.
+    // 40-60 words, punchy, spoken-word rhythm, ends with WhatsApp CTA.
+    const videoScript = await generateDetailed({
+      system: 'Eres un guionista de video para redes sociales dominicanas. Escribes guiones cortos, emotivos y naturales en español dominicano. El guión debe sonar como una persona real hablando, no como un anuncio.',
+      userMessage: `Escribe un guión de video de 40-60 palabras en español para: ${intent.topic}\n\nRequisitos:\n- Gancho emocional en la primera oración que detenga el scroll\n- Usa "tú" informal\n- Frases cortas, ritmo de palabra hablada, pausas naturales\n- Termina con: "Escríbenos por WhatsApp."\n- Solo el texto del guión — sin indicaciones de escena, sin formato, sin preámbulo`,
+      maxTokens: 150,
     });
 
     // Build wa.me link with task_id attribution
@@ -119,7 +128,8 @@ export class FacebookAgent extends PlatformAgentBase {
         // Filter to JPEG/WEBP only for video generation (FFmpeg concat has issues with PNG)
         const videoImages = productImages.filter((img) => /\.(jpg|jpeg|webp)$/i.test(img));
         if (videoImages.length > 0) {
-          const video = await generateProductVideo(videoImages, result.text, draftId);
+          // Use the short video script for narration — optimized for listening, not reading
+          const video = await generateProductVideo(videoImages, videoScript.text, draftId);
           if (video) {
             console.log('[FacebookAgent] Generated video:', video);
             attachedAssets = [video.videoPath, ...attachedAssets];
