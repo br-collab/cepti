@@ -68,7 +68,7 @@ export class ThreadsAgent extends PlatformAgentBase {
     const systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
 
     // Build user message
-    const userMessage = `Write a compelling Threads post for: ${intent.topic}\n\nContext: ${intent.notes || 'Share insider insight about this product'}\n\nApproach:\n1. Start with contrarian take or insider knowledge\n2. Use action/power words (revolutionize, unleash, unlock, transform, etc.)\n3. Add psychology trigger (authority, curiosity gap, or reciprocity)\n4. Be conversational, authentic, and opinionated\n5. End with a genuine question that invites replies\n6. Keep under 280 characters\n\nRemember: Threads is real talk. No hashtags. Encourage discussion.`;
+    const userMessage = `Escribe un post de Threads para: ${intent.topic}\n\nContexto: ${intent.notes || 'Comparte conocimiento de insider sobre este producto para el mercado dominicano'}\n\nRecuerda: máximo 480 caracteres, sin hashtags, tono de colega dominicano que sabe lo que hace. Párrafos cortos. Termina con una pregunta genuina o CTA al WhatsApp. Solo el texto del post, sin preámbulo.`;
 
     // Generate caption via LLM
     const result = await generateDetailed({
@@ -117,22 +117,6 @@ export class ThreadsAgent extends PlatformAgentBase {
       tokens_input: result.inputTokens,
       tokens_output: result.outputTokens,
     };
-  }
-
-  private makeDraftId(): string {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(now.getUTCDate()).padStart(2, '0');
-    const dateStr = `${year}${month}${day}`;
-
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let suffix = '';
-    for (let i = 0; i < 6; i++) {
-      suffix += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    return `DFT-${dateStr}_${suffix}`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

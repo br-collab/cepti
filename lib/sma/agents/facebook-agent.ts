@@ -158,22 +158,6 @@ export class FacebookAgent extends PlatformAgentBase {
     };
   }
 
-  private makeDraftId(): string {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(now.getUTCDate()).padStart(2, '0');
-    const dateStr = `${year}${month}${day}`;
-
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let suffix = '';
-    for (let i = 0; i < 6; i++) {
-      suffix += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    return `DFT-${dateStr}_${suffix}`;
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async draftReply(record: HandoffRecord, inbound: InboundComment): Promise<DraftResult> {
     this.verifyHandoff(record);

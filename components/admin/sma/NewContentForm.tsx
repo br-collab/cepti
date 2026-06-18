@@ -7,15 +7,23 @@ interface Product {
   name: { en: string; es: string }
 }
 
+const PLATFORMS = [
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'threads', label: 'Threads' },
+] as const
+
+type PlatformId = typeof PLATFORMS[number]['id']
+
 export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise<void> }) {
   const [productSlug, setProductSlug] = useState('')
   const [products, setProducts] = useState<Product[]>([])
   const [angle, setAngle] = useState('')
   const [mediaMode, setMediaMode] = useState<'pictures' | 'video' | 'both'>('both')
+  const [selectedPlatforms, setSelectedPlatforms] = useState<PlatformId[]>(['facebook', 'instagram', 'threads'])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Load products on mount
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -29,12 +37,22 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
     loadProducts()
   }, [])
 
+  const togglePlatform = (id: PlatformId) => {
+    setSelectedPlatforms(prev =>
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
     if (!productSlug) {
       setError('Please select a product')
+      return
+    }
+    if (selectedPlatforms.length === 0) {
+      setError('Please select at least one platform')
       return
     }
 
@@ -47,10 +65,11 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          topic: productSlug, // Send product slug as topic for backward compatibility
+          topic: productSlug,
           notes: angle.trim() || undefined,
           includePictures,
           includeVideo,
+          platforms: selectedPlatforms,
         }),
       })
 
@@ -59,11 +78,8 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
         throw new Error(errorData.error || 'Failed to generate draft')
       }
 
-      // Clear form
       setProductSlug('')
       setAngle('')
-
-      // Refresh queue
       await onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -110,68 +126,71 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
       </div>
 
       <div className="space-y-3 border-t border-zinc-200 pt-4">
-        <label className="block text-sm font-medium text-zinc-700">Visual Content</label>
-        <div className="space-y-2">
-          <div className="flex gap-2">
+        <label className="block text-sm font-medium text-zinc-700">Platforms</label>
+        <div className="flex gap-2">
+          {PLATFORMS.map(({ id, label }) => (
             <button
+              key={id}
               type="button"
-              onClick={() => setMediaMode('pictures')}
+              onClick={() => togglePlatform(id)}
               disabled={loading}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                mediaMode === 'pictures'
+                selectedPlatforms.includes(id)
                   ? 'bg-zinc-900 text-white border-zinc-900'
-                  : 'bg-white text-zinc-900 border-zinc-300 hover:border-zinc-900'
+                  : 'bg-white text-zinc-500 border-zinc-300 hover:border-zinc-400'
               } disabled:opacity-50`}
             >
-              🖼️ Pictures Only
+              {label}
             </button>
-            <button
-              type="button"
-              onClick={() => setMediaMode('video')}
-              disabled={loading}
-              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                mediaMode === 'video'
-                  ? 'bg-zinc-900 text-white border-zinc-900'
-                  : 'bg-white text-zinc-900 border-zinc-300 hover:border-zinc-900'
-              } disabled:opacity-50`}
-            >
-              🎬 Video Only
-            </button>
-            <button
-              type="button"
-              onClick={() => setMediaMode('both')}
-              disabled={loading}
-              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
-                mediaMode === 'both'
-                  ? 'bg-zinc-900 text-white border-zinc-900'
-                  : 'bg-white text-zinc-900 border-zinc-300 hover:border-zinc-900'
-              } disabled:opacity-50`}
-            >
-              🎬📸 Both
-            </button>
-          </div>
-          <p className="text-xs text-zinc-500">
-            {mediaMode === 'video' && 'Generates a 45-second narrative video showcasing the product transformation.'}
-            {mediaMode === 'pictures' && 'Attaches 1-3 representative product images.'}
-            {mediaMode === 'both' && 'Generates video + attaches individual product images.'}
-          </p>
+          ))}
         </div>
+        <p className="text-xs text-zinc-500">
+          {selectedPlatforms.length === 0
+            ? 'Select at least one platform'
+            : `Generating ${selectedPlatforms.length} draft${selectedPlatforms.length > 1 ? 's' : ''} — one per platform`}
+        </p>
+      </div>
+
+      <div className="space-y-3 border-t border-zinc-200 pt-4">
+        <label className="block text-sm font-medium text-zinc-700">Visual Content</label>
+        <div className="flex gap-2">
+          {(['pictures', 'video', 'both'] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setMediaMode(mode)}
+              disabled={loading}
+              className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
+                mediaMode === mode
+                  ? 'bg-zinc-900 text-white border-zinc-900'
+                  : 'bg-white text-zinc-900 border-zinc-300 hover:border-zinc-900'
+              } disabled:opacity-50`}
+            >
+              {mode === 'pictures' ? '🖼️ Pictures' : mode === 'video' ? '🎬 Video' : '🎬📸 Both'}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-zinc-500">
+          {mediaMode === 'video' && 'Generates a 45-second narrative video showcasing the product transformation.'}
+          {mediaMode === 'pictures' && 'Attaches 1-3 representative product images.'}
+          {mediaMode === 'both' && 'Generates video + attaches individual product images.'}
+        </p>
       </div>
 
       {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>}
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || selectedPlatforms.length === 0}
         className="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
       >
         {loading ? (
           <>
             <span className="animate-spin mr-2">⏳</span>
-            Generating...
+            Generating {selectedPlatforms.length} draft{selectedPlatforms.length > 1 ? 's' : ''}...
           </>
         ) : (
-          'Generate Draft'
+          `Generate Draft${selectedPlatforms.length > 1 ? 's' : ''}`
         )}
       </button>
     </form>

@@ -104,6 +104,25 @@ export abstract class PlatformAgentBase implements PlatformAgent {
   abstract fetchEngagement(platformPostId: string): Promise<EngagementSnapshot>;
 
   /**
+   * Generate a draft ID: DFT-YYYYMMDD_xxxxxx (6-char alphanumeric suffix).
+   * Shared across all platform agents — defined once here.
+   */
+  protected makeDraftId(): string {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const dateStr = `${year}${month}${day}`;
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let suffix = '';
+    for (let i = 0; i < 6; i++) {
+      suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `DFT-${dateStr}_${suffix}`;
+  }
+
+  /**
    * Verifies that a HandoffRecord is Coordinator-authorized and
    * targets this agent. Throws HandoffNotAuthorizedError if invalid.
    *
