@@ -17,7 +17,7 @@
   "products": [
     {
       "slug": "pintura-aterciopelada",
-      "order": 1,
+      "order": 5,
       "show_on_homepage": true,
       "name": {
         "es": "Pintura Aterciopelada",
@@ -85,7 +85,7 @@
     },
     {
       "slug": "pintura-de-piedra",
-      "order": 2,
+      "order": 3,
       "name": {
         "es": "Pintura con Efecto Piedra",
         "en": "Stone Effect Paint"
@@ -163,7 +163,7 @@
     },
     {
       "slug": "pintura-efecto-granito",
-      "order": 3,
+      "order": 4,
       "show_on_homepage": true,
       "name": {
         "es": "Pintura con Efecto Granito y Granito Líquido",
@@ -268,7 +268,7 @@
     },
     {
       "slug": "papelex",
-      "order": 5,
+      "order": 1,
       "name": {
         "es": "Piedra Flexible (Papelex)",
         "en": "Flexible Stone (Papelex)"
@@ -376,7 +376,7 @@
     },
     {
       "slug": "ladriflex",
-      "order": 6,
+      "order": 2,
       "name": {
         "es": "Ladrillo Flexible (Ladriflex)",
         "en": "Flexible Brick (Ladriflex)"
@@ -587,7 +587,7 @@
     },
     {
       "slug": "arte-con-arena",
-      "order": 10,
+      "order": 6,
       "name": {
         "es": "Arte con Arena y Piedra",
         "en": "Sand and Stone Art"

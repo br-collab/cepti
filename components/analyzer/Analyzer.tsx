@@ -225,7 +225,7 @@ export default function Analyzer({ lang }: { lang: Locale }) {
   const [image, setImage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<ProductOption>(PRODUCTS[0])
-  const [opacity, setOpacity] = useState<number>(92)
+  const [opacity, setOpacity] = useState<number>(100)
   const [splitPosition, setSplitPosition] = useState<number>(50)
   const [dragging, setDragging] = useState<boolean>(false)
   const [generating, setGenerating] = useState<boolean>(false)

@@ -93,7 +93,7 @@ export default function CalculatorMini({
   // Product name for the result + WhatsApp message: when a sub-product is
   // active that differs from the page's product, use the sub-option label.
   const activeProductName =
-    showSubProductSelector && activeProductId !== product.slug
+    showSubProductSelector
       ? subProducts!.find((p) => p.productId === activeProductId)?.label ??
         product.name
       : product.name
