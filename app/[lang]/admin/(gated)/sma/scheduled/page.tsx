@@ -87,11 +87,41 @@ function LifecycleCard({ row }: { row: LifecycleRow }) {
             </div>
 
             {videos.length > 0 && (
-              <video src={videos[0]} controls className="w-full rounded-lg bg-zinc-900 max-h-48" />
+              <div className="space-y-2">
+                <video src={videos[0]} controls className="w-full rounded-lg bg-zinc-900 max-h-48" />
+                <a
+                  href={videos[0]}
+                  download={videos[0].split('/').pop() || 'video.mp4'}
+                  className="inline-block text-xs font-medium px-3 py-1.5 rounded-md border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
+                >
+                  ↓ Download Video
+                </a>
+              </div>
             )}
             {images.length > 0 && videos.length === 0 && (
-              <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                <Image src={images[0]} alt="Product" fill className="object-cover" />
+              <div className="space-y-2">
+                <div className="relative w-full h-48 rounded-lg overflow-hidden">
+                  <Image src={images[0]} alt="Product" fill className="object-cover" />
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <a
+                    href={images[0]}
+                    download={images[0].split('/').pop() || 'image.jpg'}
+                    className="inline-block text-xs font-medium px-3 py-1.5 rounded-md border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
+                  >
+                    ↓ Download Image
+                  </a>
+                  {images.slice(1).map((img, i) => (
+                    <a
+                      key={i}
+                      href={img}
+                      download={img.split('/').pop() || `image-${i + 2}.jpg`}
+                      className="text-xs text-zinc-500 hover:text-zinc-700 underline"
+                    >
+                      + Photo {i + 2}
+                    </a>
+                  ))}
+                </div>
               </div>
             )}
 

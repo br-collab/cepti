@@ -16,6 +16,7 @@ export async function GET() {
     const { data: lifecycles, error: dbError } = await supabase
       .from('sma_content_lifecycles')
       .select('*')
+      .filter('lifecycle_record->>status', 'eq', 'COMPLETE')
       .order('assembled_at', { ascending: false })
       .limit(20)
 
