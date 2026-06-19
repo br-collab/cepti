@@ -57,17 +57,27 @@ export async function matchProductsInTopic(topic: string): Promise<string[]> {
     return []
   }
 
-  const topicLower = topic.toLowerCase()
+  const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  const topicNorm = norm(topic)
+  const topicWords = topicNorm.split(/[\s-]+/).filter(w => w.length > 3)
   const matchedImages: string[] = []
   const seen = new Set<string>()
   const MAX_IMAGES_PER_PRODUCT = 3
 
   for (const product of catalog) {
-    const nameEn = (product.name.en || '').toLowerCase()
-    const nameEs = (product.name.es || '').toLowerCase()
-    const slugMatch = product.slug.toLowerCase()
+    const nameEn = norm(product.name.en || '')
+    const nameEs = norm(product.name.es || '')
+    const slugNorm = norm(product.slug)
+    const slugWords = product.slug.split('-').filter(w => w.length > 3).map(norm)
 
-    const isMatch = topicLower.includes(nameEn) || topicLower.includes(nameEs) || topicLower.includes(slugMatch) || nameEn.includes(topicLower) || nameEs.includes(topicLower)
+    const isMatch =
+      topicNorm.includes(nameEn) ||
+      topicNorm.includes(nameEs) ||
+      nameEn.includes(topicNorm) ||
+      nameEs.includes(topicNorm) ||
+      topicNorm.includes(slugNorm) ||
+      slugWords.some(w => topicNorm.includes(w)) ||
+      topicWords.some(w => slugNorm.includes(w))
 
     if (isMatch && product.image_folder) {
       try {

@@ -40,6 +40,7 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
 import { generateProductVideo } from '../video-generator';
+import { buildWaLink } from '../wa-link';
 
 export class FacebookAgent extends PlatformAgentBase {
   readonly platform: Platform = 'facebook';
@@ -83,12 +84,10 @@ export class FacebookAgent extends PlatformAgentBase {
       maxTokens: 150,
     });
 
-    // Build wa.me link with task_id attribution
-    // Per CLAUDE.md: WhatsApp number is +1 (829) 449-1104, stored as 18294491104
-    const inquiryText = `Hola CEPTI, vi su publicación y me gustaría una cotización.`;
-    const refTag = ` [ref:fb-post-${record.task_id}]`;
-    const encodedMessage = encodeURIComponent(`${inquiryText}${refTag}`);
-    const waLink = `https://wa.me/18294491104?text=${encodedMessage}`;
+    const waLink = buildWaLink({
+      message: 'Hola CEPTI, vi su publicación y me gustaría una cotización.',
+      ref: { platform: 'fb', kind: 'post', id: record.task_id },
+    });
 
     // Append wa.me link to caption body
     const finalBody = `${result.text}\n\n${waLink}`;

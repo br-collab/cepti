@@ -43,6 +43,7 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
 import { generateProductVideo } from '../video-generator';
+import { brand } from '@/lib/products';
 
 export class ThreadsAgent extends PlatformAgentBase {
   readonly platform: Platform = 'threads';
@@ -77,7 +78,15 @@ export class ThreadsAgent extends PlatformAgentBase {
       maxTokens: 512,
     });
 
-    const caption = result.text.substring(0, 500); // Threads 500 char limit
+    // Append WhatsApp link and enforce Threads 500-char hard limit.
+    // Reserve space for the wa.me suffix so truncation never cuts mid-word.
+    const waNumber = brand.whatsapp_number.replace(/\D/g, '')
+    const waSuffix = `\n\nhttps://wa.me/${waNumber}`
+    const maxBody = 500 - waSuffix.length
+    const rawText = result.text.length > maxBody
+      ? result.text.substring(0, maxBody).replace(/\s+\S*$/, '')
+      : result.text
+    const caption = `${rawText}${waSuffix}`
 
     // Load product images (if enabled)
     const draftId = this.makeDraftId();

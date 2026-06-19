@@ -46,6 +46,7 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
 import { generateProductVideo } from '../video-generator';
+import { buildWaLink } from '../wa-link';
 
 export class InstagramAgent extends PlatformAgentBase {
   readonly platform: Platform = 'instagram';
@@ -80,7 +81,11 @@ export class InstagramAgent extends PlatformAgentBase {
       maxTokens: 512,
     });
 
-    const caption = result.text;
+    const waLink = buildWaLink({
+      message: 'Hola CEPTI, vi su publicación y me gustaría una cotización.',
+      ref: { platform: 'ig', kind: 'post', id: record.task_id },
+    });
+    const caption = `${result.text}\n\n${waLink}`;
 
     // Load product images (if enabled)
     const draftId = this.makeDraftId();

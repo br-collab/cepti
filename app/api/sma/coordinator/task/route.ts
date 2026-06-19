@@ -57,25 +57,35 @@ export async function POST(req: NextRequest) {
     }
 
     const tasks: { task_id: string; platform: Platform }[] = []
+    const errors: { platform: Platform; error: string }[] = []
 
     for (const platform of selectedPlatforms) {
-      const { agent: makeAgent, role } = AGENT_MAP[platform]
-      const taskId = await coordinator.issueTask(intent, [platform])
-      const handoffRecord = await coordinator.handoff(taskId, 'COORDINATOR', role, intent, `Generate ${platform} draft for approval queue`)
-      const draftResult = await makeAgent().draftPost(handoffRecord, intent)
-      await coordinator.requestApproval(taskId, 'AWAITING_DRAFT_APPROVAL', {
-        task_id: taskId,
-        reason: 'AWAITING_DRAFT_APPROVAL',
-        intent,
-        draft: draftResult,
-        platform,
-        scheduled_for: null,
-        related_paused_count: 0,
-      })
-      tasks.push({ task_id: taskId, platform })
+      try {
+        const { agent: makeAgent, role } = AGENT_MAP[platform]
+        const taskId = await coordinator.issueTask(intent, [platform])
+        const handoffRecord = await coordinator.handoff(taskId, 'COORDINATOR', role, intent, `Generate ${platform} draft for approval queue`)
+        const draftResult = await makeAgent().draftPost(handoffRecord, intent)
+        await coordinator.requestApproval(taskId, 'AWAITING_DRAFT_APPROVAL', {
+          task_id: taskId,
+          reason: 'AWAITING_DRAFT_APPROVAL',
+          intent,
+          draft: draftResult,
+          platform,
+          scheduled_for: null,
+          related_paused_count: 0,
+        })
+        tasks.push({ task_id: taskId, platform })
+      } catch (platformErr) {
+        console.error(`[task/route] ${platform} draft failed:`, platformErr)
+        errors.push({ platform, error: platformErr instanceof Error ? platformErr.message : 'Unknown error' })
+      }
     }
 
-    return NextResponse.json({ tasks })
+    if (tasks.length === 0) {
+      return NextResponse.json({ error: 'All platform drafts failed', errors }, { status: 500 })
+    }
+
+    return NextResponse.json({ tasks, ...(errors.length > 0 ? { errors } : {}) })
   } catch (error) {
     console.error('POST /api/sma/coordinator/task error:', error)
     return NextResponse.json(

@@ -104,7 +104,7 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
           <option value="">Select a product...</option>
           {products.map((product) => (
             <option key={product.slug} value={product.slug}>
-              {product.name.en}
+              {product.name.es}
             </option>
           ))}
         </select>
