@@ -1,0 +1,2 @@
+file '/Users/guillermoravelo/cepticorp/public/images/products/papelex/card.png'
+file '/Users/guillermoravelo/cepticorp/public/images/products/papelex/hero.jpg'

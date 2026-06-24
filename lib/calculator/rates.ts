@@ -90,8 +90,12 @@ export const CALCULATOR_RATES: CalculatorRate[] = RATE_SPECS.map(
  */
 export const CALCULATOR_PRODUCTS: CalculatorProduct[] = [
   {
-    productId: 'pintura-aterciopelada',
-    name: { es: 'Pintura Aterciopelada', en: 'Velvet Paint' },
+    productId: 'papelex',
+    name: { es: 'Piedra Flexible (Papelex)', en: 'Flexible Stone (Papelex)' },
+  },
+  {
+    productId: 'ladriflex',
+    name: { es: 'Ladrillo Flexible (Ladriflex)', en: 'Flexible Brick (Ladriflex)' },
   },
   {
     productId: 'pintura-de-piedra',
@@ -110,12 +114,8 @@ export const CALCULATOR_PRODUCTS: CalculatorProduct[] = [
     name: { es: 'Granito Líquido (Intensivo)', en: 'Liquid Granite (Intensive)' },
   },
   {
-    productId: 'papelex',
-    name: { es: 'Piedra Flexible (Papelex)', en: 'Flexible Stone (Papelex)' },
-  },
-  {
-    productId: 'ladriflex',
-    name: { es: 'Ladrillo Flexible (Ladriflex)', en: 'Flexible Brick (Ladriflex)' },
+    productId: 'pintura-aterciopelada',
+    name: { es: 'Pintura Aterciopelada', en: 'Velvet Paint' },
   },
   { productId: 'primer', name: { es: 'Primer', en: 'Primer' } },
   { productId: 'pegamento', name: { es: 'Pegamento', en: 'Adhesive' } },
