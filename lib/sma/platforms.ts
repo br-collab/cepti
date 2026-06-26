@@ -9,18 +9,23 @@ export const PLATFORM_LABEL: Record<Platform, string> = {
 }
 
 export const PLATFORM_SCOPES: Record<Platform, string[]> = {
+  // TODO(instagram): these `instagram_business_*` scopes belong to the Instagram
+  // API *with Instagram Login*, not Facebook Login — Meta rejects them here as
+  // invalid. Needs the correct Graph-API-via-Facebook scopes (instagram_basic,
+  // instagram_content_publish, ...) + Instagram product config. Deferred.
   instagram: [
     'instagram_business_basic',
     'instagram_business_content_publish',
     'instagram_business_manage_comments',
     'instagram_business_manage_insights',
   ],
+  // pages_manage_engagement + pages_read_user_content removed: they power the
+  // not-yet-built comment/inbox features and Meta rejected them as invalid scopes
+  // in the current app config. Re-add when those features + App Review land.
   facebook: [
     'pages_show_list',
     'pages_read_engagement',
     'pages_manage_posts',
-    'pages_manage_engagement',
-    'pages_read_user_content',
   ],
   threads: [
     'threads_basic',
