@@ -7,9 +7,11 @@
   },
   "scripts": {
     "dev": "next dev -p 4000",
+    "prebuild": "node scripts/build-product-images.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:product-images": "node scripts/build-product-images.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.28.0",
