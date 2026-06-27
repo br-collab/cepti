@@ -45,7 +45,6 @@ import type {
 import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
-import { generateProductVideo } from '../video-generator';
 import { buildWaLink } from '../wa-link';
 import { getRelevantExamples, buildFewShotBlock } from '../examples-service';
 
@@ -100,25 +99,10 @@ export class InstagramAgent extends PlatformAgentBase {
     let attachedAssets: string[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includePictures = (intent as any).include_pictures !== false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const includeVideo = (intent as any).include_video !== false;
 
-    // Load images if either pictures or video is requested
-    if (includePictures || includeVideo) {
+    if (includePictures) {
       const productImages = await matchProductsInTopic(intent.topic);
-
-      // Attach individual images only if requested
-      if (includePictures) {
-        attachedAssets = productImages;
-      }
-
-      // Generate video from images if enabled
-      if (includeVideo && productImages.length > 0) {
-        const video = await generateProductVideo(productImages, caption, draftId);
-        if (video) {
-          attachedAssets = [video.videoPath, ...attachedAssets];
-        }
-      }
+      attachedAssets = productImages;
     }
 
     return {

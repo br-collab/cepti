@@ -14,6 +14,13 @@ export default function ReadyToPostSection({
   const [publishResult, setPublishResult] = useState<
     Record<string, { permalink?: string; error?: string }>
   >({})
+  // taskId -> chosen datetime-local value (e.g. "2026-07-01T14:30")
+  const [scheduleInput, setScheduleInput] = useState<Record<string, string>>({})
+  const [scheduling, setScheduling] = useState<string | null>(null)
+  // taskId -> { scheduled: true } on success, or { error } on failure
+  const [scheduleResult, setScheduleResult] = useState<
+    Record<string, { scheduled?: boolean; error?: string }>
+  >({})
 
   const handleCopy = async (taskId: string, caption: string) => {
     try {
@@ -49,6 +56,54 @@ export default function ReadyToPostSection({
       }))
     } finally {
       setPublishing(null)
+    }
+  }
+
+  const handleSchedule = async (taskId: string) => {
+    const local = scheduleInput[taskId]
+    if (!local) {
+      setScheduleResult((prev) => ({ ...prev, [taskId]: { error: 'Pick a date and time first' } }))
+      return
+    }
+    // datetime-local has no timezone; interpret it in the admin's local zone.
+    const date = new Date(local)
+    if (Number.isNaN(date.getTime())) {
+      setScheduleResult((prev) => ({ ...prev, [taskId]: { error: 'Invalid date/time' } }))
+      return
+    }
+    if (date.getTime() < Date.now()) {
+      setScheduleResult((prev) => ({ ...prev, [taskId]: { error: 'Time must be in the future' } }))
+      return
+    }
+
+    setScheduling(taskId)
+    setScheduleResult((prev) => {
+      const next = { ...prev }
+      delete next[taskId]
+      return next
+    })
+    try {
+      const res = await fetch('/api/sma/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          taskId,
+          scheduledFor: date.toISOString(),
+          platform: 'facebook',
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Schedule failed')
+      }
+      setScheduleResult((prev) => ({ ...prev, [taskId]: { scheduled: true } }))
+    } catch (error) {
+      setScheduleResult((prev) => ({
+        ...prev,
+        [taskId]: { error: error instanceof Error ? error.message : 'Schedule failed' },
+      }))
+    } finally {
+      setScheduling(null)
     }
   }
 
@@ -127,8 +182,35 @@ export default function ReadyToPostSection({
                     )}
                   </div>
 
+                  {platform === 'facebook' && !alreadyPublished && !result?.permalink && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="datetime-local"
+                        value={scheduleInput[item.task_id] || ''}
+                        onChange={(e) =>
+                          setScheduleInput((prev) => ({ ...prev, [item.task_id]: e.target.value }))
+                        }
+                        className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
+                      />
+                      <button
+                        onClick={() => handleSchedule(item.task_id)}
+                        disabled={scheduling === item.task_id || scheduleResult[item.task_id]?.scheduled}
+                        className="inline-flex items-center justify-center rounded-md border border-blue-600 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 disabled:opacity-50"
+                      >
+                        {scheduling === item.task_id
+                          ? 'Scheduling…'
+                          : scheduleResult[item.task_id]?.scheduled
+                            ? 'Scheduled ✓'
+                            : 'Schedule'}
+                      </button>
+                    </div>
+                  )}
+
                   {platform === 'facebook' && publishResult[item.task_id]?.error && (
                     <p className="text-xs text-red-600">{publishResult[item.task_id].error}</p>
+                  )}
+                  {platform === 'facebook' && scheduleResult[item.task_id]?.error && (
+                    <p className="text-xs text-red-600">{scheduleResult[item.task_id].error}</p>
                   )}
                 </div>
               )

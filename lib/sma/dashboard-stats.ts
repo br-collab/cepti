@@ -2,6 +2,7 @@ import 'server-only'
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
 import { getConnectionStatus } from './connections'
 import { PLATFORM_LABEL, type Platform } from './platforms'
+import { loadProductsCatalog } from './products-service'
 
 export type RecentPost = {
   platform: string
@@ -98,6 +99,32 @@ async function safeCount(
 
 function platformLabel(platform: string): string {
   return PLATFORM_LABEL[platform as Platform] ?? platform
+}
+
+/**
+ * Map a raw lifecycle `intent.topic` to a canonical product bucket so that
+ * "papelex", "Papelex", and "Ladriflex - benefits of the product" don't show
+ * up as three separate rows. A topic is bucketed under a product's `name.es`
+ * when its lowercased/trimmed form equals or contains the product's slug or
+ * its lowercased es-name; otherwise it falls back to the trimmed topic.
+ */
+function makeTopicNormalizer(
+  catalog: { slug: string; name: { es: string; en: string } }[],
+): (topic: string) => string {
+  const products = catalog.map((p) => ({
+    canonical: p.name.es,
+    slug: p.slug.toLowerCase().trim(),
+    nameEs: (p.name.es || '').toLowerCase().trim(),
+  }))
+
+  return (topic: string): string => {
+    const t = topic.toLowerCase().trim()
+    for (const p of products) {
+      if (p.slug && (t === p.slug || t.includes(p.slug))) return p.canonical
+      if (p.nameEs && (t === p.nameEs || t.includes(p.nameEs))) return p.canonical
+    }
+    return topic.trim()
+  }
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -316,6 +343,16 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   // --- Content breakdown (by product / platform) ---
   try {
+    // Normalize raw topics to canonical product names so casing/suffix variants
+    // (e.g. "papelex" / "Papelex" / "Ladriflex - benefits…") collapse into one row.
+    let normalizeTopic: (topic: string) => string = (topic) => topic.trim()
+    try {
+      const catalog = await loadProductsCatalog()
+      normalizeTopic = makeTopicNormalizer(catalog)
+    } catch (catalogErr) {
+      console.error('dashboard-stats: product catalog load error:', catalogErr)
+    }
+
     const { data, error } = await supabase
       .from('sma_content_lifecycles')
       .select('lifecycle_record')
@@ -334,7 +371,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
       const topic = record.intent?.topic
       if (typeof topic === 'string' && topic.trim() !== '') {
-        const key = topic.trim()
+        const key = normalizeTopic(topic)
         productMap.set(key, (productMap.get(key) ?? 0) + 1)
       }
 
