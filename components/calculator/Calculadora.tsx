@@ -111,6 +111,13 @@ export default function Calculadora({
   const inputBase =
     'w-full rounded-lg border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-cepti-brown focus:outline-none focus:ring-2 focus:ring-cepti-brown/20'
 
+  // Shared caret styling so every dropdown (product, Manos, Tipo de superficie)
+  // shows the same cepti-brown chevron on the right instead of mixing the
+  // custom caret with the browser's native one. (Francisco QA, 2026-06-27.)
+  const selectBase =
+    inputBase +
+    " appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%237a6350%22 stroke-width=%222%22><path d=%22M4 6l4 4 4-4%22/></svg>')] bg-no-repeat bg-[right_12px_center] pr-10"
+
   return (
     <div className="bg-cepti-cream rounded-2xl shadow-sm border border-stone-200 p-5 sm:p-8 space-y-6">
       <label className="block">
@@ -120,10 +127,7 @@ export default function Calculadora({
         <select
           value={productId}
           onChange={(e) => setProductId(e.target.value)}
-          className={
-            inputBase +
-            " appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%237a6350%22 stroke-width=%222%22><path d=%22M4 6l4 4 4-4%22/></svg>')] bg-no-repeat bg-[right_12px_center] pr-10"
-          }
+          className={selectBase}
         >
           {CALCULATOR_PRODUCTS.map((p) => (
             <option key={p.productId} value={p.productId}>
@@ -180,7 +184,7 @@ export default function Calculadora({
               <select
                 value={effectiveCoats}
                 onChange={(e) => setCoats(Number(e.target.value) as 1 | 2)}
-                className={inputBase}
+                className={selectBase}
               >
                 {availableCoats.map((n) => (
                   <option key={n} value={n}>
@@ -200,7 +204,7 @@ export default function Calculadora({
                 onChange={(e) =>
                   setSurface(e.target.value as 'smooth' | 'rough')
                 }
-                className={inputBase}
+                className={selectBase}
               >
                 {availableSurfaces
                   .filter((s): s is 'smooth' | 'rough' => s !== 'na')
