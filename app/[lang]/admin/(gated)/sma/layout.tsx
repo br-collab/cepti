@@ -9,6 +9,7 @@ const TABS = [
   { slug: 'inbox', label: 'Inbox' },
   { slug: 'insights', label: 'Insights' },
   { slug: 'settings', label: 'Settings' },
+  { slug: 'guide', label: 'Guide' },
 ] as const
 
 export default async function SmaLayout({
