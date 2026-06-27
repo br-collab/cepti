@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { logCaptionUsage } from "./ai-usage";
 
 const SMA_MODEL = "claude-opus-4-8";
 
@@ -50,10 +51,17 @@ export const generateDetailed = async (opts: {
     })
     .join("");
 
+  const inputTokens = response.usage.input_tokens;
+  const outputTokens = response.usage.output_tokens;
+
+  // Best-effort FinOps logging. Fire-and-forget: never blocks or breaks
+  // generation if the insert fails (logCaptionUsage never throws).
+  void logCaptionUsage({ model: SMA_MODEL, inputTokens, outputTokens });
+
   return {
     text,
-    inputTokens: response.usage.input_tokens,
-    outputTokens: response.usage.output_tokens,
+    inputTokens,
+    outputTokens,
     model: SMA_MODEL,
   };
 };

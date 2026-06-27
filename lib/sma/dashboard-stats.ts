@@ -34,9 +34,21 @@ export type DashboardStats = {
     examplesCount: number
     connectedPlatforms: { platform: Platform; label: string }[]
   }
+  aiSpend: {
+    llmUsd: number
+    videoUsd: number
+    totalUsd: number
+    thisMonthUsd: number
+    byModel: { model: string; usd: number; calls: number }[]
+  }
+  contentBreakdown: {
+    byProduct: { product: string; count: number }[]
+    byPlatform: { platform: string; count: number }[]
+  }
 }
 
 const COST_PER_SECOND = 0.08
+const GROK_VIDEO_MODEL = 'grok-imagine-video-1.5'
 
 function emptyStats(): DashboardStats {
   return {
@@ -45,6 +57,8 @@ function emptyStats(): DashboardStats {
     recentPosts: [],
     video: { done: 0, failed: 0, pending: 0, estSpendUsd: 0 },
     library: { examplesCount: 0, connectedPlatforms: [] },
+    aiSpend: { llmUsd: 0, videoUsd: 0, totalUsd: 0, thisMonthUsd: 0, byModel: [] },
+    contentBreakdown: { byProduct: [], byPlatform: [] },
   }
 }
 
@@ -224,6 +238,101 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       .map((s) => ({ platform: s.platform, label: PLATFORM_LABEL[s.platform] }))
   } catch (e) {
     console.error('dashboard-stats: getConnectionStatus error:', e)
+  }
+
+  // --- AI spend (FinOps) ---
+  // videoUsd reuses the Grok video spend already computed above.
+  const videoUsd = stats.video.estSpendUsd
+
+  // LLM rows from sma_ai_usage: total + this-month + per-model grouping.
+  const byModelMap = new Map<string, { usd: number; calls: number }>()
+  let thisMonthLlmUsd = 0
+  try {
+    const startOfMonth = new Date()
+    startOfMonth.setUTCDate(1)
+    startOfMonth.setUTCHours(0, 0, 0, 0)
+    const startOfMonthIso = startOfMonth.toISOString()
+
+    const { data, error } = await supabase
+      .from('sma_ai_usage')
+      .select('model, est_cost_usd, created_at')
+      .limit(5000)
+    if (error) throw error
+
+    for (const row of data ?? []) {
+      const usd = Number(row.est_cost_usd) || 0
+      const model = (row.model ?? 'unknown').toString()
+      stats.aiSpend.llmUsd += usd
+      const entry = byModelMap.get(model) ?? { usd: 0, calls: 0 }
+      entry.usd += usd
+      entry.calls += 1
+      byModelMap.set(model, entry)
+      if (row.created_at && row.created_at >= startOfMonthIso) {
+        thisMonthLlmUsd += usd
+      }
+    }
+  } catch (e) {
+    console.error('dashboard-stats: aiSpend (llm) error:', e)
+  }
+
+  stats.aiSpend.videoUsd = videoUsd
+  stats.aiSpend.totalUsd = stats.aiSpend.llmUsd + videoUsd
+  // thisMonthUsd is LLM-only (sma_ai_usage has timestamps; sma_video_jobs
+  // duration spend is not date-bucketed here). Labelled clearly in the UI.
+  stats.aiSpend.thisMonthUsd = thisMonthLlmUsd
+
+  const byModel = Array.from(byModelMap.entries()).map(([model, v]) => ({
+    model,
+    usd: v.usd,
+    calls: v.calls,
+  }))
+  // Synthetic row for Grok video spend (not stored in sma_ai_usage).
+  byModel.push({ model: GROK_VIDEO_MODEL, usd: videoUsd, calls: stats.video.done })
+  byModel.sort((a, b) => b.usd - a.usd)
+  stats.aiSpend.byModel = byModel
+
+  // --- Content breakdown (by product / platform) ---
+  try {
+    const { data, error } = await supabase
+      .from('sma_content_lifecycles')
+      .select('lifecycle_record')
+      .limit(500)
+    if (error) throw error
+
+    const productMap = new Map<string, number>()
+    const platformMap = new Map<string, number>()
+
+    for (const row of data ?? []) {
+      const record = (row as { lifecycle_record?: unknown }).lifecycle_record as
+        | { intent?: { topic?: unknown }; drafts?: Record<string, unknown> }
+        | null
+        | undefined
+      if (!record || typeof record !== 'object') continue
+
+      const topic = record.intent?.topic
+      if (typeof topic === 'string' && topic.trim() !== '') {
+        const key = topic.trim()
+        productMap.set(key, (productMap.get(key) ?? 0) + 1)
+      }
+
+      const drafts = record.drafts
+      if (drafts && typeof drafts === 'object') {
+        for (const platform of Object.keys(drafts)) {
+          platformMap.set(platform, (platformMap.get(platform) ?? 0) + 1)
+        }
+      }
+    }
+
+    stats.contentBreakdown.byProduct = Array.from(productMap.entries())
+      .map(([product, count]) => ({ product, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+
+    stats.contentBreakdown.byPlatform = Array.from(platformMap.entries())
+      .map(([platform, count]) => ({ platform, count }))
+      .sort((a, b) => b.count - a.count)
+  } catch (e) {
+    console.error('dashboard-stats: contentBreakdown error:', e)
   }
 
   return stats
