@@ -30,9 +30,12 @@ export default function VideoLab() {
   const [duration, setDuration] = useState(6)
   const [jobs, setJobs] = useState<VideoJob[]>([])
   const [loading, setLoading] = useState(false)
+  const [statusLabel, setStatusLabel] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [beforeFile, setBeforeFile] = useState<File | null>(null)
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const loadJobs = useCallback(async () => {
     try {
@@ -81,18 +84,43 @@ export default function VideoLab() {
 
   const handleGenerate = async () => {
     setError(null)
-    if (!productSlug) {
-      setError('Please select a product')
+    // A product is required only when there's no "before" photo to animate.
+    if (!productSlug && !beforeFile) {
+      setError('Please select a product or upload a before photo')
       return
     }
 
     setLoading(true)
     try {
+      let sourceImageUrl: string | undefined
+
+      // If a "before" photo was selected, upload it first to get a public URL.
+      if (beforeFile) {
+        setStatusLabel('Uploading...')
+        const formData = new FormData()
+        formData.append('file', beforeFile)
+        const uploadRes = await fetch('/api/sma/video/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        if (!uploadRes.ok) {
+          const data = await uploadRes.json().catch(() => ({}))
+          throw new Error(data.error || 'Failed to upload before photo')
+        }
+        const uploadData = (await uploadRes.json()) as { url?: string }
+        if (!uploadData.url) {
+          throw new Error('Upload did not return a URL')
+        }
+        sourceImageUrl = uploadData.url
+      }
+
+      setStatusLabel('Generating...')
       const res = await fetch('/api/sma/video/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productSlug,
+          productSlug: productSlug || undefined,
+          sourceImageUrl,
           prompt: prompt.trim() || undefined,
           duration,
         }),
@@ -104,11 +132,16 @@ export default function VideoLab() {
       }
 
       setPrompt('')
+      setBeforeFile(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
       await loadJobs()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
+      setStatusLabel(null)
     }
   }
 
@@ -117,7 +150,7 @@ export default function VideoLab() {
       <div className="space-y-4">
         <div>
           <label htmlFor="video-product" className="block text-sm font-medium text-zinc-700 mb-1">
-            Product *
+            Product
           </label>
           <select
             id="video-product"
@@ -133,6 +166,25 @@ export default function VideoLab() {
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label htmlFor="video-before" className="block text-sm font-medium text-zinc-700 mb-1">
+            Before photo (optional)
+          </label>
+          <input
+            ref={fileInputRef}
+            id="video-before"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setBeforeFile(e.target.files?.[0] ?? null)}
+            disabled={loading}
+            className="block w-full text-sm text-zinc-700 file:mr-3 file:rounded-md file:border-0 file:bg-zinc-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-zinc-800 disabled:opacity-50"
+          />
+          <p className="text-xs text-zinc-500 mt-1">
+            Upload a bare-wall photo for a before&rarr;after reveal, or leave blank to animate the
+            product image.
+          </p>
         </div>
 
         <div>
@@ -172,13 +224,13 @@ export default function VideoLab() {
         <button
           type="button"
           onClick={handleGenerate}
-          disabled={loading || !productSlug}
+          disabled={loading || (!productSlug && !beforeFile)}
           className="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
         >
           {loading ? (
             <>
               <span className="animate-spin mr-2">⏳</span>
-              Starting...
+              {statusLabel || 'Starting...'}
             </>
           ) : (
             'Generate video'

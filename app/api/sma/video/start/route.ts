@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { requireSmaAdmin } from '@/lib/sma/auth'
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
-import { getProductImages } from '@/lib/sma/products-service'
+import { getProductImages, loadProductsCatalog } from '@/lib/sma/products-service'
 import { startImageToVideo } from '@/lib/sma/xai-video'
 
 export const runtime = 'nodejs'
@@ -24,31 +24,67 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { productSlug, prompt, duration } = body as {
+    const { productSlug, prompt, duration, sourceImageUrl } = body as {
       productSlug?: string
       prompt?: string
       duration?: number
+      sourceImageUrl?: string
     }
 
-    if (!productSlug || typeof productSlug !== 'string' || productSlug.trim() === '') {
+    const hasUploadedSource =
+      typeof sourceImageUrl === 'string' && sourceImageUrl.trim() !== ''
+    const trimmedSlug =
+      typeof productSlug === 'string' && productSlug.trim() !== '' ? productSlug.trim() : null
+
+    // When no uploaded "before" photo is provided, fall back to the product
+    // hero image — which requires a productSlug.
+    if (!hasUploadedSource && !trimmedSlug) {
       return NextResponse.json(
         { error: 'productSlug is required and must be a non-empty string' },
         { status: 400 },
       )
     }
 
-    const images = await getProductImages(productSlug.trim())
-    const imagePath = images[0]
-    if (!imagePath) {
-      return NextResponse.json(
-        { error: `No image found for product "${productSlug}"` },
-        { status: 400 },
-      )
+    // Resolve the first-frame image URL.
+    let imageUrl: string
+    if (hasUploadedSource) {
+      imageUrl = sourceImageUrl.trim()
+    } else {
+      // trimmedSlug is guaranteed non-null here.
+      const images = await getProductImages(trimmedSlug as string)
+      const imagePath = images[0]
+      if (!imagePath) {
+        return NextResponse.json(
+          { error: `No image found for product "${productSlug}"` },
+          { status: 400 },
+        )
+      }
+      imageUrl = `${SITE_ORIGIN}${imagePath}`
     }
-    const imageUrl = `${SITE_ORIGIN}${imagePath}`
 
-    const resolvedPrompt =
-      typeof prompt === 'string' && prompt.trim() !== '' ? prompt.trim() : DEFAULT_PROMPT
+    // Resolve the prompt. A custom prompt always wins. Otherwise: if we're
+    // animating an uploaded "before" wall, use a transformation-style default
+    // (optionally naming the product); else the standard reveal default.
+    let resolvedPrompt: string
+    if (typeof prompt === 'string' && prompt.trim() !== '') {
+      resolvedPrompt = prompt.trim()
+    } else if (hasUploadedSource) {
+      let productName = 'CEPTI'
+      if (trimmedSlug) {
+        const catalog = await loadProductsCatalog()
+        const product = catalog.find(
+          (p) => p.slug.toLowerCase() === trimmedSlug.toLowerCase(),
+        )
+        if (product?.name?.es) {
+          productName = product.name.es
+        }
+      }
+      resolvedPrompt =
+        `Transición elegante que revela el acabado ${productName} sobre esta pared, ` +
+        'con movimiento de cámara lento, luz natural y aspecto realista.'
+    } else {
+      resolvedPrompt = DEFAULT_PROMPT
+    }
 
     const rawDuration = typeof duration === 'number' && !Number.isNaN(duration) ? duration : DEFAULT_DURATION
     const resolvedDuration = Math.min(MAX_DURATION, Math.max(MIN_DURATION, Math.round(rawDuration)))
@@ -65,7 +101,7 @@ export async function POST(req: NextRequest) {
       .insert({
         request_id: requestId,
         status: 'pending',
-        product_slug: productSlug.trim(),
+        product_slug: trimmedSlug,
         source_image_url: imageUrl,
         prompt: resolvedPrompt,
         duration: resolvedDuration,

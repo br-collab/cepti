@@ -47,6 +47,7 @@ import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
 import { generateProductVideo } from '../video-generator';
 import { buildWaLink } from '../wa-link';
+import { getRelevantExamples, buildFewShotBlock } from '../examples-service';
 
 export class InstagramAgent extends PlatformAgentBase {
   readonly platform: Platform = 'instagram';
@@ -69,7 +70,14 @@ export class InstagramAgent extends PlatformAgentBase {
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
     // Build comprehensive system prompt: expert mindset + framework + psychology + language + platform strategy
-    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
+    let systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
+
+    // Inject curated few-shot examples (if any) so drafts match the proven voice.
+    const examples = await getRelevantExamples({ platform: this.platform, productSlug: intent.topic });
+    const fewShotBlock = buildFewShotBlock(examples);
+    if (fewShotBlock) {
+      systemPrompt = `${systemPrompt}\n\n${fewShotBlock}`;
+    }
 
     // Build user message
     const userMessage = `Escribe un caption de Instagram para: ${intent.topic}\n\nContexto: ${intent.notes || 'Muestra la transformación visual y emocional que hace posible este producto'}\n\nRecuerda: los primeros 125 caracteres son el preview — el gancho aspiracional va ahí. Segunda persona, activa los sentidos, sin specs técnicas. 8-12 hashtags en español al final. Solo el texto del caption, sin preámbulo.`;

@@ -41,6 +41,7 @@ import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
 import { generateProductVideo } from '../video-generator';
 import { buildWaLink } from '../wa-link';
+import { getRelevantExamples, buildFewShotBlock } from '../examples-service';
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server';
 import { decrypt } from '../encryption';
 
@@ -68,7 +69,14 @@ export class FacebookAgent extends PlatformAgentBase {
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
     // Build comprehensive system prompt: expert mindset + framework + psychology + language + platform strategy
-    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
+    let systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
+
+    // Inject curated few-shot examples (if any) so drafts match the proven voice.
+    const examples = await getRelevantExamples({ platform: this.platform, productSlug: intent.topic });
+    const fewShotBlock = buildFewShotBlock(examples);
+    if (fewShotBlock) {
+      systemPrompt = `${systemPrompt}\n\n${fewShotBlock}`;
+    }
 
     // Build user message in Spanish — matches the Spanish-first system prompt
     const userMessage = `Escribe un caption de Facebook para: ${intent.topic}\n\nContexto: ${intent.notes || 'Promoción general del producto'}\n\nRecuerda: gancho que pare el scroll, beneficio específico en segunda persona, prueba creíble, un solo CTA al WhatsApp. Español dominicano, tono de amigo de confianza. Entre 350 y 450 caracteres.`;
