@@ -43,6 +43,7 @@ import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
 import { generateProductVideo } from '../video-generator';
+import { getRelevantExamples, buildFewShotBlock } from '../examples-service';
 import { brand } from '@/lib/products';
 
 export class ThreadsAgent extends PlatformAgentBase {
@@ -66,7 +67,14 @@ export class ThreadsAgent extends PlatformAgentBase {
     const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
 
     // Build comprehensive system prompt: expert mindset + framework + psychology + language + platform strategy
-    const systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
+    let systemPrompt = `${expertSystem}\n\n${framework}\n\n${triggers}\n\n${powerWords}\n\n${promptTemplate}`;
+
+    // Inject curated few-shot examples (if any) so drafts match the proven voice.
+    const examples = await getRelevantExamples({ platform: this.platform, productSlug: intent.topic });
+    const fewShotBlock = buildFewShotBlock(examples);
+    if (fewShotBlock) {
+      systemPrompt = `${systemPrompt}\n\n${fewShotBlock}`;
+    }
 
     // Build user message
     const userMessage = `Escribe un post de Threads para: ${intent.topic}\n\nContexto: ${intent.notes || 'Comparte conocimiento de insider sobre este producto para el mercado dominicano'}\n\nRecuerda: máximo 480 caracteres, sin hashtags, tono de colega dominicano que sabe lo que hace. Párrafos cortos. Termina con una pregunta genuina o CTA al WhatsApp. Solo el texto del post, sin preámbulo.`;
