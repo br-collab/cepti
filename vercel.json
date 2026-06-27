@@ -7,6 +7,10 @@
     {
       "path": "/api/sma/cron/poll-videos",
       "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/sma/cron/publish-scheduled",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

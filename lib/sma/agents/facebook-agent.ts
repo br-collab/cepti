@@ -39,7 +39,6 @@ import type {
 import { PlatformAgentBase, ApprovedDraft } from './platform-base';
 import { generateDetailed } from '../llm-client';
 import { matchProductsInTopic } from '../products-service';
-import { generateProductVideo } from '../video-generator';
 import { buildWaLink } from '../wa-link';
 import { getRelevantExamples, buildFewShotBlock } from '../examples-service';
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server';
@@ -88,15 +87,6 @@ export class FacebookAgent extends PlatformAgentBase {
       maxTokens: 512,
     });
 
-    // Generate a short video narration script — separate from the caption.
-    // The caption is optimized for reading; the video script is optimized for listening.
-    // 40-60 words, punchy, spoken-word rhythm, ends with WhatsApp CTA.
-    const videoScript = await generateDetailed({
-      system: 'Eres un guionista de video para redes sociales dominicanas. Escribes guiones cortos, emotivos y naturales en español dominicano. El guión debe sonar como una persona real hablando, no como un anuncio.',
-      userMessage: `Escribe un guión de video de 40-60 palabras en español para: ${intent.topic}\n\nRequisitos:\n- Gancho emocional en la primera oración que detenga el scroll\n- Usa "tú" informal\n- Frases cortas, ritmo de palabra hablada, pausas naturales\n- Termina con: "Escríbenos por WhatsApp."\n- Solo el texto del guión — sin indicaciones de escena, sin formato, sin preámbulo`,
-      maxTokens: 150,
-    });
-
     const waLink = buildWaLink({
       message: 'Hola CEPTI, vi su publicación y me gustaría una cotización.',
       ref: { platform: 'fb', kind: 'post', id: record.task_id },
@@ -112,42 +102,20 @@ export class FacebookAgent extends PlatformAgentBase {
     let attachedAssets: string[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includePictures = (intent as any).include_pictures !== false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const includeVideo = (intent as any).include_video !== false;
 
     console.log('[FacebookAgent] Draft generation:', {
       topic: intent.topic,
       includePictures,
-      includeVideo,
     });
 
-    // Load images if either pictures or video is requested
-    if (includePictures || includeVideo) {
+    if (includePictures) {
       const productImages = await matchProductsInTopic(intent.topic);
       console.log('[FacebookAgent] Matched product images:', {
         topic: intent.topic,
         imageCount: productImages.length,
         images: productImages,
       });
-
-      // Attach individual images only if requested
-      if (includePictures) {
-        attachedAssets = productImages;
-      }
-
-      // Generate video from images if enabled
-      if (includeVideo && productImages.length > 0) {
-        // Filter to JPEG/WEBP only for video generation (FFmpeg concat has issues with PNG)
-        const videoImages = productImages.filter((img) => /\.(jpg|jpeg|webp)$/i.test(img));
-        if (videoImages.length > 0) {
-          // Use the short video script for narration — optimized for listening, not reading
-          const video = await generateProductVideo(videoImages, videoScript.text, draftId);
-          if (video) {
-            console.log('[FacebookAgent] Generated video:', video);
-            attachedAssets = [video.videoPath, ...attachedAssets];
-          }
-        }
-      }
+      attachedAssets = productImages;
     }
 
     console.log('[FacebookAgent] Final attached assets:', {

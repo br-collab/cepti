@@ -1,185 +1,108 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
+import { useState, useEffect, useCallback } from 'react'
 
-type Platform = 'facebook' | 'instagram' | 'threads'
+type JobStatus = 'scheduled' | 'published' | 'failed' | 'canceled'
 
-interface DraftResult {
-  platform: Platform
-  body: string
-  draft_id: string
-  generated_at: string
-  attached_assets?: string[]
-}
-
-interface ContentIntent {
-  topic: string
-  proposed_platforms: Platform[]
-}
-
-interface ContentLifecycle {
+interface ScheduledJob {
+  id: string
   task_id: string
-  intent: ContentIntent
-  drafts: Partial<Record<Platform, DraftResult>>
-  assembled_at: string
-  status: string
+  platform: string
+  scheduled_for: string
+  status: JobStatus
+  error: string | null
+  published_post_id: string | null
+  created_at: string
+  updated_at: string
 }
 
-interface LifecycleRow {
+interface ReadyLifecycleRow {
   task_id: string
-  lifecycle_record: ContentLifecycle
-  lineage_hash: string
-  assembled_at: string
+  lifecycle_record: { intent?: { topic?: string } }
 }
 
-const PLATFORM_COLORS: Record<Platform, string> = {
-  facebook: 'bg-blue-50 text-blue-700 border-blue-200',
-  instagram: 'bg-pink-50 text-pink-700 border-pink-200',
-  threads: 'bg-zinc-100 text-zinc-700 border-zinc-300',
+const STATUS_BADGE: Record<JobStatus, string> = {
+  scheduled: 'bg-blue-50 text-blue-700 border-blue-200',
+  published: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  failed: 'bg-red-50 text-red-700 border-red-200',
+  canceled: 'bg-zinc-100 text-zinc-500 border-zinc-300',
 }
 
-const FILTERS: { id: Platform | 'all'; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'instagram', label: 'Instagram' },
-  { id: 'facebook', label: 'Facebook' },
-  { id: 'threads', label: 'Threads' },
-]
-
-function LifecycleCard({ row }: { row: LifecycleRow }) {
-  const [copied, setCopied] = useState<string | null>(null)
-  const lifecycle = row.lifecycle_record
-  const platforms = Object.keys(lifecycle.drafts) as Platform[]
-  const approvedAt = new Date(row.assembled_at).toLocaleDateString('es-ES', {
-    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+function formatTime(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   })
-
-  const handleCopy = async (platform: Platform, body: string) => {
-    try {
-      await navigator.clipboard.writeText(body)
-      setCopied(platform)
-      setTimeout(() => setCopied(null), 2000)
-    } catch {
-      alert('Failed to copy')
-    }
-  }
-
-  return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4">
-      <div>
-        <p className="text-xs text-zinc-400 mb-1">{approvedAt}</p>
-        <h3 className="font-semibold text-zinc-900">{lifecycle.intent.topic}</h3>
-      </div>
-
-      {platforms.map(platform => {
-        const draft = lifecycle.drafts[platform]
-        if (!draft) return null
-        const images = draft.attached_assets?.filter(a => /\.(jpg|jpeg|png|webp)$/i.test(a)).map(p => p.replace(/^public\//, '/')) || []
-        const videos = draft.attached_assets?.filter(a => /\.(mp4|webm|mov)$/i.test(a)).map(p => p.replace(/^public\//, '/')) || []
-
-        return (
-          <div key={platform} className="border border-zinc-100 rounded-lg p-4 space-y-3 bg-zinc-50">
-            <div className="flex items-center justify-between">
-              <span className={`text-xs font-medium px-2 py-0.5 rounded border ${PLATFORM_COLORS[platform]}`}>
-                {platform.charAt(0).toUpperCase() + platform.slice(1)}
-              </span>
-              <span className="text-xs text-zinc-400">{draft.body.length} chars</span>
-            </div>
-
-            {videos.length > 0 && (
-              <div className="space-y-2">
-                <video src={videos[0]} controls className="w-full rounded-lg bg-zinc-900 max-h-48" />
-                <a
-                  href={videos[0]}
-                  download={videos[0].split('/').pop() || 'video.mp4'}
-                  className="inline-block text-xs font-medium px-3 py-1.5 rounded-md border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
-                >
-                  ↓ Download Video
-                </a>
-              </div>
-            )}
-            {images.length > 0 && videos.length === 0 && (
-              <div className="space-y-2">
-                <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                  <Image src={images[0]} alt="Product" fill className="object-cover" />
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <a
-                    href={images[0]}
-                    download={images[0].split('/').pop() || 'image.jpg'}
-                    className="inline-block text-xs font-medium px-3 py-1.5 rounded-md border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700"
-                  >
-                    ↓ Download Image
-                  </a>
-                  {images.slice(1).map((img, i) => (
-                    <a
-                      key={i}
-                      href={img}
-                      download={img.split('/').pop() || `image-${i + 2}.jpg`}
-                      className="text-xs text-zinc-500 hover:text-zinc-700 underline"
-                    >
-                      + Photo {i + 2}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="bg-white rounded p-3 text-sm text-zinc-900 whitespace-pre-wrap max-h-48 overflow-y-auto border border-zinc-200">
-              {draft.body}
-            </div>
-
-            <button
-              onClick={() => handleCopy(platform, draft.body)}
-              className="text-xs font-medium px-3 py-1.5 rounded-md bg-zinc-900 text-white hover:bg-zinc-700 transition-colors"
-            >
-              {copied === platform ? '✓ Copied' : 'Copy Caption'}
-            </button>
-          </div>
-        )
-      })}
-
-      <p className="text-xs text-zinc-400">
-        Hash: {row.lineage_hash.substring(0, 12)}...
-      </p>
-    </div>
-  )
 }
 
 export default function ScheduledPage() {
-  const [rows, setRows] = useState<LifecycleRow[]>([])
+  const [jobs, setJobs] = useState<ScheduledJob[]>([])
+  const [topics, setTopics] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [filter, setFilter] = useState<Platform | 'all'>('all')
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [canceling, setCanceling] = useState<string | null>(null)
 
-  const load = () => {
+  const load = useCallback(async () => {
     setLoading(true)
     setError(null)
-    setRefreshKey(k => k + 1)
-  }
+    try {
+      const [jobsRes, readyRes] = await Promise.all([
+        fetch('/api/sma/schedule'),
+        fetch('/api/sma/coordinator/ready').catch(() => null),
+      ])
+      if (!jobsRes.ok) throw new Error('Failed to load scheduled jobs')
+      const jobsData = (await jobsRes.json()) as ScheduledJob[]
+      setJobs(Array.isArray(jobsData) ? jobsData : [])
+
+      if (readyRes && readyRes.ok) {
+        const readyData = (await readyRes.json()) as ReadyLifecycleRow[]
+        const map: Record<string, string> = {}
+        for (const row of Array.isArray(readyData) ? readyData : []) {
+          const topic = row.lifecycle_record?.intent?.topic
+          if (row.task_id && typeof topic === 'string') map[row.task_id] = topic
+        }
+        setTopics(map)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    let cancelled = false
-    fetch('/api/sma/coordinator/ready')
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to load')
-        return res.json()
-      })
-      .then((data: LifecycleRow[]) => { if (!cancelled) { setRows(data); setLoading(false) } })
-      .catch(err => { if (!cancelled) { setError(err instanceof Error ? err.message : 'Failed to load'); setLoading(false) } })
-    return () => { cancelled = true }
-  }, [refreshKey])
+    load()
+  }, [load])
 
-  const filtered = filter === 'all'
-    ? rows
-    : rows.filter(r => Object.keys(r.lifecycle_record.drafts).includes(filter))
+  const handleCancel = async (id: string) => {
+    setCanceling(id)
+    try {
+      const res = await fetch(`/api/sma/schedule/${id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Cancel failed')
+      }
+      setJobs((prev) =>
+        prev.map((j) => (j.id === id ? { ...j, status: 'canceled' as JobStatus } : j)),
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Cancel failed')
+    } finally {
+      setCanceling(null)
+    }
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-zinc-500">
-          Approved content ready to post manually. Copy the caption and publish on the platform, then come back to mark it done once publishing is wired up.
+          Pre-approved drafts pinned to a future time. The publish cron runs each one at its
+          scheduled moment using the same human-authorized publish path.
         </p>
         <button
           onClick={load}
@@ -190,47 +113,61 @@ export default function ScheduledPage() {
         </button>
       </div>
 
-      <div className="flex gap-1 border-b border-zinc-200">
-        {FILTERS.map(f => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.id)}
-            className={`px-3 py-2 text-sm transition-colors border-b-2 -mb-px ${
-              filter === f.id
-                ? 'border-zinc-900 text-zinc-900 font-medium'
-                : 'border-transparent text-zinc-500 hover:text-zinc-700'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
-      )}
-
-      {!loading && filtered.length === 0 && (
-        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-12 text-center">
-          <p className="text-sm text-zinc-500 font-medium">No approved content yet</p>
-          <p className="text-xs text-zinc-400 mt-1">
-            Generate and approve drafts in the Queue — they appear here once approved.
-          </p>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
         </div>
       )}
 
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2].map(i => (
-            <div key={i} className="rounded-xl border border-zinc-200 bg-zinc-50 h-48 animate-pulse" />
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-lg border border-zinc-200 bg-zinc-50 h-16 animate-pulse" />
           ))}
         </div>
       )}
 
-      {!loading && filtered.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filtered.map(row => (
-            <LifecycleCard key={row.task_id} row={row} />
+      {!loading && jobs.length === 0 && (
+        <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-12 text-center">
+          <p className="text-sm text-zinc-500 font-medium">Nothing scheduled.</p>
+        </div>
+      )}
+
+      {!loading && jobs.length > 0 && (
+        <div className="space-y-2">
+          {jobs.map((job) => (
+            <div
+              key={job.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-4"
+            >
+              <div className="min-w-0 space-y-1">
+                <p className="font-medium text-zinc-900 truncate">
+                  {topics[job.task_id] || job.task_id}
+                </p>
+                <p className="text-xs text-zinc-500">
+                  {job.platform} • {formatTime(job.scheduled_for)}
+                </p>
+                {job.status === 'failed' && job.error && (
+                  <p className="text-xs text-red-600">{job.error}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                <span
+                  className={`text-xs font-medium px-2 py-0.5 rounded border ${STATUS_BADGE[job.status]}`}
+                >
+                  {job.status}
+                </span>
+                {job.status === 'scheduled' && (
+                  <button
+                    onClick={() => handleCancel(job.id)}
+                    disabled={canceling === job.id}
+                    className="text-xs font-medium px-3 py-1.5 rounded-md border border-zinc-300 hover:bg-zinc-50 disabled:opacity-50"
+                  >
+                    {canceling === job.id ? 'Canceling…' : 'Cancel'}
+                  </button>
+                )}
+              </div>
+            </div>
           ))}
         </div>
       )}
