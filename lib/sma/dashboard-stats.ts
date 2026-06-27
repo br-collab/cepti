@@ -45,6 +45,27 @@ export type DashboardStats = {
     byProduct: { product: string; count: number }[]
     byPlatform: { platform: string; count: number }[]
   }
+  engagement: {
+    totalReactions: number
+    totalComments: number
+    totalShares: number
+    perPost: {
+      externalPostId: string
+      reactions: number
+      comments: number
+      shares: number
+    }[]
+  }
+  leads: {
+    total: number
+    recent: {
+      id: string
+      task_id: string | null
+      platform: string | null
+      note: string | null
+      created_at: string | null
+    }[]
+  }
 }
 
 const COST_PER_SECOND = 0.08
@@ -59,6 +80,8 @@ function emptyStats(): DashboardStats {
     library: { examplesCount: 0, connectedPlatforms: [] },
     aiSpend: { llmUsd: 0, videoUsd: 0, totalUsd: 0, thisMonthUsd: 0, byModel: [] },
     contentBreakdown: { byProduct: [], byPlatform: [] },
+    engagement: { totalReactions: 0, totalComments: 0, totalShares: 0, perPost: [] },
+    leads: { total: 0, recent: [] },
   }
 }
 
@@ -333,6 +356,64 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       .sort((a, b) => b.count - a.count)
   } catch (e) {
     console.error('dashboard-stats: contentBreakdown error:', e)
+  }
+
+  // --- Engagement (Facebook, from sma_post_engagement) ---
+  try {
+    const { data, error } = await supabase
+      .from('sma_post_engagement')
+      .select('external_post_id, reactions, comments, shares')
+      .order('captured_at', { ascending: false })
+      .limit(5)
+    if (error) throw error
+
+    let totalReactions = 0
+    let totalComments = 0
+    let totalShares = 0
+    const perPost = (data ?? []).map((row) => {
+      const reactions = Number(row.reactions) || 0
+      const comments = Number(row.comments) || 0
+      const shares = Number(row.shares) || 0
+      totalReactions += reactions
+      totalComments += comments
+      totalShares += shares
+      return {
+        externalPostId: (row.external_post_id ?? '').toString(),
+        reactions,
+        comments,
+        shares,
+      }
+    })
+    stats.engagement = { totalReactions, totalComments, totalShares, perPost }
+  } catch (e) {
+    console.error('dashboard-stats: engagement error:', e)
+  }
+
+  // --- Leads (manual WhatsApp-lead ledger) ---
+  stats.leads.total = await safeCount(async () => {
+    const { count, error } = await supabase
+      .from('sma_leads')
+      .select('id', { count: 'exact', head: true })
+    if (error) throw error
+    return count ?? 0
+  })
+
+  try {
+    const { data, error } = await supabase
+      .from('sma_leads')
+      .select('id, task_id, platform, note, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10)
+    if (error) throw error
+    stats.leads.recent = (data ?? []).map((row) => ({
+      id: (row.id ?? '').toString(),
+      task_id: row.task_id ?? null,
+      platform: row.platform ?? null,
+      note: row.note ?? null,
+      created_at: row.created_at ?? null,
+    }))
+  } catch (e) {
+    console.error('dashboard-stats: leads error:', e)
   }
 
   return stats

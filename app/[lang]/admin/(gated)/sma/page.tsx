@@ -1,5 +1,7 @@
 import { getDashboardStats } from '@/lib/sma/dashboard-stats'
 import { PLATFORM_LABEL, type Platform } from '@/lib/sma/platforms'
+import RefreshEngagementButton from '@/components/admin/sma/RefreshEngagementButton'
+import LeadLogger from '@/components/admin/sma/LeadLogger'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +31,8 @@ function daysSince(iso: string | null): string {
 
 export default async function SmaDashboardPage() {
   const stats = await getDashboardStats()
-  const { funnel, cadence, recentPosts, video, library, aiSpend, contentBreakdown } = stats
+  const { funnel, cadence, recentPosts, video, library, aiSpend, contentBreakdown, engagement, leads } =
+    stats
 
   const captionModel =
     aiSpend.byModel.find((m) => m.model !== 'grok-imagine-video-1.5')?.model ?? 'claude-opus-4-8'
@@ -186,6 +189,64 @@ export default async function SmaDashboardPage() {
         )}
       </section>
 
+      {/* 3b. Engagement */}
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-medium">Engagement</h2>
+            <p className="text-sm text-zinc-500">
+              Live Facebook reactions, comments, and shares on published posts.
+            </p>
+          </div>
+          <RefreshEngagementButton />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Stat label="Reactions" value={engagement.totalReactions} hint="recent posts" />
+          <Stat label="Comments" value={engagement.totalComments} hint="recent posts" />
+          <Stat label="Shares" value={engagement.totalShares} hint="recent posts" />
+        </div>
+        {engagement.perPost.length === 0 ? (
+          <p className="mt-4 text-sm text-zinc-500">
+            No engagement captured yet. It will appear after the first post ships and you
+            refresh.
+          </p>
+        ) : (
+          <ul className="mt-4 divide-y divide-zinc-100 border-t border-zinc-100">
+            {engagement.perPost.map((p) => (
+              <li
+                key={p.externalPostId}
+                className="flex items-center justify-between gap-4 py-2 text-sm"
+              >
+                <span className="min-w-0 truncate font-mono text-xs text-zinc-500">
+                  {p.externalPostId}
+                </span>
+                <span className="shrink-0 text-zinc-600">
+                  <span className="font-medium text-zinc-800">{p.reactions}</span> reactions
+                  {' · '}
+                  <span className="font-medium text-zinc-800">{p.comments}</span> comments
+                  {' · '}
+                  <span className="font-medium text-zinc-800">{p.shares}</span> shares
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* 3c. Leads */}
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6">
+        <div className="mb-4">
+          <h2 className="text-lg font-medium">Leads</h2>
+          <p className="text-sm text-zinc-500">
+            WhatsApp conversions logged by hand against a post.
+          </p>
+        </div>
+        <div className="mb-4 grid gap-4 sm:grid-cols-2">
+          <Stat label="Total conversions" value={leads.total} hint="logged leads" />
+        </div>
+        <LeadLogger recent={leads.recent} />
+      </section>
+
       {/* 4. Video output */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-6">
         <div className="mb-4">
@@ -279,8 +340,8 @@ export default async function SmaDashboardPage() {
 
       {/* 6. Coming next note */}
       <p className="text-sm text-zinc-400">
-        Engagement metrics and WhatsApp lead attribution will appear here once Graph API insights
-        and inbound capture are wired.
+        Facebook engagement is now wired via the Graph API. Leads are logged by hand for now —
+        fully automatic WhatsApp attribution still needs the WhatsApp Business API.
       </p>
     </div>
   )
