@@ -316,8 +316,93 @@ export class FacebookAgent extends PlatformAgentBase {
     return `${SITE_ORIGIN}${cleaned}`;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  /**
+   * Pull live engagement for a published Facebook post via the Graph API.
+   *
+   * Loads the stored FB user token, resolves the Page token, then reads
+   * reactions/comments/shares from the post node. Impressions come from the
+   * insights edge (post_impressions) and require pages_read_engagement +
+   * read_insights; if that permission is not granted the impressions fetch
+   * fails and is swallowed, leaving impressions undefined.
+   *
+   * Returns an EngagementSnapshot. Throws on a non-OK main request so the
+   * batch route can record the per-post error.
+   */
   async fetchEngagement(platformPostId: string): Promise<EngagementSnapshot> {
-    throw new Error('NOT_IMPLEMENTED: FacebookAgent.fetchEngagement');
+    // 1. Load the stored Facebook USER token (service-role, RLS-bypassing).
+    const supabase = getSupabaseServiceRoleClient();
+    const { data: tokenRow, error: tokenError } = await supabase
+      .from('sma_tokens')
+      .select('access_token_ciphertext')
+      .eq('platform', 'facebook')
+      .is('revoked_at', null)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (tokenError) {
+      throw new Error(`Failed to load Facebook token: ${tokenError.message}`);
+    }
+    if (!tokenRow?.access_token_ciphertext) {
+      throw new Error('No active Facebook token found in sma_tokens. Connect the Facebook account first.');
+    }
+
+    const userToken = decrypt(tokenRow.access_token_ciphertext);
+
+    // 2. Resolve the Page access token from the user token.
+    const { pageToken } = await this.resolvePage(userToken);
+
+    // 3. Read the post node: reactions + comments summaries, shares count.
+    const fields = 'reactions.summary(true),comments.summary(true),shares';
+    const url =
+      `${FB_GRAPH_BASE}/${encodeURIComponent(platformPostId)}` +
+      `?fields=${encodeURIComponent(fields)}&access_token=${encodeURIComponent(pageToken)}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(`Facebook engagement fetch failed (${res.status}) for ${platformPostId}: ${text}`);
+    }
+
+    const json = JSON.parse(text) as {
+      reactions?: { summary?: { total_count?: number } };
+      comments?: { summary?: { total_count?: number } };
+      shares?: { count?: number };
+    };
+
+    const reactions = json.reactions?.summary?.total_count ?? 0;
+    const comments = json.comments?.summary?.total_count ?? 0;
+    const shares = json.shares?.count ?? 0;
+
+    // 4. Best-effort impressions from insights. Many permission scopes don't
+    // grant this; on any failure, leave impressions undefined.
+    let impressions: number | undefined;
+    try {
+      const insightsUrl =
+        `${FB_GRAPH_BASE}/${encodeURIComponent(platformPostId)}/insights` +
+        `?metric=post_impressions&access_token=${encodeURIComponent(pageToken)}`;
+      const insightsRes = await fetch(insightsUrl, { cache: 'no-store' });
+      if (insightsRes.ok) {
+        const insightsJson = (await insightsRes.json()) as {
+          data?: { name?: string; values?: { value?: number }[] }[];
+        };
+        const metric = insightsJson.data?.find((m) => m.name === 'post_impressions');
+        const value = metric?.values?.[0]?.value;
+        if (typeof value === 'number') {
+          impressions = value;
+        }
+      }
+    } catch (insightsErr) {
+      console.warn(`[FacebookAgent] impressions fetch failed for ${platformPostId}:`, insightsErr);
+    }
+
+    return {
+      platform: 'facebook',
+      platform_post_id: platformPostId,
+      snapshot_at: new Date().toISOString(),
+      engagement: reactions,
+      comments_count: comments,
+      shares_count: shares,
+      impressions,
+    };
   }
 }
