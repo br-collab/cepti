@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import NewContentForm from '@/components/admin/sma/NewContentForm'
+import VideoLab from '@/components/admin/sma/VideoLab'
 import ApprovalQueueSection from '@/components/admin/sma/ApprovalQueueSection'
 import ReadyToPostSection from '@/components/admin/sma/ReadyToPostSection'
 import HistorySidebar from '@/components/admin/sma/HistorySidebar'
@@ -89,6 +90,12 @@ export default function QueuePage() {
         <section className="rounded-2xl border border-zinc-200 bg-white p-6">
           <h2 className="text-lg font-semibold mb-4">New Content</h2>
           <NewContentForm onSuccess={handleDraftGenerated} />
+        </section>
+
+        {/* Video Studio (beta) */}
+        <section className="rounded-2xl border border-zinc-200 bg-white p-6">
+          <h2 className="text-lg font-semibold mb-4">Video Studio (beta)</h2>
+          <VideoLab />
         </section>
 
         {/* Approval Queue */}

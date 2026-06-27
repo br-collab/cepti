@@ -3,6 +3,10 @@
     {
       "path": "/api/sma/cron/refresh-tokens",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/sma/cron/poll-videos",
+      "schedule": "*/2 * * * *"
     }
   ]
 }
