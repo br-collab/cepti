@@ -1,11 +1,79 @@
 # CEPTI SMA — Architecture v2
 
-> **Status:** Draft for Bill + Francisco review
-> **Author:** Drafted 2026-05-26 by Bill, with Claude as architecture partner
+> **Status:** PARTIALLY IMPLEMENTED — most of v2 is shipped to `main`. See
+> **Section 0 (Implementation Status)** below for the plan-vs-reality map. The
+> design sections (1–14) are retained as the original rationale; where a section
+> is now stale or wrong, Section 0 is authoritative.
+> **Author:** Drafted 2026-05-26 by Bill, with Claude as architecture partner.
+> Reconciled to actual code 2026-06-28.
 > **Reference:** Patterns adapted from Project Aureon's `ThifurC2` coordinator
 > (financial-services multi-agent system). Domain-specific elements
 > (regulatory compliance, settlement, OFAC screening) explicitly excluded.
 > **Supersedes:** SMA v1 design captured in CLAUDE.md and `docs/sma.md`.
+
+---
+
+## 0. Implementation Status (reconciled 2026-06-28)
+
+This document was written 2026-05-26 as a *proposal*. As of `main` @ `40f51f6`
+(2026-06-27), most of it is already built and merged via PRs #5–#16. This
+section is the single source of truth for what exists; the design sections
+below explain *why* but no longer reliably describe *what is*.
+
+### What is DONE on `main`
+
+| Area | File(s) | State |
+| --- | --- | --- |
+| Coordinator (Light scope) | `lib/sma/coordinator/coordinator.ts` | DONE — all 10 §4 API methods present; schedules/dispatches approved content, does not author or pick topics. Some lineage helpers (`makeLineageHash`, `assembleLifecycle`, `recordTelemetry`, `getContentLifecycle`) are stubbed/minimal. |
+| Five Immutable Stops | `lib/sma/coordinator/guardrails.ts` | DONE — each Stop is a throwing guard (`assertNotSelfPublishing`, `assertNotCoordinatorAuthorship`, `assertValidHandoff`, `assertAuditTableOnly` + `assertLifecycleNotDuplicated`, `assertApprovalContextComplete`). Stop 1 double-enforced in `FacebookAgent.publish()`. |
+| Audit log | `lib/sma/coordinator/audit.ts` | DONE |
+| Registry / dispatch map | `lib/sma/coordinator/registry.ts` | DONE |
+| Facebook agent | `lib/sma/agents/facebook-agent.ts` | DONE end-to-end — real Graph API `publish()`, `draftReply()`, `fetchEngagement()`. |
+| Platform base | `lib/sma/agents/platform-base.ts` | DONE |
+| v2 schema | `supabase/migrations/0002_sma_v2_schema.sql` | DONE — creates `sma_coordinator_tasks`, `sma_handoffs`, `sma_paused_lifecycles`, `sma_content_lifecycles`, `sma_whatsapp_conversations`, `sma_whatsapp_messages` (+ indexes, RLS). |
+| Coordinator API routes | `app/api/sma/coordinator/{task,queue,ready,recommend,history,decide/[taskId],dismiss/[taskId]}` | DONE — note: approve/deny merged into `decide`. |
+| Publish + scheduling | `app/api/sma/publish/[taskId]`, `app/api/sma/schedule`, `app/api/sma/cron/{publish-scheduled,poll-videos,refresh-tokens}`, `lib/sma/publish-service.ts` | DONE (FB only — see stubs). |
+| OAuth | `app/api/sma/oauth/[platform]/{start,callback}` | DONE (parameterized, not per-platform folders). |
+| Dashboard tabs | `app/[lang]/admin/(gated)/sma/{page,connections,queue,scheduled,inbox,insights,recommendations,guide,settings}` | DONE — `queue` is the approval queue. |
+| Per-platform prompts | `prompts/{facebook,instagram,threads}/` | DONE (v1 root prompts `caption.md`/`reply.md`/`classify.md` not yet archived per §11). |
+| Finops / measurement / video | `lib/sma/{ai-usage,dashboard-stats,video-poller,xai-video}.ts`, video routes | DONE (not in the original v2 plan; added since). |
+
+### What is STUB or MISSING
+
+| Item | Where | State / impact |
+| --- | --- | --- |
+| **Instagram agent** | `lib/sma/agents/instagram-agent.ts` | **STUB** — `publish()`, `draftReply()`, `fetchEngagement()` all `throw NOT_IMPLEMENTED`. IG cannot post. This is the highest-value gap (IG = CEPTI's real audience, `@cepti_rd` ~1,300 followers). |
+| **Threads agent** | `lib/sma/agents/threads-agent.ts` | **STUB** — same three methods throw `NOT_IMPLEMENTED`. No separate `threads-client.ts` yet. |
+| **WhatsApp Advisor** | (none) | **MISSING — now GREENLIT to build, see §6.** No `whatsapp-advisor.ts`, no `whatsapp-client.ts`, no `/api/sma/webhooks/whatsapp`. The two `sma_whatsapp_*` tables exist in `0002` but no code reads/writes them. |
+| Coordinator sub-modules | `handoff.ts`, `lineage.ts`, `escalation.ts`, `pause-resume.ts` | **N/A by design** — folded into `coordinator.ts` rather than split. Not a gap. |
+| `calendar` dashboard tab | — | MISSING (the `scheduled` list view stands in). |
+| dedicated `coordinator-status` tab | — | MISSING (status shown on dashboard/insights). |
+
+### Why the dashboard shows 0 published
+
+Confirmed in code (not speculation): publishing is **fully manual by design**
+(Immutable Stops 1 + 5 — nothing auto-posts) and `publishApprovedFacebookTask()`
+requires a COMPLETE+APPROVED lifecycle, a `facebook` draft, a live FB token, and
+a human/cron trigger. IG/Threads cannot publish at all (stubs). The dominant
+cause of "0 published" is the **2% approval rate (47 denied / 1 approved)** — a
+content-quality/approval-bar problem, not a code disable. Fixing publishing
+plumbing will not move the north-star metric until the approval funnel is fixed.
+
+### Unmerged work
+
+`origin/feat/sma-v2-scaffold` is **7 commits ahead of `main`** (scheduling,
+multi-user approvals, analytics, ~2,800 lines of E2E tests) but has **diverged
+history** (it deletes migrations/prompts that exist on `main`) and **still does
+not** finish IG/Threads or build WhatsApp. Merging it is a conflict-resolution
+job, not a fast-forward. Do not assume it is safe to merge as-is.
+
+### Recommended next build target
+
+Implement `instagram-agent.ts` (`publish()` container→publish flow,
+`draftReply()`, `fetchEngagement()`), mirroring the working `facebook-agent.ts`,
+then `threads-agent.ts`. All surrounding plumbing already exists, so completing
+the stubs is the least-surrounding-work, highest-leverage deliverable — and per
+CLAUDE.md it is the prerequisite to submit the Instagram App Review.
 
 ---
 
@@ -349,14 +417,44 @@ and updated only through PRs with Bill's review.
 
 ---
 
-## 6. WhatsApp Advisor (Separate Concern)
+## 6. WhatsApp Advisor (Separate Concern) — GREENLIT 2026-06-28
 
-### Scope
+> **Decision (Bill, 2026-06-28):** BUILD the WhatsApp Advisor. This reverses
+> the prior stance in CLAUDE.md ("inbound WhatsApp is handled directly by
+> humans; do not duplicate the pipeline"). CLAUDE.md is being updated to match.
+> Not yet implemented — no code exists. The blocking decisions below must be
+> resolved with Francisco before the build starts.
+
+### Blocking decisions (resolve before building)
+
+1. **Number sharing.** The bot would live on `+1 (829) 449-1104`, the number
+   Yuri/Francisco answer by hand today. A WhatsApp number has exactly one
+   webhook destination — once the Cloud API owns it, inbound stops landing in
+   the WhatsApp Business *app* unless explicitly forwarded. Decide: does the
+   bot answer ALL inbound, only outside business hours, or only after N minutes
+   of human non-response? (Cloud API has no native "answer only if human
+   hasn't" — that logic must be built, and humans would need to work inside the
+   same API surface or a shared inbox, not the consumer WhatsApp app.)
+2. **API tier.** Inbound free-form replies are allowed only inside the 24-hour
+   customer service window. Anything proactive (quote follow-ups) needs
+   Meta-approved message templates per category. v1 = reactive only.
+3. **WABA + verification.** Requires a WhatsApp Business Account, Meta Business
+   verification, and the number migrated off the consumer WhatsApp Business app
+   onto the Cloud API. This is a one-way move for that number — plan a cutover.
+4. **Handoff target.** When the bot escalates ("Te conecto con nuestro
+   equipo"), who is notified and how (shared inbox, Slack, a second human
+   number)? §13 Q1 was never answered.
+5. **North-star conflict.** The whole site is built around `wa.me` → human.
+   Inserting a bot changes the conversion experience. Confirm this is intended,
+   not a regression of the "conversion over content / don't duplicate the
+   pipeline" principle.
+
+### Scope (v1, once unblocked)
 
 The WhatsApp Advisor handles **inbound** customer messages on CEPTI's
-WhatsApp Business number (+1 917 246 1283). It does NOT proactively message
-users (which would require WhatsApp Business Platform template approval per
-message category — out of v1 scope).
+WhatsApp Business number `+1 (829) 449-1104` (`wa.me/18294491104`). It does
+NOT proactively message users in v1 (proactive requires WhatsApp Business
+Platform template approval per message category — defer to v1.5+).
 
 ### Architecture
 
@@ -721,6 +819,12 @@ These should be resolved before v1 build starts:
 ---
 
 ## 14. Approval
+
+> **Superseded by Section 0 (2026-06-28).** v2 was approved-in-practice and
+> built across PRs #5–#16 without a formal sign-off being recorded here. The
+> remaining open decision requiring Francisco is the WhatsApp Advisor greenlight
+> and its blocking decisions in §6. The sign-off block below is retained for
+> the record but no longer gates the already-shipped v2 work.
 
 Architecture v2 is a proposal. Bill and Francisco both review. Sign off
 required from both before v1 build begins.

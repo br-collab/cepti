@@ -27,9 +27,14 @@ Primer, Pegamento.
 **Lead pipeline (do not duplicate):** Site visitors click a `wa.me` link,
 which opens a WhatsApp conversation with CEPTI's WhatsApp Business account
 at `+1 (829) 449-1104`. No middleware — no ManyChat, no Zapier, no Sheets
-auto-logging. Inbound is handled directly by humans on WhatsApp Business.
-The on-site Advisor chatbot is custom-built and lives in this repo; it
-does not handoff via ManyChat.
+auto-logging. Inbound is currently handled directly by humans on WhatsApp
+Business. The on-site Advisor chatbot is custom-built and lives in this repo;
+it does not handoff via ManyChat.
+
+> **Change in flight (2026-06-28):** an inbound **WhatsApp Advisor** bot is
+> greenlit (see the SMA section and `docs/sma/architecture-v2.md` §6). Once it
+> ships, the "inbound handled directly by humans" statement above no longer
+> holds for the channel. It is not built yet; until then this remains accurate.
 
 ---
 
@@ -62,25 +67,35 @@ docs/
     chatbot-kb/     — 5 PDFs (Ladriflex, Papelex fichas, Pintura de Piedra)
 
 supabase/
-  migrations/       — 0001_sma_schema.sql (7 tables, RLS, triggers)
+  migrations/       — 0001..0007 (v1 schema + v2 coordinator/lifecycle,
+                      video jobs, examples, AI usage, measurement, scheduled jobs)
 
-prompts/            — caption.md, classify.md, reply.md (SMA Phase 2 stubs)
+prompts/            — per-platform: facebook/, instagram/, threads/ (caption-v2);
+                      legacy v1 root: caption.md, classify.md, reply.md (to archive)
 ```
 
 ---
 
 ## Current main branch state
 
-**Latest commit:** `7e7bd94` (2026-05-15) — Analyzer PDF texture layer
-**Vercel production:** green, serving `7e7bd94`
+**Latest commit:** `40f51f6` (2026-06-27) — Merge PR #16 (calculator caret render fix)
+**Vercel production:** green, serving `40f51f6`
 
-Recent commit history:
-- `7e7bd94` fix(analyzer): add texture tile layer to PDF export
-- `6212f2f` Merge fix/analizador-slug
-- `78597ba` Merge fix/calculator-mini-inputs
-- `6648695` fix(analyzer): raise default opacity to 92%, cap slider 80-100%
+Recent commit history (SMA v2 landed across PRs #5–#16):
+- `40f51f6` Merge PR #16 — fix(calculator): render dropdown caret as real SVG
+- `7abcafe` Merge PR #14 — feat(sma): scheduling (queue + publish cron), retire FFmpeg video
+- `24dd938` Merge PR #13 — feat(sma): measurement loop (FB engagement + lead logging)
+- `b8e61fe` Merge PR #12 — feat(sma): AI FinOps (usage ledger + spend dashboard)
+- `7e5fbeb` Merge PR #11 — feat(sma): real-data dashboard + bilingual Guide tab
+- `023b457` Merge PR #9 — feat(sma): examples library + Grok video slice 2
+- `43a3091` Merge PR #8 — feat(sma): Grok video slice 1 (xAI image-to-video)
 - `caaa4a4` feat(sma): Phase 1 — schema, auth, OAuth, dashboard skeleton
-- `2d2e1c7` fix(calculator): align rates and units with Francisco's spec
+
+> **Unmerged:** `origin/feat/sma-v2-scaffold` is 7 commits ahead (scheduling,
+> multi-user approvals, analytics, ~2,800 lines of E2E tests) but has diverged
+> history (deletes migrations/prompts present on `main`) and still does not
+> finish IG/Threads or WhatsApp. Treat a merge as conflict resolution, not a
+> fast-forward.
 
 **Typecheck baseline:** 26 errors (non-blocking). 18 in SMA admin/API
 routes (tracked in GitHub issue #2 — TS2344 + TS2339 pattern). 8 in
@@ -141,13 +156,24 @@ tile overlay with multiply blend mode) at the current opacity.
 
 ---
 
-## SMA — Social Media Agent (Phase 1 live)
+## SMA — Social Media Agent (v2 mostly shipped — see docs/sma/architecture-v2.md §0)
+
+**Status (2026-06-28):** v2 Coordinator + guardrails + Facebook agent + v2 schema
+shipped to `main` across PRs #5–#16. **Instagram and Threads agents are STUBS**
+(`publish/draftReply/fetchEngagement` throw `NOT_IMPLEMENTED`) — only Facebook
+can post. WhatsApp Advisor is **greenlit but unbuilt** (see below). Dashboard
+shows 0 published: publishing is manual by design; the real blocker is the 2%
+approval rate. Authoritative plan-vs-reality map: `docs/sma/architecture-v2.md` §0.
 
 **Admin dashboard:** `/admin/sma` (Supabase Auth gated, `sma_admins` table)
 **Supabase project:** `cepti-sma` (`phjvziubrgeqjguutfxp.supabase.co`)
-**Schema:** 7 tables + `sma_admins`, RLS on all, `is_sma_admin()` security-definer function
-**OAuth:** wired for IG, FB, Threads — not yet connected (Meta App pending)
-**Cron:** daily token refresh at 06:00 UTC via Vercel Cron
+**Schema:** migrations 0001..0007. `0002` adds v2 coordinator/lifecycle tables
+(`sma_coordinator_tasks`, `sma_handoffs`, `sma_paused_lifecycles`,
+`sma_content_lifecycles`) + two unused `sma_whatsapp_*` tables. RLS on all.
+**Coordinator:** `lib/sma/coordinator/*` — Light scope; Five Immutable Stops
+enforced in `guardrails.ts`. Agents: `lib/sma/agents/{facebook(done),instagram(stub),threads(stub)}-agent.ts`.
+**OAuth:** wired for IG, FB, Threads. Connected (per dashboard): IG + FB Page; Threads not connected.
+**Cron:** token refresh, publish-scheduled, poll-videos via Vercel Cron
 **Attribution:** every `wa.me` link the SMA generates uses `lib/sma/wa-link.ts` with a `[ref:platform-post-{id}]` token
 
 **Phase 2+ blockers:**
@@ -169,8 +195,18 @@ a screencast of the complete user journey for each permission. Submitting empty
 stubs gets the permission rejected and consumes a review cycle.
 
 **Scope split:** Recommend → Schedule/Publish → Draft comment replies.
-No DM handling — inbound DMs are handled directly by humans on WhatsApp
-Business. No autonomous posting — every reply is human-approved.
+No social-platform DM handling (IG/FB/Threads DMs stay out of scope). No
+autonomous posting — every post and reply is human-approved.
+
+**WhatsApp Advisor — GREENLIT 2026-06-28 (reverses prior stance).** Bill has
+decided to build an inbound WhatsApp Advisor bot on `+1 (829) 449-1104`. This
+overturns the previous rule ("inbound WhatsApp handled directly by humans; do
+not duplicate the pipeline"). **Until it ships, humans still handle inbound
+WhatsApp by hand.** Before building, the blocking decisions in
+`docs/sma/architecture-v2.md` §6 (number sharing, Cloud API/WABA cutover,
+template approval, handoff target, north-star conflict) must be resolved with
+Francisco. Hard rule #8 (no autonomous posting of unapproved content) still
+applies; the Advisor's reply policy must be defined within that constraint.
 
 ---
 
@@ -305,17 +341,22 @@ DO NOT merge. DO NOT open a PR. Report hash and wait.
 
 ---
 
-## Open work (as of 2026-05-16)
+## Open work (as of 2026-06-28)
 
 Priority order:
 
 | # | Item | Effort | Blocker |
 |---|------|--------|---------|
-| 1 | App Review submissions (Threads 8 perms; IG + FB use cases TBD) | High build per perm + high calendar | Each permission blocked on its feature being demonstrable in `/admin/sma` |
-| 2 | SMA issue #2 typecheck fix | Medium (26 errors) | None |
-| 3 | Advisor chatbot KB integration | High | None (PDFs in repo) |
-| 4 | Advisor chat-history logging | Medium-High | Scope TBD with Francisco |
-| 5 | CalculatorMini item 6 checkmark | Low | Awaiting Francisco clarification |
+| 1 | **Approval-rate problem** (1 approved / 47 denied = 2%; 0 published). Diagnose recommendation quality / approval bar — this, not plumbing, is why nothing ships | Medium | None (data + prompts in repo) |
+| 2 | **Implement Instagram agent** (`instagram-agent.ts` publish/draftReply/fetchEngagement) — unblocks IG (real audience) + IG App Review | Medium | None (FB agent is the template) |
+| 3 | **Implement Threads agent** (`threads-agent.ts`; needs Threads base URL + Tech Provider Verification for prod) | Medium | Tech Provider Verification (~1 wk) for prod publish |
+| 4 | App Review submissions (Threads 8 perms; IG + FB use cases TBD) | High per perm | Each permission blocked on its feature being demonstrable in `/admin/sma` |
+| 5 | **WhatsApp Advisor** (greenlit 2026-06-28) — resolve §6 blocking decisions with Francisco, then build | High | Francisco decisions + WABA/Cloud API cutover |
+| 6 | Reconcile/merge `feat/sma-v2-scaffold` (diverged history) or cherry-pick its E2E tests | Medium-High | Conflict resolution |
+| 7 | SMA issue #2 typecheck fix | Medium (26 errors) | None |
+| 8 | Advisor chatbot KB integration | High | None (PDFs in repo) |
+| 9 | Advisor chat-history logging | Medium-High | Scope TBD with Francisco |
+| 10 | CalculatorMini item 6 checkmark | Low | Awaiting Francisco clarification |
 
 ---
 
