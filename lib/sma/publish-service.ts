@@ -1,22 +1,23 @@
 /**
  * lib/sma/publish-service.ts
  *
- * Shared publish core: takes an APPROVED Facebook task and publishes it via
- * FacebookAgent.publish(), recording the result. Extracted from
- * app/api/sma/publish/[taskId]/route.ts so both the human-triggered publish
- * route and the scheduled-publish cron run the exact same path.
+ * Shared publish core: takes an APPROVED task and publishes it on a given
+ * platform via that platform's agent, recording the result. Used by both the
+ * human-triggered publish route and the scheduled-publish cron so they run the
+ * exact same path.
  *
- * Immutable Stop 1: this module never calls Meta directly. Only
- * FacebookAgent.publish() touches the Graph API. Publishing is only ever done
- * for content that was already APPROVED — neither caller generates new text.
+ * Immutable Stop 1: this module never calls Meta directly. Only the platform
+ * agent's publish() touches the Graph API. Publishing is only ever done for
+ * content that was already APPROVED — neither caller generates new text.
  */
 
 import 'server-only'
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
 import { SMACoordinator } from '@/lib/sma/coordinator/coordinator'
 import { ConsoleAuditLogger } from '@/lib/sma/coordinator/audit'
-import { FacebookAgent } from '@/lib/sma/agents/facebook-agent'
+import { getPlatformAgent, PLATFORM_TO_ROLE } from '@/lib/sma/coordinator/registry'
 import { parseWaRef } from '@/lib/sma/wa-link'
+import { PLATFORM_LABEL, type Platform } from '@/lib/sma/platforms'
 import type { ApprovedDraft } from '@/lib/sma/agents/platform-base'
 import type {
   ApprovalRecord,
@@ -30,21 +31,32 @@ export type PublishOutcome =
   | { ok: false; error: string; status: number }
 
 /**
- * Publish the most recent APPROVED Facebook draft for a task.
+ * Back-compat wrapper. Facebook behavior is unchanged — it delegates to the
+ * generalized publishApprovedTask() with platform 'facebook'.
+ */
+export async function publishApprovedFacebookTask(taskId: string): Promise<PublishOutcome> {
+  return publishApprovedTask(taskId, 'facebook')
+}
+
+/**
+ * Publish the most recent APPROVED draft for a task on the given platform.
  *
- * Mirrors the original route behavior exactly:
  *  - 404 if no lifecycle exists for the task
  *  - 500 if the lifecycle read fails
- *  - 400 if the task is not APPROVED/COMPLETE or has no Facebook draft
- *  - 409 if it was already published to Facebook
- *  - 500 if the Facebook publish call throws
+ *  - 400 if the task is not APPROVED/COMPLETE or has no draft for the platform
+ *  - 409 if it was already published to the platform
+ *  - 500 if the platform publish call throws
  *  - ok on success
  *
  * sma_published_posts insert / lifecycle update failures are logged but do not
- * fail the call once the post is live (same as the original route).
+ * fail the call once the post is live.
  */
-export async function publishApprovedFacebookTask(taskId: string): Promise<PublishOutcome> {
+export async function publishApprovedTask(
+  taskId: string,
+  platform: Platform,
+): Promise<PublishOutcome> {
   const supabase = getSupabaseServiceRoleClient()
+  const label = PLATFORM_LABEL[platform]
 
   // 1. Load the most recent lifecycle for this task.
   const { data: row, error: readError } = await supabase
@@ -76,48 +88,48 @@ export async function publishApprovedFacebookTask(taskId: string): Promise<Publi
     }
   }
 
-  // 3. There must be a Facebook draft.
-  const fbDraft = lifecycle.drafts?.facebook as DraftResult | undefined
-  if (!fbDraft) {
-    return { ok: false, error: `Task ${taskId} has no Facebook draft to publish.`, status: 400 }
+  // 3. There must be a draft for this platform.
+  const draft = lifecycle.drafts?.[platform] as DraftResult | undefined
+  if (!draft) {
+    return { ok: false, error: `Task ${taskId} has no ${label} draft to publish.`, status: 400 }
   }
 
   // 4. Refuse double-publish.
-  const existingPublication = lifecycle.publications?.facebook
+  const existingPublication = lifecycle.publications?.[platform]
   if (existingPublication) {
     return {
       ok: false,
-      error: `Task ${taskId} has already been published to Facebook (post ${existingPublication.platform_post_id}).`,
+      error: `Task ${taskId} has already been published to ${label} (post ${existingPublication.platform_post_id}).`,
       status: 409,
     }
   }
 
   // 5. Build the ApprovedDraft from the draft + approval info.
   const approvedDraft: ApprovedDraft = {
-    ...fbDraft,
+    ...draft,
     approval_record_id: `APR-${taskId}`,
     approved_by: approval.decided_by,
     approved_at: approval.decided_at,
   }
 
-  // 6. Get a Coordinator-authorized handoff to FACEBOOK_AGENT.
+  // 6. Get a Coordinator-authorized handoff to the platform's agent.
   const auditLogger = new ConsoleAuditLogger()
   const coordinator = new SMACoordinator(supabase, auditLogger)
   const handoff = await coordinator.handoff(
     taskId,
     'COORDINATOR',
-    'FACEBOOK_AGENT',
+    PLATFORM_TO_ROLE[platform],
     approvedDraft,
-    'Human-authorized publish of approved Facebook draft',
+    `Human-authorized publish of approved ${label} draft`,
   )
 
   // 7. Publish (Immutable Stop 1: only the agent calls Meta).
   let result: PublishResult
   try {
-    result = await new FacebookAgent().publish(handoff, approvedDraft)
+    result = await getPlatformAgent(platform).publish(handoff, approvedDraft)
   } catch (publishErr) {
-    const message = publishErr instanceof Error ? publishErr.message : 'Facebook publish failed'
-    console.error(`publishApprovedFacebookTask(${taskId}) publish error:`, publishErr)
+    const message = publishErr instanceof Error ? publishErr.message : `${label} publish failed`
+    console.error(`publishApprovedTask(${taskId}, ${platform}) publish error:`, publishErr)
     return { ok: false, error: message, status: 500 }
   }
 
@@ -129,7 +141,7 @@ export async function publishApprovedFacebookTask(taskId: string): Promise<Publi
   const { error: insertError } = await supabase
     .from('sma_published_posts')
     .insert({
-      platform: 'facebook',
+      platform,
       external_post_id: result.platform_post_id,
       permalink: result.permalink,
       published_at: result.published_at,
@@ -138,15 +150,14 @@ export async function publishApprovedFacebookTask(taskId: string): Promise<Publi
     })
 
   if (insertError) {
-    // The post is live on Facebook; surface the recording failure but do not
-    // pretend it failed to publish.
-    console.error(`publishApprovedFacebookTask(${taskId}) record error:`, insertError)
+    // The post is live; surface the recording failure but do not pretend it failed.
+    console.error(`publishApprovedTask(${taskId}, ${platform}) record error:`, insertError)
   }
 
   // 9. Update the lifecycle_record's publications with the PublishResult.
   const updatedLifecycle: ContentLifecycle = {
     ...lifecycle,
-    publications: { ...(lifecycle.publications || {}), facebook: result },
+    publications: { ...(lifecycle.publications || {}), [platform]: result },
   }
   const { error: updateError } = await supabase
     .from('sma_content_lifecycles')
@@ -154,7 +165,7 @@ export async function publishApprovedFacebookTask(taskId: string): Promise<Publi
     .eq('task_id', taskId)
 
   if (updateError) {
-    console.error(`publishApprovedFacebookTask(${taskId}) lifecycle update error:`, updateError)
+    console.error(`publishApprovedTask(${taskId}, ${platform}) lifecycle update error:`, updateError)
   }
 
   return {

@@ -1,20 +1,20 @@
 import { NextResponse } from 'next/server'
 import { requireSmaAdmin } from '@/lib/sma/auth'
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
-import { FacebookAgent } from '@/lib/sma/agents/facebook-agent'
+import { getPlatformAgent } from '@/lib/sma/coordinator/registry'
+import { isPlatform } from '@/lib/sma/platforms'
 
 export const runtime = 'nodejs'
 
 /**
- * Human-triggered refresh of Facebook engagement for recent published posts.
+ * Human-triggered refresh of engagement for recent published posts, across all
+ * platforms. Loads the most recent ~25 posts from sma_published_posts, pulls
+ * live engagement for each via that platform's agent.fetchEngagement() (each in
+ * its own try/catch so one failure does not abort the batch), and upserts into
+ * sma_post_engagement keyed on external_post_id.
  *
- * Loads the most recent ~25 Facebook posts from sma_published_posts, pulls
- * live engagement for each via FacebookAgent.fetchEngagement() (each in its
- * own try/catch so one failure does not abort the batch), and upserts the
- * result into sma_post_engagement keyed on external_post_id.
- *
- * Returns { refreshed, errors } counts. With 0 published posts this is a
- * no-op that returns zeros.
+ * Returns { refreshed, errors } counts. Platforms whose agent doesn't implement
+ * fetchEngagement yet simply record a per-post error.
  */
 export async function POST() {
   const user = await requireSmaAdmin()
@@ -28,7 +28,6 @@ export async function POST() {
     const { data: posts, error: readError } = await supabase
       .from('sma_published_posts')
       .select('external_post_id, platform, published_at')
-      .eq('platform', 'facebook')
       .order('published_at', { ascending: false })
       .limit(25)
 
@@ -41,21 +40,25 @@ export async function POST() {
 
     let refreshed = 0
     const errors: { external_post_id: string; error: string }[] = []
-    const agent = new FacebookAgent()
 
     for (const post of posts ?? []) {
       const externalPostId = (post as { external_post_id?: string }).external_post_id
+      const platform = (post as { platform?: string }).platform ?? ''
       if (!externalPostId) continue
+      if (!isPlatform(platform)) {
+        errors.push({ external_post_id: externalPostId, error: `unknown platform: ${platform}` })
+        continue
+      }
 
       try {
-        const snapshot = await agent.fetchEngagement(externalPostId)
+        const snapshot = await getPlatformAgent(platform).fetchEngagement(externalPostId)
 
         const { error: upsertError } = await supabase
           .from('sma_post_engagement')
           .upsert(
             {
               external_post_id: externalPostId,
-              platform: 'facebook',
+              platform,
               reactions: snapshot.engagement ?? 0,
               comments: snapshot.comments_count ?? 0,
               shares: snapshot.shares_count ?? 0,
