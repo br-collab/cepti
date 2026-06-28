@@ -4,7 +4,7 @@ The SMA recommends posts, schedules them, and drafts replies to public comments 
 
 The north-star metric is WhatsApp quote requests attributable to social. Every wa.me link the SMA emits carries a ref-token so leads can be traced back to the post or comment they came from.
 
-> **This file documents Phase 1.** SMA v2 (Coordinator, guardrails, Facebook agent, scheduling, measurement, finops, video) shipped across PRs #5–#16. For the current plan-vs-reality map, see `docs/sma/architecture-v2.md` §0 — it is authoritative over the phase table below.
+> **This file documents Phase 1.** SMA v2 (Coordinator, guardrails, FB + IG agents, generalized publish pipeline, WhatsApp Advisor, scheduling, measurement, finops, video) shipped across PRs #5–#19. For the current plan-vs-reality map, see `docs/sma/architecture-v2.md` §0 — it is authoritative over the phase table below.
 
 ## Phase status (updated 2026-06-28)
 
@@ -12,9 +12,10 @@ The north-star metric is WhatsApp quote requests attributable to social. Every w
 | ----- | --------------------------------------------------------------------- | ------------- |
 | 1     | Foundation: schema, OAuth, encryption, dashboard skeleton, wa-link    | shipped       |
 | 2     | Recommendations engine (per-platform drafts, hashtags, posting times) | shipped       |
-| 3     | Scheduling & publishing                                               | FB shipped; **IG + Threads agents are stubs** |
-| 4     | Comment polling/webhooks + reply drafter + Inbox UI                   | FB shipped; IG/Threads draftReply stubbed |
-| 5     | Daily metrics snapshots + attribution dashboard                       | shipped (FB engagement; leads logged by hand) |
+| 3     | Scheduling & publishing                                               | FB + IG shipped (pipeline generalized); **Threads agent is a stub**; IG prod posting gated on App Review |
+| 4     | Comment polling/webhooks + reply drafter + Inbox UI                   | Inbox + classification shipped; **`draftReply()` reply-posting stubbed on all agents** |
+| 5     | Daily metrics snapshots + attribution dashboard                       | shipped (FB + IG engagement; WhatsApp leads logged by hand) |
+| —     | WhatsApp Advisor (inbound, reactive)                                  | built (PR #17); not live until Coexistence onboarding |
 
 ## Architecture (Phase 1)
 

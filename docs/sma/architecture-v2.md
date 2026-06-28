@@ -13,12 +13,14 @@
 
 ---
 
-## 0. Implementation Status (reconciled 2026-06-28)
+## 0. Implementation Status (reconciled 2026-06-28, updated post-merge)
 
-This document was written 2026-05-26 as a *proposal*. As of `main` @ `40f51f6`
-(2026-06-27), most of it is already built and merged via PRs #5–#16. This
-section is the single source of truth for what exists; the design sections
-below explain *why* but no longer reliably describe *what is*.
+This document was written 2026-05-26 as a *proposal*. As of `main` @ `1096afd`
+(2026-06-28), most of it is built and merged via PRs #5–#19 — including the
+WhatsApp Advisor (#17), the Instagram agent + generalized publish pipeline
+(#18), and the commercialization playbook (#18). This section is the single
+source of truth for what exists; the design sections below explain *why* but no
+longer reliably describe *what is*.
 
 ### What is DONE on `main`
 
@@ -28,11 +30,14 @@ below explain *why* but no longer reliably describe *what is*.
 | Five Immutable Stops | `lib/sma/coordinator/guardrails.ts` | DONE — each Stop is a throwing guard (`assertNotSelfPublishing`, `assertNotCoordinatorAuthorship`, `assertValidHandoff`, `assertAuditTableOnly` + `assertLifecycleNotDuplicated`, `assertApprovalContextComplete`). Stop 1 double-enforced in `FacebookAgent.publish()`. |
 | Audit log | `lib/sma/coordinator/audit.ts` | DONE |
 | Registry / dispatch map | `lib/sma/coordinator/registry.ts` | DONE |
-| Facebook agent | `lib/sma/agents/facebook-agent.ts` | DONE end-to-end — real Graph API `publish()`, `draftReply()`, `fetchEngagement()`. |
+| Facebook agent | `lib/sma/agents/facebook-agent.ts` | DONE end-to-end — real Graph API `publish()` + `fetchEngagement()` (`draftReply()` stubbed; comment-reply posting not built for any platform). |
+| Instagram agent | `lib/sma/agents/instagram-agent.ts` | DONE (PR #18) — `publish()` (container→publish, single + carousel, rejects text-only) + `fetchEngagement()` (likes/comments + reach). `draftReply()` stubbed, matching FB. Production posting still gated on Meta App Review for `instagram_content_publish`. |
+| WhatsApp Advisor | `lib/sma/whatsapp-advisor.ts`, `whatsapp-client.ts`, `whatsapp-store.ts`, `app/api/sma/whatsapp/webhook` | DONE (PR #17) — inbound, reactive, autonomous-within-guardrails; KB from `prompts/whatsapp/kb.md`. Not live until Coexistence onboarding (see §6 + `whatsapp-advisor.md`). |
 | Platform base | `lib/sma/agents/platform-base.ts` | DONE |
 | v2 schema | `supabase/migrations/0002_sma_v2_schema.sql` | DONE — creates `sma_coordinator_tasks`, `sma_handoffs`, `sma_paused_lifecycles`, `sma_content_lifecycles`, `sma_whatsapp_conversations`, `sma_whatsapp_messages` (+ indexes, RLS). |
 | Coordinator API routes | `app/api/sma/coordinator/{task,queue,ready,recommend,history,decide/[taskId],dismiss/[taskId]}` | DONE — note: approve/deny merged into `decide`. |
-| Publish + scheduling | `app/api/sma/publish/[taskId]`, `app/api/sma/schedule`, `app/api/sma/cron/{publish-scheduled,poll-videos,refresh-tokens}`, `lib/sma/publish-service.ts` | DONE (FB only — see stubs). |
+| Publish + scheduling | `app/api/sma/publish/[taskId]`, `app/api/sma/schedule`, `app/api/sma/cron/{publish-scheduled,poll-videos,refresh-tokens}`, `lib/sma/publish-service.ts` | DONE — generalized to all platforms (PR #18) via `publishApprovedTask(taskId, platform)`; FB + IG wired end-to-end, Threads pending its agent. `publishApprovedFacebookTask` kept as a back-compat wrapper. |
+| Commercialization docs | `docs/sma/PLAYBOOK.md`, README §7, `.env.example` | DONE (PR #18) — zero-to-deploy handoff playbook. |
 | OAuth | `app/api/sma/oauth/[platform]/{start,callback}` | DONE (parameterized, not per-platform folders). |
 | Dashboard tabs | `app/[lang]/admin/(gated)/sma/{page,connections,queue,scheduled,inbox,insights,recommendations,guide,settings}` | DONE — `queue` is the approval queue. |
 | Per-platform prompts | `prompts/{facebook,instagram,threads}/` | DONE (v1 root prompts `caption.md`/`reply.md`/`classify.md` not yet archived per §11). |
@@ -42,9 +47,8 @@ below explain *why* but no longer reliably describe *what is*.
 
 | Item | Where | State / impact |
 | --- | --- | --- |
-| **Instagram agent** | `lib/sma/agents/instagram-agent.ts` | **STUB** — `publish()`, `draftReply()`, `fetchEngagement()` all `throw NOT_IMPLEMENTED`. IG cannot post. This is the highest-value gap (IG = CEPTI's real audience, `@cepti_rd` ~1,300 followers). |
-| **Threads agent** | `lib/sma/agents/threads-agent.ts` | **STUB** — same three methods throw `NOT_IMPLEMENTED`. No separate `threads-client.ts` yet. |
-| **WhatsApp Advisor** | (none) | **MISSING — now GREENLIT to build, see §6.** No `whatsapp-advisor.ts`, no `whatsapp-client.ts`, no `/api/sma/webhooks/whatsapp`. The two `sma_whatsapp_*` tables exist in `0002` but no code reads/writes them. |
+| **Threads agent** | `lib/sma/agents/threads-agent.ts` | **STUB** — `publish()`/`draftReply()`/`fetchEngagement()` throw `NOT_IMPLEMENTED`. No `threads-client.ts` yet. The last platform stub; needs Tech Provider Verification for production. |
+| **Comment-reply posting** | `draftReply()` on all agents | **NOT BUILT** — `draftReply()` is stubbed across FB/IG/Threads; the Inbox can classify comments but reply *posting* isn't wired for any platform. |
 | Coordinator sub-modules | `handoff.ts`, `lineage.ts`, `escalation.ts`, `pause-resume.ts` | **N/A by design** — folded into `coordinator.ts` rather than split. Not a gap. |
 | `calendar` dashboard tab | — | MISSING (the `scheduled` list view stands in). |
 | dedicated `coordinator-status` tab | — | MISSING (status shown on dashboard/insights). |
@@ -52,12 +56,14 @@ below explain *why* but no longer reliably describe *what is*.
 ### Why the dashboard shows 0 published
 
 Confirmed in code (not speculation): publishing is **fully manual by design**
-(Immutable Stops 1 + 5 — nothing auto-posts) and `publishApprovedFacebookTask()`
-requires a COMPLETE+APPROVED lifecycle, a `facebook` draft, a live FB token, and
-a human/cron trigger. IG/Threads cannot publish at all (stubs). The dominant
-cause of "0 published" is the **2% approval rate (47 denied / 1 approved)** — a
-content-quality/approval-bar problem, not a code disable. Fixing publishing
-plumbing will not move the north-star metric until the approval funnel is fixed.
+(Immutable Stops 1 + 5 — nothing auto-posts) and `publishApprovedTask()` requires
+a COMPLETE+APPROVED lifecycle, a draft for the platform, a live token, and a
+human/cron trigger. FB and IG can now publish (Threads still a stub); IG also
+needs Meta App Review for `instagram_content_publish` before production. But the
+dominant cause of "0 published" is the **2% approval rate (47 denied / 1
+approved)** — a content-quality/approval-bar problem, not a code disable. Fixing
+publishing plumbing will not move the north-star metric until the approval funnel
+is fixed.
 
 ### Unmerged work
 
@@ -69,11 +75,15 @@ job, not a fast-forward. Do not assume it is safe to merge as-is.
 
 ### Recommended next build target
 
-Implement `instagram-agent.ts` (`publish()` container→publish flow,
-`draftReply()`, `fetchEngagement()`), mirroring the working `facebook-agent.ts`,
-then `threads-agent.ts`. All surrounding plumbing already exists, so completing
-the stubs is the least-surrounding-work, highest-leverage deliverable — and per
-CLAUDE.md it is the prerequisite to submit the Instagram App Review.
+Instagram is done (PR #18). The remaining priorities, in order:
+1. **Fix the 2% approval rate** — the actual funnel blocker; no posting volume
+   without it (content-quality / approval-bar work).
+2. **Submit Meta App Review** for `instagram_content_publish` (and FB/Threads
+   publish perms) — IG is now demonstrable, which unblocks the submission.
+3. **Threads agent** — last platform stub; mirror IG, but production needs Tech
+   Provider Verification.
+4. **Reuse the WhatsApp KB in the website chatbot** so both channels answer
+   identically (`app/api/chat/route.ts` still uses a shallow hardcoded paragraph).
 
 ---
 
