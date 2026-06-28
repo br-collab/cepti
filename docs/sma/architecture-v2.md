@@ -818,9 +818,9 @@ These should be resolved before v1 build starts:
    when an intent says "post about Ladriflex with photo from the new shipment."
 
 5. **WhatsApp number — confirm:** All inbound WhatsApp messages currently
-   go to +1 917 246 1283. Does the Advisor bot intercept ALL messages, or
-   only ones during certain hours? Or only when Francisco's team isn't
-   responding within X minutes?
+   go to the assigned number +1 (829) 449-1104. Does the Advisor bot intercept
+   ALL messages, or only ones during certain hours? Or only when Francisco's
+   team isn't responding within X minutes?
 
 6. **Failure modes Francisco cares about:** Beyond Five Immutable Stops,
    are there CEPTI-specific failure modes to encode as guardrails? E.g.,
