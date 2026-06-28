@@ -78,10 +78,13 @@ prompts/            — per-platform: facebook/, instagram/, threads/ (caption-v
 
 ## Current main branch state
 
-**Latest commit:** `40f51f6` (2026-06-27) — Merge PR #16 (calculator caret render fix)
-**Vercel production:** green, serving `40f51f6`
+**Latest commit:** `1096afd` (2026-06-28) — Merge PR #19 (docs reconciliation)
+**Vercel production:** green, serving latest
 
-Recent commit history (SMA v2 landed across PRs #5–#16):
+Recent commit history (SMA v2 + agents landed across PRs #5–#19):
+- `1096afd` Merge PR #19 — docs(sma): v2 reconciliation
+- `0fa8b8e` Merge PR #18 — feat(sma): Instagram publish + engagement; generalized publish pipeline; commercialization playbook
+- `c36d95f` Merge PR #17 — feat(sma): inbound WhatsApp Advisor + ficha-técnica KB
 - `40f51f6` Merge PR #16 — fix(calculator): render dropdown caret as real SVG
 - `7abcafe` Merge PR #14 — feat(sma): scheduling (queue + publish cron), retire FFmpeg video
 - `24dd938` Merge PR #13 — feat(sma): measurement loop (FB engagement + lead logging)
@@ -158,20 +161,22 @@ tile overlay with multiply blend mode) at the current opacity.
 
 ## SMA — Social Media Agent (v2 mostly shipped — see docs/sma/architecture-v2.md §0)
 
-**Status (2026-06-28):** v2 Coordinator + guardrails + Facebook agent + v2 schema
-shipped to `main` across PRs #5–#16. **Instagram and Threads agents are STUBS**
-(`publish/draftReply/fetchEngagement` throw `NOT_IMPLEMENTED`) — only Facebook
-can post. WhatsApp Advisor is **greenlit but unbuilt** (see below). Dashboard
-shows 0 published: publishing is manual by design; the real blocker is the 2%
-approval rate. Authoritative plan-vs-reality map: `docs/sma/architecture-v2.md` §0.
+**Status (2026-06-28):** v2 Coordinator + guardrails + v2 schema shipped, plus
+**Facebook and Instagram agents** (publish + engagement; `draftReply` stubbed on
+both) and a generalized publish pipeline (`publishApprovedTask(taskId, platform)`,
+PR #18). **WhatsApp Advisor is built** (PR #17) — not live until Coexistence
+onboarding. **Only the Threads agent is still a stub.** IG production posting is
+gated on Meta App Review for `instagram_content_publish`. Dashboard shows 0
+published: publishing is manual by design; the real blocker is the 2% approval
+rate. Authoritative plan-vs-reality map: `docs/sma/architecture-v2.md` §0.
 
 **Admin dashboard:** `/admin/sma` (Supabase Auth gated, `sma_admins` table)
 **Supabase project:** `cepti-sma` (`phjvziubrgeqjguutfxp.supabase.co`)
 **Schema:** migrations 0001..0007. `0002` adds v2 coordinator/lifecycle tables
 (`sma_coordinator_tasks`, `sma_handoffs`, `sma_paused_lifecycles`,
-`sma_content_lifecycles`) + two unused `sma_whatsapp_*` tables. RLS on all.
+`sma_content_lifecycles`) + `sma_whatsapp_*` tables (now used by the WhatsApp Advisor). RLS on all.
 **Coordinator:** `lib/sma/coordinator/*` — Light scope; Five Immutable Stops
-enforced in `guardrails.ts`. Agents: `lib/sma/agents/{facebook(done),instagram(stub),threads(stub)}-agent.ts`.
+enforced in `guardrails.ts`. Agents: `lib/sma/agents/{facebook(done),instagram(done),threads(stub)}-agent.ts`.
 **OAuth:** wired for IG, FB, Threads. Connected (per dashboard): IG + FB Page; Threads not connected.
 **Cron:** token refresh, publish-scheduled, poll-videos via Vercel Cron
 **Attribution:** every `wa.me` link the SMA generates uses `lib/sma/wa-link.ts` with a `[ref:platform-post-{id}]` token
@@ -198,15 +203,18 @@ stubs gets the permission rejected and consumes a review cycle.
 No social-platform DM handling (IG/FB/Threads DMs stay out of scope). No
 autonomous posting — every post and reply is human-approved.
 
-**WhatsApp Advisor — GREENLIT 2026-06-28 (reverses prior stance).** Bill has
-decided to build an inbound WhatsApp Advisor bot on `+1 (829) 449-1104`. This
-overturns the previous rule ("inbound WhatsApp handled directly by humans; do
-not duplicate the pipeline"). **Until it ships, humans still handle inbound
-WhatsApp by hand.** Before building, the blocking decisions in
-`docs/sma/architecture-v2.md` §6 (number sharing, Cloud API/WABA cutover,
-template approval, handoff target, north-star conflict) must be resolved with
-Francisco. Hard rule #8 (no autonomous posting of unapproved content) still
-applies; the Advisor's reply policy must be defined within that constraint.
+**WhatsApp Advisor — BUILT 2026-06-28 (PR #17), reverses prior stance.** An
+inbound WhatsApp Advisor bot on `+1 (829) 449-1104` is implemented
+(`lib/sma/whatsapp-advisor.ts`, `whatsapp-client.ts`, `whatsapp-store.ts`,
+`app/api/sma/whatsapp/webhook`, `prompts/whatsapp/{advisor,kb}.md`,
+`/admin/sma/whatsapp`). It is autonomous-within-guardrails (answers product
+questions; hard handoff to a human for price/quote/complaint/uncertainty). This
+overturns the previous "inbound WhatsApp handled directly by humans" rule —
+**but it is NOT live until Coexistence onboarding is done** (the §6 blocking
+decisions with Francisco: number sharing, Cloud API/WABA cutover, template
+approval, handoff target). Until then, humans still handle inbound by hand. Runbook:
+`docs/sma/whatsapp-advisor.md`. Hard rule #8 still applies (no autonomous posting
+of unapproved *social* content; the Advisor's 1:1 reply policy is fenced by guardrails).
 
 ---
 
@@ -348,15 +356,19 @@ Priority order:
 | # | Item | Effort | Blocker |
 |---|------|--------|---------|
 | 1 | **Approval-rate problem** (1 approved / 47 denied = 2%; 0 published). Diagnose recommendation quality / approval bar — this, not plumbing, is why nothing ships | Medium | None (data + prompts in repo) |
-| 2 | **Implement Instagram agent** (`instagram-agent.ts` publish/draftReply/fetchEngagement) — unblocks IG (real audience) + IG App Review | Medium | None (FB agent is the template) |
-| 3 | **Implement Threads agent** (`threads-agent.ts`; needs Threads base URL + Tech Provider Verification for prod) | Medium | Tech Provider Verification (~1 wk) for prod publish |
-| 4 | App Review submissions (Threads 8 perms; IG + FB use cases TBD) | High per perm | Each permission blocked on its feature being demonstrable in `/admin/sma` |
-| 5 | **WhatsApp Advisor** (greenlit 2026-06-28) — resolve §6 blocking decisions with Francisco, then build | High | Francisco decisions + WABA/Cloud API cutover |
-| 6 | Reconcile/merge `feat/sma-v2-scaffold` (diverged history) or cherry-pick its E2E tests | Medium-High | Conflict resolution |
-| 7 | SMA issue #2 typecheck fix | Medium (26 errors) | None |
-| 8 | Advisor chatbot KB integration | High | None (PDFs in repo) |
-| 9 | Advisor chat-history logging | Medium-High | Scope TBD with Francisco |
+| 2 | **Meta App Review** — submit `instagram_content_publish` (IG now demonstrable), plus FB/Threads publish perms | High per perm | Each perm needs its feature demonstrable in `/admin/sma` |
+| 3 | **WhatsApp Advisor onboarding** — Coexistence + env + webhook; resolve §6 decisions with Francisco; verify the echo payload shape on first live traffic | Medium | Francisco decisions + WABA/Cloud API cutover |
+| 4 | **Implement Threads agent** (`threads-agent.ts`; last platform stub; mirror IG) | Medium | Tech Provider Verification (~1 wk) for prod publish |
+| 5 | **Comment-reply posting** — `draftReply()` is stubbed on all agents; wire the Inbox reply path | Medium | None |
+| 6 | Reuse the WhatsApp KB in the website chatbot (`app/api/chat/route.ts`) so web + WhatsApp answer identically | Low | None |
+| 7 | Reconcile/merge `feat/sma-v2-scaffold` (diverged history) or cherry-pick its E2E tests | Medium-High | Conflict resolution |
+| 8 | SMA issue #2 typecheck fix | Medium | None |
+| 9 | Confirm the 4 ficha-técnica data flags with Francisco; correct `prompts/whatsapp/kb.md` | Low | Francisco input |
 | 10 | CalculatorMini item 6 checkmark | Low | Awaiting Francisco clarification |
+
+**Done since last update:** Instagram agent (publish + engagement) + generalized
+publish pipeline (PR #18); WhatsApp Advisor + ficha KB (PR #17); commercialization
+playbook + README + `.env` (PR #18); v2 docs reconciliation (PR #19).
 
 ---
 
