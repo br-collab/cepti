@@ -38,6 +38,23 @@ const SURFACE_LABEL: Record<Locale, string> = {
   en: 'Surface type',
 }
 
+// Caret rendered as a real element (positioned over the select) instead of a
+// Tailwind background-image arbitrary value, which doesn't survive the build.
+function SelectChevron() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cepti-brown-dark"
+    >
+      <path d="M4 6l4 4 4-4" />
+    </svg>
+  )
+}
+
 export default function Calculadora({
   whatsappNumber,
   lang,
@@ -111,12 +128,13 @@ export default function Calculadora({
   const inputBase =
     'w-full rounded-lg border border-stone-200 bg-white px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-cepti-brown focus:outline-none focus:ring-2 focus:ring-cepti-brown/20'
 
-  // Shared caret styling so every dropdown (product, Manos, Tipo de superficie)
-  // shows the same cepti-brown chevron on the right instead of mixing the
-  // custom caret with the browser's native one. (Francisco QA, 2026-06-27.)
-  const selectBase =
-    inputBase +
-    " appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%237a6350%22 stroke-width=%222%22><path d=%22M4 6l4 4 4-4%22/></svg>')] bg-no-repeat bg-[right_12px_center] pr-10"
+  // Shared select styling: hide the native caret and reserve room on the right
+  // for our own <SelectChevron/>, so all three dropdowns (product, Manos, Tipo
+  // de superficie) show the identical cepti-brown caret. The previous
+  // bg-[url(<inline svg>)] approach rendered no caret at all — Tailwind drops an
+  // arbitrary value that contains spaces, and the inline SVG is full of them.
+  // (Francisco QA, 2026-06-27.)
+  const selectBase = inputBase + ' appearance-none pr-10'
 
   return (
     <div className="bg-cepti-cream rounded-2xl shadow-sm border border-stone-200 p-5 sm:p-8 space-y-6">
@@ -124,17 +142,20 @@ export default function Calculadora({
         <span className="block text-sm font-semibold text-cepti-brown-dark mb-2">
           {dict.selectProduct}
         </span>
-        <select
-          value={productId}
-          onChange={(e) => setProductId(e.target.value)}
-          className={selectBase}
-        >
-          {CALCULATOR_PRODUCTS.map((p) => (
-            <option key={p.productId} value={p.productId}>
-              {p.name[lang]}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={productId}
+            onChange={(e) => setProductId(e.target.value)}
+            className={selectBase}
+          >
+            {CALCULATOR_PRODUCTS.map((p) => (
+              <option key={p.productId} value={p.productId}>
+                {p.name[lang]}
+              </option>
+            ))}
+          </select>
+          <SelectChevron />
+        </div>
       </label>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -181,17 +202,20 @@ export default function Calculadora({
               <span className="block text-sm font-semibold text-cepti-brown-dark mb-2">
                 {COATS_LABEL[lang]}
               </span>
-              <select
-                value={effectiveCoats}
-                onChange={(e) => setCoats(Number(e.target.value) as 1 | 2)}
-                className={selectBase}
-              >
-                {availableCoats.map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={effectiveCoats}
+                  onChange={(e) => setCoats(Number(e.target.value) as 1 | 2)}
+                  className={selectBase}
+                >
+                  {availableCoats.map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+                <SelectChevron />
+              </div>
             </label>
           )}
           {showSurface && (
@@ -199,21 +223,24 @@ export default function Calculadora({
               <span className="block text-sm font-semibold text-cepti-brown-dark mb-2">
                 {SURFACE_LABEL[lang]}
               </span>
-              <select
-                value={effectiveSurface}
-                onChange={(e) =>
-                  setSurface(e.target.value as 'smooth' | 'rough')
-                }
-                className={selectBase}
-              >
-                {availableSurfaces
-                  .filter((s): s is 'smooth' | 'rough' => s !== 'na')
-                  .map((s) => (
-                    <option key={s} value={s}>
-                      {SURFACE_LABELS[lang][s]}
-                    </option>
-                  ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={effectiveSurface}
+                  onChange={(e) =>
+                    setSurface(e.target.value as 'smooth' | 'rough')
+                  }
+                  className={selectBase}
+                >
+                  {availableSurfaces
+                    .filter((s): s is 'smooth' | 'rough' => s !== 'na')
+                    .map((s) => (
+                      <option key={s} value={s}>
+                        {SURFACE_LABELS[lang][s]}
+                      </option>
+                    ))}
+                </select>
+                <SelectChevron />
+              </div>
             </label>
           )}
         </div>
