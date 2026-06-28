@@ -127,9 +127,9 @@ masking, PDF export (full texture + color composite).
 **Product switcher:** 4 products only — Ladriflex, Pinturas, Papelex,
 Granito Líquido. (Sand Art and Primer dropped in commit `53a27a5`.)
 
-**Opacity:** default 92%, slider 80-100%. The 8% shadow retention makes
-the finish look physically applied rather than pasted on. Francisco asked
-for 100% on 2026-05-15; Bill kept 92% for this reason.
+**Opacity:** default 100%, slider 80-100%. (Was 92% to retain an 8% shadow
+for a "physically applied" look; Francisco requested full opacity and Bill
+set the default to 100% on 2026-06-27.)
 
 **PDF export:** renders the full canvas composite (color fill + texture
 tile overlay with multiply blend mode) at the current opacity.
