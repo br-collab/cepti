@@ -1,18 +1,20 @@
 # Social Media Agent (SMA)
 
-The SMA recommends posts, schedules them, and drafts replies to public comments across CEPTI's Instagram, Facebook Page, and Threads accounts. A human approves every published post and every reply. Direct messages are out of scope — inbound DMs are handled directly by humans on WhatsApp Business.
+The SMA recommends posts, schedules them, and drafts replies to public comments across CEPTI's Instagram, Facebook Page, and Threads accounts. A human approves every published post and every reply. Social-platform DMs (IG/FB/Threads) are out of scope. Inbound WhatsApp is handled directly by humans today; an inbound **WhatsApp Advisor** bot is greenlit but not yet built (see `docs/sma/architecture-v2.md` §6).
 
 The north-star metric is WhatsApp quote requests attributable to social. Every wa.me link the SMA emits carries a ref-token so leads can be traced back to the post or comment they came from.
 
-## Phase status
+> **This file documents Phase 1.** SMA v2 (Coordinator, guardrails, Facebook agent, scheduling, measurement, finops, video) shipped across PRs #5–#16. For the current plan-vs-reality map, see `docs/sma/architecture-v2.md` §0 — it is authoritative over the phase table below.
 
-| Phase | Scope                                                                | Status        |
-| ----- | -------------------------------------------------------------------- | ------------- |
-| 1     | Foundation: schema, OAuth, encryption, dashboard skeleton, wa-link   | shipped       |
-| 2     | Recommendations engine (per-platform drafts, hashtags, posting times) | not started   |
-| 3     | Scheduling & publishing across IG, FB, Threads                       | not started   |
-| 4     | Comment polling/webhooks + reply drafter + Inbox UI                  | not started   |
-| 5     | Daily metrics snapshots + attribution dashboard                      | not started   |
+## Phase status (updated 2026-06-28)
+
+| Phase | Scope                                                                 | Status        |
+| ----- | --------------------------------------------------------------------- | ------------- |
+| 1     | Foundation: schema, OAuth, encryption, dashboard skeleton, wa-link    | shipped       |
+| 2     | Recommendations engine (per-platform drafts, hashtags, posting times) | shipped       |
+| 3     | Scheduling & publishing                                               | FB shipped; **IG + Threads agents are stubs** |
+| 4     | Comment polling/webhooks + reply drafter + Inbox UI                   | FB shipped; IG/Threads draftReply stubbed |
+| 5     | Daily metrics snapshots + attribution dashboard                       | shipped (FB engagement; leads logged by hand) |
 
 ## Architecture (Phase 1)
 
@@ -127,6 +129,6 @@ Each App Review screencast must demonstrate the end-to-end user flow that needs 
 
 - **Tokens silently expire** if the cron stops running for longer than the longest provider TTL (~60 days). The dashboard will show "Reconnect required" once a row is revoked, but the cron is the first line of defense — alert on `failed` results in its response.
 - **Webhook delivery is best-effort.** Phase 4 will also poll every 15 minutes for comments as a safety net.
-- **No DM handling.** Inbound is direct — visitors click a `wa.me` link and humans handle the conversation on WhatsApp Business. No ManyChat, no Zapier, no Sheets auto-logging. The SMA must not subscribe to DM webhooks.
+- **No social-platform DM handling.** The SMA must not subscribe to IG/FB/Threads DM webhooks. Inbound WhatsApp is currently direct — visitors click a `wa.me` link and humans handle the conversation on WhatsApp Business (no ManyChat, no Zapier, no Sheets auto-logging). NOTE: an inbound WhatsApp Advisor bot is greenlit (2026-06-28, `docs/sma/architecture-v2.md` §6); when built it will own the WhatsApp Cloud API webhook for `+1 (829) 449-1104`.
 - **`SMA_TOKEN_ENCRYPTION_KEY` rotation** is destructive: existing ciphertexts cannot be decrypted with the new key. Plan a re-OAuth window when rotating.
 - **Phase 1 does not yet refresh the Supabase auth cookie** in Server Components. If the admin session expires mid-page, they'll be redirected to login on the next request — acceptable for a single-admin tool; revisit in Phase 2 if it becomes noisy.
