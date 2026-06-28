@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export const runtime = 'nodejs'
 
 type ChatMessage = { role: 'user' | 'assistant'; content: string }
+
+/**
+ * Shared product knowledge base — the same ficha-técnica content the WhatsApp
+ * Advisor uses (prompts/whatsapp/kb.md), so the website chatbot and WhatsApp
+ * answer product questions at the same depth. Loaded once and cached in module
+ * scope. If the file is missing, the chatbot falls back to the product summary
+ * in SYSTEM_PROMPT rather than failing.
+ */
+let cachedKb: string | null = null
+function loadProductKb(): string {
+  if (cachedKb !== null) return cachedKb
+  try {
+    cachedKb = fs.readFileSync(path.join(process.cwd(), 'prompts/whatsapp/kb.md'), 'utf-8')
+  } catch (e) {
+    console.error('chat: product KB not found, continuing without it:', e)
+    cachedKb = ''
+  }
+  return cachedKb
+}
 
 const SYSTEM_PROMPT = `You are CEPTI's product advisor — a knowledgeable friend, not a salesperson. You speak both Spanish and English fluently. Always respond in the language indicated.
 
@@ -58,6 +79,24 @@ export async function POST(req: NextRequest) {
       ? 'User language preference: English. Respond only in English.'
       : 'User language preference: Spanish. Respond only in Spanish.'
 
+  // Detailed product knowledge (shared with the WhatsApp Advisor). It's in
+  // Spanish; answer in the requested language regardless. The website's own
+  // rules above stay authoritative — in particular, price/quote/uncertainty is
+  // a [SHOW_WA] moment here (the KB's "handoff" wording is the WhatsApp equivalent).
+  const productKb = loadProductKb()
+  const kbBlock = productKb
+    ? `REFERENCIA — fichas técnicas de producto (usa estos datos para responder especificaciones; si piden precio o cotización, NO lo des, usa [SHOW_WA]):\n\n${productKb}`
+    : null
+
+  type SystemBlock = { type: 'text'; text: string; cache_control?: { type: 'ephemeral' } }
+  const system: SystemBlock[] = [
+    { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+  ]
+  if (kbBlock) {
+    system.push({ type: 'text', text: kbBlock, cache_control: { type: 'ephemeral' } })
+  }
+  system.push({ type: 'text', text: langLine })
+
   const apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -68,17 +107,7 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: [
-        {
-          type: 'text',
-          text: SYSTEM_PROMPT,
-          cache_control: { type: 'ephemeral' },
-        },
-        {
-          type: 'text',
-          text: langLine,
-        },
-      ],
+      system,
       messages,
     }),
   })
