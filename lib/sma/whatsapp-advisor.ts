@@ -43,10 +43,22 @@ const UNSUPPORTED_MEDIA_ES =
 let cachedPrompt: string | null = null
 function loadSystemPrompt(): string {
   if (cachedPrompt) return cachedPrompt
-  cachedPrompt = fs.readFileSync(
+  const base = fs.readFileSync(
     path.join(process.cwd(), 'prompts/whatsapp/advisor.md'),
     'utf8',
   )
+  // Append the product knowledge base (extracted from CEPTI's fichas técnicas).
+  // Small enough (~10k tokens) to live in the prompt; cached by cache_control,
+  // so it is not re-billed on every turn. No RAG needed at this corpus size.
+  let kb = ''
+  try {
+    kb = fs.readFileSync(path.join(process.cwd(), 'prompts/whatsapp/kb.md'), 'utf8')
+  } catch (e) {
+    console.error('whatsapp-advisor: kb.md not found, continuing without it:', e)
+  }
+  cachedPrompt = kb
+    ? `${base}\n\n---\n\n# BASE DE CONOCIMIENTO (fichas técnicas — usa estos datos)\n\n${kb}`
+    : base
   return cachedPrompt
 }
 

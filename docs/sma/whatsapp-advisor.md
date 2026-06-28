@@ -6,8 +6,12 @@ hard guardrails** and hands off to a human for anything sensitive. It is a
 separate concern from the SMA Coordinator (which posts to IG/FB/Threads) — it
 shares only the LLM client, FinOps logging, and the admin shell.
 
-Greenlit 2026-06-28 (see `architecture-v2.md` §6). v1 ships here; richer
-knowledge (RAG over the `chatbot-kb/` PDFs) is deferred to v1.5.
+Greenlit 2026-06-28 (see `architecture-v2.md` §6). Product knowledge comes from
+`prompts/whatsapp/kb.md` — a cleaned, structured KB extracted from CEPTI's
+fichas técnicas (Ladriflex, Papelex, Pintura de Piedra) + the Papelex install
+guide. At ~10k tokens the whole corpus is loaded into the cached system prompt;
+no vector DB / RAG is used because the corpus fits in context. Regenerate
+`kb.md` if the source fichas in `docs/sma/inputs/chatbot-kb/` change.
 
 ## What it does (and refuses to do)
 
@@ -107,6 +111,12 @@ Reused: `ANTHROPIC_API_KEY`, `SUPABASE_*`, `META_APP_SECRET` (signature),
   verified, the safety net is the manual "Take over" button.
 - **Text only.** Media messages are acknowledged and handed off.
 - **No proactive messaging.** Templates / outside-window follow-ups are v1.5.
-- **No RAG.** Product knowledge is the prompt in `prompts/whatsapp/advisor.md`
-  (same depth as the website Advisor). Richer KB is v1.5.
+- **KB is prompt-stuffed, not retrieved.** All fichas live in `prompts/whatsapp/kb.md`
+  and load into the cached system prompt. If the KB ever outgrows the context
+  budget (many more products), switch to retrieval then — not before.
+- **Source data has a few inconsistencies** flagged for Francisco to confirm
+  (Papelex sheet thickness unit; Papelex rest time 4h vs 2h; "vida útil 25 años"
+  vs the website's "10 years"; a contradictory "inflamable" line in the Ladriflex
+  ficha that conflicts with its own fire-resistance spec — KB encodes
+  fire-resistant). Correct `kb.md` once confirmed.
 - **Per-user single conversation.** `conversation_id = wa_id`; no session split.
