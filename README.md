@@ -5,7 +5,7 @@ The CEPTI website — a marketing + product catalog site for CEPTI, a decorative
 This README is meant to be picked up by anyone — an analyst with no coding background, a project manager, or a developer dropping in for the first time. It walks through what got built, why decisions were made, how to do the most common updates yourself, and (at the end) a technical reference for anyone editing code.
 
 > **Quick reader's guide:**
-> If you don't write code, read sections **1 → 5** and stop. Section **6** is the technical reference and you can safely skip it.
+> If you don't write code, read sections **1 → 5** and stop. Section **6** is the technical reference and you can safely skip it. Section **7** introduces the admin system (the Social Media Agent + WhatsApp Advisor) — read it if you're operating, evaluating, or commercializing that side of the product.
 
 ---
 
@@ -369,3 +369,50 @@ Typical reduction: 100 MB 4K HEVC → 3 MB 720p H.264.
 | Calculator | `components/calculator/Calculadora.tsx` + `CalculatorMini.tsx` |
 | Surface analyzer (canvas-based before/after, per-product texture overlay with `multiply` blend) | `components/analyzer/Analyzer.tsx` |
 | Brand colors + global CSS | `app/globals.css` |
+
+---
+
+## 7. The admin system — Social Media Agent (SMA) + WhatsApp Advisor
+
+Everything above is the **public website**. Behind a login at `/admin/sma` there
+is a second, larger system: the **Social Media Agent**. If you're operating,
+evaluating, or commercializing CEPTI, this is the part that matters.
+
+### In plain English
+
+The SMA helps CEPTI run its social media and customer chat, all aimed at one
+goal: getting people to start a **WhatsApp quote conversation**. It does four things:
+
+- **Recommends and schedules posts** for Facebook, Instagram, and Threads, and
+  **drafts replies** to public comments. A human approves every post and every
+  reply — nothing is published automatically.
+- **Answers WhatsApp messages** automatically (the *WhatsApp Advisor*), within
+  strict limits: it answers product questions but never quotes prices and hands
+  off to a human for quotes, complaints, or anything it's unsure about.
+- **Shows it all in a dashboard** — an approval queue, a calendar of scheduled
+  posts, a comment inbox, WhatsApp conversations, performance insights, and an
+  AI-spend tracker.
+- **Measures results** — engagement on posts and WhatsApp leads logged against
+  the posts that drove them.
+
+### Honest status (don't skip this)
+
+The plumbing is built, but it is **not fully live**. Today only **Facebook** can
+actually post; the Instagram and Threads agents are unfinished stubs, and even
+Facebook can't post in production until Meta grants App Review for publishing.
+The WhatsApp Advisor's code is done but needs Meta onboarding before it runs.
+The dashboard showing "0 published" is expected, not a bug. The full
+plan-vs-reality breakdown is in `docs/sma/architecture-v2.md` §0.
+
+### Where to read more
+
+| Document | What it covers |
+| --- | --- |
+| **`docs/sma/PLAYBOOK.md`** | **Start here.** Zero-to-deploy: accounts, every env var, migrations, crons, webhooks, OAuth, WhatsApp onboarding, App Review status, what works vs. what's stubbed, costs, failure modes, roadmap. |
+| `docs/sma/architecture-v2.md` | Architecture + §0 implementation status (built vs. stubbed). |
+| `docs/sma/whatsapp-advisor.md` | WhatsApp Advisor design, guardrails, and setup runbook. |
+| `docs/sma.md` | Phase 1 detail (schema, OAuth, Meta App config). |
+| `CLAUDE.md` | Repo conventions, hard rules, and change governance. |
+
+If you're picking this up cold to deploy or hand off, read `docs/sma/PLAYBOOK.md`
+front to back — it's written to be self-contained.

@@ -2,6 +2,14 @@
 
 import { useState } from 'react'
 
+// Platforms the dashboard can publish/schedule from today. Threads is
+// draft/copy-only until its agent is implemented.
+const PUBLISHABLE = new Set(['facebook', 'instagram'])
+
+function platformLabel(platform: string): string {
+  return platform.charAt(0).toUpperCase() + platform.slice(1)
+}
+
 export default function ReadyToPostSection({
   items,
 }: {
@@ -9,77 +17,79 @@ export default function ReadyToPostSection({
   items: Array<{ task_id: string; lifecycle_record: any; lineage_hash: string; assembled_at: string }>
 }) {
   const [copied, setCopied] = useState<string | null>(null)
+  // All maps below are keyed by `${taskId}-${platform}` so a task with drafts
+  // on multiple platforms tracks each independently.
   const [publishing, setPublishing] = useState<string | null>(null)
-  // taskId -> { permalink } on success, or { error } on failure
   const [publishResult, setPublishResult] = useState<
     Record<string, { permalink?: string; error?: string }>
   >({})
-  // taskId -> chosen datetime-local value (e.g. "2026-07-01T14:30")
   const [scheduleInput, setScheduleInput] = useState<Record<string, string>>({})
   const [scheduling, setScheduling] = useState<string | null>(null)
-  // taskId -> { scheduled: true } on success, or { error } on failure
   const [scheduleResult, setScheduleResult] = useState<
     Record<string, { scheduled?: boolean; error?: string }>
   >({})
 
-  const handleCopy = async (taskId: string, caption: string) => {
+  const handleCopy = async (key: string, caption: string) => {
     try {
       await navigator.clipboard.writeText(caption)
-      setCopied(taskId)
+      setCopied(key)
       setTimeout(() => setCopied(null), 2000)
     } catch {
       alert('Failed to copy to clipboard')
     }
   }
 
-  const handlePublish = async (taskId: string) => {
-    setPublishing(taskId)
+  const handlePublish = async (taskId: string, platform: string) => {
+    const key = `${taskId}-${platform}`
+    setPublishing(key)
     setPublishResult((prev) => {
       const next = { ...prev }
-      delete next[taskId]
+      delete next[key]
       return next
     })
     try {
       const res = await fetch(`/api/sma/publish/${taskId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform }),
       })
       const data = await res.json()
       if (!res.ok || !data.ok) {
         throw new Error(data.error || 'Publish failed')
       }
-      setPublishResult((prev) => ({ ...prev, [taskId]: { permalink: data.permalink } }))
+      setPublishResult((prev) => ({ ...prev, [key]: { permalink: data.permalink } }))
     } catch (error) {
       setPublishResult((prev) => ({
         ...prev,
-        [taskId]: { error: error instanceof Error ? error.message : 'Publish failed' },
+        [key]: { error: error instanceof Error ? error.message : 'Publish failed' },
       }))
     } finally {
       setPublishing(null)
     }
   }
 
-  const handleSchedule = async (taskId: string) => {
-    const local = scheduleInput[taskId]
+  const handleSchedule = async (taskId: string, platform: string) => {
+    const key = `${taskId}-${platform}`
+    const local = scheduleInput[key]
     if (!local) {
-      setScheduleResult((prev) => ({ ...prev, [taskId]: { error: 'Pick a date and time first' } }))
+      setScheduleResult((prev) => ({ ...prev, [key]: { error: 'Pick a date and time first' } }))
       return
     }
     // datetime-local has no timezone; interpret it in the admin's local zone.
     const date = new Date(local)
     if (Number.isNaN(date.getTime())) {
-      setScheduleResult((prev) => ({ ...prev, [taskId]: { error: 'Invalid date/time' } }))
+      setScheduleResult((prev) => ({ ...prev, [key]: { error: 'Invalid date/time' } }))
       return
     }
     if (date.getTime() < Date.now()) {
-      setScheduleResult((prev) => ({ ...prev, [taskId]: { error: 'Time must be in the future' } }))
+      setScheduleResult((prev) => ({ ...prev, [key]: { error: 'Time must be in the future' } }))
       return
     }
 
-    setScheduling(taskId)
+    setScheduling(key)
     setScheduleResult((prev) => {
       const next = { ...prev }
-      delete next[taskId]
+      delete next[key]
       return next
     })
     try {
@@ -89,18 +99,18 @@ export default function ReadyToPostSection({
         body: JSON.stringify({
           taskId,
           scheduledFor: date.toISOString(),
-          platform: 'facebook',
+          platform,
         }),
       })
       const data = await res.json()
       if (!res.ok) {
         throw new Error(data.error || 'Schedule failed')
       }
-      setScheduleResult((prev) => ({ ...prev, [taskId]: { scheduled: true } }))
+      setScheduleResult((prev) => ({ ...prev, [key]: { scheduled: true } }))
     } catch (error) {
       setScheduleResult((prev) => ({
         ...prev,
-        [taskId]: { error: error instanceof Error ? error.message : 'Schedule failed' },
+        [key]: { error: error instanceof Error ? error.message : 'Schedule failed' },
       }))
     } finally {
       setScheduling(null)
@@ -134,9 +144,10 @@ export default function ReadyToPostSection({
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const draft = (lifecycle.drafts as any)[platform]
               const caption = draft?.body || 'No caption'
-              const copyKey = `${item.task_id}-${platform}`
+              const key = `${item.task_id}-${platform}`
+              const canPublish = PUBLISHABLE.has(platform)
               const alreadyPublished = publications[platform]
-              const result = publishResult[item.task_id]
+              const result = publishResult[key]
               return (
                 <div key={platform} className="space-y-2">
                   <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide">{platform}</p>
@@ -145,13 +156,13 @@ export default function ReadyToPostSection({
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <button
-                      onClick={() => handleCopy(copyKey, caption)}
+                      onClick={() => handleCopy(key, caption)}
                       className="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
                     >
-                      {copied === copyKey ? '✓ Copied' : 'Copy'}
+                      {copied === key ? '✓ Copied' : 'Copy'}
                     </button>
 
-                    {platform === 'facebook' && (
+                    {canPublish && (
                       alreadyPublished?.permalink ? (
                         <a
                           href={alreadyPublished.permalink}
@@ -172,45 +183,45 @@ export default function ReadyToPostSection({
                         </a>
                       ) : (
                         <button
-                          onClick={() => handlePublish(item.task_id)}
-                          disabled={publishing === item.task_id}
+                          onClick={() => handlePublish(item.task_id, platform)}
+                          disabled={publishing === key}
                           className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                         >
-                          {publishing === item.task_id ? 'Publishing…' : 'Publish to Facebook'}
+                          {publishing === key ? 'Publishing…' : `Publish to ${platformLabel(platform)}`}
                         </button>
                       )
                     )}
                   </div>
 
-                  {platform === 'facebook' && !alreadyPublished && !result?.permalink && (
+                  {canPublish && !alreadyPublished && !result?.permalink && (
                     <div className="flex flex-wrap items-center gap-2">
                       <input
                         type="datetime-local"
-                        value={scheduleInput[item.task_id] || ''}
+                        value={scheduleInput[key] || ''}
                         onChange={(e) =>
-                          setScheduleInput((prev) => ({ ...prev, [item.task_id]: e.target.value }))
+                          setScheduleInput((prev) => ({ ...prev, [key]: e.target.value }))
                         }
                         className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
                       />
                       <button
-                        onClick={() => handleSchedule(item.task_id)}
-                        disabled={scheduling === item.task_id || scheduleResult[item.task_id]?.scheduled}
+                        onClick={() => handleSchedule(item.task_id, platform)}
+                        disabled={scheduling === key || scheduleResult[key]?.scheduled}
                         className="inline-flex items-center justify-center rounded-md border border-blue-600 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50 disabled:opacity-50"
                       >
-                        {scheduling === item.task_id
+                        {scheduling === key
                           ? 'Scheduling…'
-                          : scheduleResult[item.task_id]?.scheduled
+                          : scheduleResult[key]?.scheduled
                             ? 'Scheduled ✓'
                             : 'Schedule'}
                       </button>
                     </div>
                   )}
 
-                  {platform === 'facebook' && publishResult[item.task_id]?.error && (
-                    <p className="text-xs text-red-600">{publishResult[item.task_id].error}</p>
+                  {canPublish && result?.error && (
+                    <p className="text-xs text-red-600">{result.error}</p>
                   )}
-                  {platform === 'facebook' && scheduleResult[item.task_id]?.error && (
-                    <p className="text-xs text-red-600">{scheduleResult[item.task_id].error}</p>
+                  {canPublish && scheduleResult[key]?.error && (
+                    <p className="text-xs text-red-600">{scheduleResult[key].error}</p>
                   )}
                 </div>
               )

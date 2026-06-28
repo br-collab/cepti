@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
-import { publishApprovedFacebookTask } from '@/lib/sma/publish-service'
+import { publishApprovedTask } from '@/lib/sma/publish-service'
+import { isPlatform } from '@/lib/sma/platforms'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -47,7 +48,8 @@ export async function GET(req: NextRequest) {
 
   for (const job of jobs ?? []) {
     try {
-      const result = await publishApprovedFacebookTask(job.task_id)
+      const platform = isPlatform(job.platform) ? job.platform : 'facebook'
+      const result = await publishApprovedTask(job.task_id, platform)
       if (result.ok) {
         published += 1
         const { error: upErr } = await supabase

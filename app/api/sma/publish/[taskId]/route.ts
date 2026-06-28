@@ -1,20 +1,21 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { requireSmaAdmin } from '@/lib/sma/auth'
-import { publishApprovedFacebookTask } from '@/lib/sma/publish-service'
+import { publishApprovedTask } from '@/lib/sma/publish-service'
+import { isPlatform } from '@/lib/sma/platforms'
 
 export const runtime = 'nodejs'
 
 /**
- * Human-triggered publish of an APPROVED Facebook draft.
+ * Human-triggered publish of an APPROVED draft for a platform.
  *
- * Thin wrapper around publishApprovedFacebookTask() in lib/sma/publish-service.ts.
- * The shared service loads the lifecycle, verifies it was approved and not yet
- * published, gets a Coordinator-authorized handoff, and calls
- * FacebookAgent.publish(). This route only enforces admin auth and maps the
- * service outcome to a NextResponse.
+ * Thin wrapper around publishApprovedTask() in lib/sma/publish-service.ts.
+ * Platform comes from the JSON body (`{ platform }`), defaulting to 'facebook'
+ * for back-compat. The shared service loads the lifecycle, verifies it was
+ * approved and not yet published, gets a Coordinator-authorized handoff, and
+ * calls the platform agent's publish(). This route only enforces admin auth.
  *
  * Immutable Stop 1: neither this route nor the service calls Meta directly.
- * Only FacebookAgent.publish() touches the Graph API.
+ * Only the platform agent's publish() touches the Graph API.
  */
 export async function POST(
   req: NextRequest,
@@ -27,7 +28,18 @@ export async function POST(
 
   try {
     const { taskId } = await params
-    const result = await publishApprovedFacebookTask(taskId)
+    let platform = 'facebook'
+    try {
+      const body = await req.json()
+      if (body && typeof body.platform === 'string') platform = body.platform
+    } catch {
+      // No/!JSON body — keep the 'facebook' default.
+    }
+    if (!isPlatform(platform)) {
+      return NextResponse.json({ error: `unknown platform: ${platform}` }, { status: 400 })
+    }
+
+    const result = await publishApprovedTask(taskId, platform)
 
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: result.status })

@@ -26,6 +26,12 @@ export const ROLE_TO_PLATFORM: Partial<Record<AgentRole, Platform>> = {
   THREADS_AGENT: 'threads',
 };
 
+export const PLATFORM_TO_ROLE: Record<Platform, AgentRole> = {
+  facebook: 'FACEBOOK_AGENT',
+  instagram: 'INSTAGRAM_AGENT',
+  threads: 'THREADS_AGENT',
+};
+
 /**
  * Instantiate the platform agent for the given platform.
  */
