@@ -72,8 +72,8 @@ function GuideEs() {
       <P>
         El Agente de Redes Sociales (SMA) es un asistente que te ayuda a crear publicaciones para
         las cuentas de CEPTI. Redacta borradores de texto e imágenes, los deja listos para que tú
-        los revises y, cuando apruebas, publica en la página de Facebook de CEPTI con el enlace de
-        WhatsApp incluido. El agente nunca publica solo: tú siempre tienes la última palabra.
+        los revises y, cuando apruebas, publica en las cuentas de CEPTI (Facebook e Instagram) con
+        el enlace de WhatsApp incluido. El agente nunca publica solo: tú siempre tienes la última palabra.
       </P>
 
       <H>El flujo principal</H>
@@ -97,8 +97,9 @@ function GuideEs() {
           El borrador aprobado pasa a <strong>Listo para Publicar (Ready to Publish)</strong>.
         </li>
         <li>
-          Pulsa <strong>Publicar en Facebook</strong>. Se publica en la página de CEPTI con el
-          enlace de WhatsApp incluido.
+          Pulsa <strong>Publicar</strong> en la plataforma que quieras (Facebook o Instagram). Se
+          publica en la cuenta de CEPTI con el enlace de WhatsApp incluido. (Instagram requiere la
+          aprobación de Meta &mdash; App Review &mdash; antes de poder publicar en producción.)
         </li>
         <li>
           Vigila WhatsApp: ahí llegarán las respuestas de los clientes interesados.
@@ -160,11 +161,20 @@ function GuideEs() {
         redacta: tú decides qué sale al público.
       </P>
 
+      <H>Asesor de WhatsApp</H>
+      <P>
+        En la pestaña <strong>WhatsApp</strong> ves las conversaciones del Asesor: un bot que
+        responde preguntas de producto por WhatsApp de forma automática, dentro de límites estrictos
+        (nunca da precios ni cotizaciones &mdash; eso lo pasa a una persona). Puedes tomar el control
+        de cualquier conversación con <strong>Tomar control</strong>. Aún no está activo: falta
+        conectar el número (Coexistence) para que entre en funcionamiento.
+      </P>
+
       <H>Aún no disponible</H>
       <Bullets>
-        <li>Publicación en Instagram.</li>
-        <li>Threads.</li>
-        <li>Seguimiento automático de interacción y de clientes (leads).</li>
+        <li>Publicación en Threads.</li>
+        <li>Respuestas automáticas a comentarios (el agente todavía no responde comentarios solo).</li>
+        <li>Atribución automática de leads de WhatsApp (por ahora se registran a mano).</li>
       </Bullets>
     </div>
   )
@@ -177,8 +187,8 @@ function GuideEn() {
       <P>
         The Social Media Agent (SMA) is an assistant that helps you create posts for CEPTI&apos;s
         accounts. It drafts captions and images, sets them aside for you to review, and once you
-        approve, publishes to CEPTI&apos;s Facebook Page with the WhatsApp link included. The agent
-        never posts on its own — you always have the final say.
+        approve, publishes to CEPTI&apos;s accounts (Facebook and Instagram) with the WhatsApp link
+        included. The agent never posts on its own — you always have the final say.
       </P>
 
       <H>The core loop</H>
@@ -202,8 +212,9 @@ function GuideEn() {
           The approved draft moves to <strong>Ready to Publish</strong>.
         </li>
         <li>
-          Click <strong>Publish to Facebook</strong>. It posts to the CEPTI Page with the WhatsApp
-          link included.
+          Click <strong>Publish</strong> on the platform you want (Facebook or Instagram). It posts
+          to the CEPTI account with the WhatsApp link included. (Instagram requires Meta approval
+          &mdash; App Review &mdash; before it can publish in production.)
         </li>
         <li>Watch WhatsApp — that&apos;s where interested customers reply.</li>
       </Steps>
@@ -257,11 +268,20 @@ function GuideEn() {
         you decide what goes public.
       </P>
 
+      <H>WhatsApp Advisor</H>
+      <P>
+        The <strong>WhatsApp</strong> tab shows the Advisor&apos;s conversations: a bot that answers
+        product questions on WhatsApp automatically, within strict limits (it never gives prices or
+        quotes &mdash; it hands those to a person). You can take over any conversation with
+        <strong>Take over</strong>. It is not live yet: the number still needs to be connected
+        (Coexistence) before it runs.
+      </P>
+
       <H>Not available yet</H>
       <Bullets>
-        <li>Instagram publishing.</li>
-        <li>Threads.</li>
-        <li>Automatic engagement and lead tracking.</li>
+        <li>Threads publishing.</li>
+        <li>Auto-posting replies to comments (the agent does not reply to comments on its own yet).</li>
+        <li>Automatic WhatsApp lead attribution (logged by hand for now).</li>
       </Bullets>
     </div>
   )
