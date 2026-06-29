@@ -1,27 +1,34 @@
 import 'server-only'
-import fs from 'node:fs'
-import path from 'node:path'
-import { estLlmCostUsd } from '@/lib/sma/ai-usage'
-import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
+import {
+  ADVISOR_MODEL,
+  HANDOFF_FALLBACK_ES,
+  generateAdvisorReply,
+  logAdvisorUsage,
+  toTurns,
+} from './advisor-core'
 import {
   getOrCreateConversation,
   getRecentHistory,
   recordMessage,
   setHandoff,
-  type WaMessage,
 } from './whatsapp-store'
 import { markWhatsAppRead, sendWhatsAppText } from './whatsapp-client'
 
 /**
  * The inbound WhatsApp Advisor — autonomous within hard guardrails.
  *
+ * The brain (LLM call, prompt + KB, [HANDOFF] protocol, transcript
+ * normalization, usage logging) lives in lib/sma/advisor-core.ts and is shared
+ * with the Messenger / Instagram DM advisor — it is NOT forked here. This module
+ * owns only the WhatsApp-specific persistence, send client, and arbitration.
+ *
  * Flow per inbound text message:
  *   1. Mark read; ensure a conversation row exists.
  *   2. Record the inbound message (dedupe on message_id — Meta retries).
  *   3. Arbitration: if the conversation is handed off to a human, stay silent.
- *   4. Ask Sonnet for a reply, given the recent transcript + guardrail prompt.
+ *   4. Ask advisor-core for a reply, given the recent transcript.
  *   5. If the reply carries the [HANDOFF] tag (price/quote/complaint/uncertain/
- *      explicit human request), strip it, send the bridge message, and flip the
+ *      explicit human request), send the bridge message and flip the
  *      conversation to handed_off so the bot backs off and a human (in the
  *      WhatsApp Business app, via Coexistence) takes over.
  *   6. Persist the outbound message; log usage best-effort.
@@ -31,134 +38,10 @@ import { markWhatsAppRead, sendWhatsAppText } from './whatsapp-client'
  * template messages here — that is a v1.5 decision.
  */
 
-const ADVISOR_MODEL = 'claude-sonnet-4-6'
-const HANDOFF_TAG = '[HANDOFF]'
 const MAX_HISTORY = 20
 
-const HANDOFF_FALLBACK_ES =
-  'Con gusto te paso con un miembro de nuestro equipo para ayudarte mejor. Un momento, por favor.'
 const UNSUPPORTED_MEDIA_ES =
   'Por ahora solo puedo leer mensajes de texto. Te paso con nuestro equipo para que te atiendan. Un momento, por favor.'
-
-let cachedPrompt: string | null = null
-function loadSystemPrompt(): string {
-  if (cachedPrompt) return cachedPrompt
-  const base = fs.readFileSync(
-    path.join(process.cwd(), 'prompts/whatsapp/advisor.md'),
-    'utf8',
-  )
-  // Append the product knowledge base (extracted from CEPTI's fichas técnicas).
-  // Small enough (~10k tokens) to live in the prompt; cached by cache_control,
-  // so it is not re-billed on every turn. No RAG needed at this corpus size.
-  let kb = ''
-  try {
-    kb = fs.readFileSync(path.join(process.cwd(), 'prompts/whatsapp/kb.md'), 'utf8')
-  } catch (e) {
-    console.error('whatsapp-advisor: kb.md not found, continuing without it:', e)
-  }
-  cachedPrompt = kb
-    ? `${base}\n\n---\n\n# BASE DE CONOCIMIENTO (fichas técnicas — usa estos datos)\n\n${kb}`
-    : base
-  return cachedPrompt
-}
-
-type Turn = { role: 'user' | 'assistant'; content: string }
-
-/**
- * Map stored history to strictly alternating turns starting with `user`.
- * Anthropic requires alternation and a leading user turn; we merge consecutive
- * same-direction messages and drop any leading assistant turns.
- */
-function toTurns(history: WaMessage[]): Turn[] {
-  const mapped: Turn[] = history.map((m) => ({
-    role: m.direction === 'inbound' ? 'user' : 'assistant',
-    content: m.content,
-  }))
-
-  const merged: Turn[] = []
-  for (const turn of mapped) {
-    const last = merged[merged.length - 1]
-    if (last && last.role === turn.role) {
-      last.content = `${last.content}\n${turn.content}`
-    } else {
-      merged.push({ ...turn })
-    }
-  }
-  while (merged.length > 0 && merged[0].role === 'assistant') {
-    merged.shift()
-  }
-  return merged
-}
-
-interface LlmReply {
-  text: string
-  inputTokens: number
-  outputTokens: number
-}
-
-async function callAdvisorLlm(turns: Turn[]): Promise<LlmReply> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set')
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: ADVISOR_MODEL,
-      max_tokens: 512,
-      system: [
-        {
-          type: 'text',
-          text: loadSystemPrompt(),
-          cache_control: { type: 'ephemeral' },
-        },
-      ],
-      messages: turns,
-    }),
-    cache: 'no-store',
-  })
-
-  if (!res.ok) {
-    throw new Error(`Anthropic API error (${res.status}): ${await res.text()}`)
-  }
-
-  const data = (await res.json()) as {
-    content?: { type?: string; text?: string }[]
-    usage?: { input_tokens?: number; output_tokens?: number }
-  }
-  const text = (data.content ?? [])
-    .filter((b) => b?.type === 'text')
-    .map((b) => b?.text ?? '')
-    .join('')
-    .trim()
-
-  return {
-    text,
-    inputTokens: data.usage?.input_tokens ?? 0,
-    outputTokens: data.usage?.output_tokens ?? 0,
-  }
-}
-
-/** Best-effort FinOps logging for advisor turns. Never throws. */
-async function logAdvisorUsage(inputTokens: number, outputTokens: number): Promise<void> {
-  try {
-    const supabase = getSupabaseServiceRoleClient()
-    const estCost = estLlmCostUsd(ADVISOR_MODEL, inputTokens, outputTokens)
-    await supabase.from('sma_ai_usage').insert({
-      kind: 'whatsapp',
-      model: ADVISOR_MODEL,
-      input_tokens: Math.max(0, Math.round(inputTokens || 0)),
-      output_tokens: Math.max(0, Math.round(outputTokens || 0)),
-      est_cost_usd: Number(estCost.toFixed(5)),
-    })
-  } catch (e) {
-    console.error('whatsapp-advisor: usage log failed (non-fatal):', e)
-  }
-}
 
 /**
  * Handle one inbound TEXT message from a WhatsApp user.
@@ -194,12 +77,10 @@ export async function handleInboundText(opts: {
     turns.push({ role: 'user', content: text })
   }
 
-  const llm = await callAdvisorLlm(turns)
-  void logAdvisorUsage(llm.inputTokens, llm.outputTokens)
+  const llm = await generateAdvisorReply(turns)
+  void logAdvisorUsage('whatsapp', llm.inputTokens, llm.outputTokens)
 
-  const wantsHandoff = llm.text.includes(HANDOFF_TAG)
-  const cleaned = llm.text.split(HANDOFF_TAG).join('').trim()
-  const reply = cleaned.length > 0 ? cleaned : HANDOFF_FALLBACK_ES
+  const reply = llm.text.length > 0 ? llm.text : HANDOFF_FALLBACK_ES
 
   const sent = await sendWhatsAppText(waId, reply)
 
@@ -212,12 +93,12 @@ export async function handleInboundText(opts: {
       model: ADVISOR_MODEL,
       input_tokens: llm.inputTokens,
       output_tokens: llm.outputTokens,
-      handoff: wantsHandoff,
+      handoff: llm.handoff,
       source: 'advisor',
     },
   })
 
-  if (wantsHandoff) {
+  if (llm.handoff) {
     await setHandoff(conversation.conversation_id, true, 'advisor_escalation')
   }
 }

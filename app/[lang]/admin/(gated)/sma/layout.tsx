@@ -8,6 +8,7 @@ const TABS = [
   { slug: 'scheduled', label: 'Scheduled' },
   { slug: 'inbox', label: 'Inbox' },
   { slug: 'whatsapp', label: 'WhatsApp' },
+  { slug: 'messages', label: 'DMs' },
   { slug: 'insights', label: 'Insights' },
   { slug: 'settings', label: 'Settings' },
   { slug: 'guide', label: 'Guide' },
