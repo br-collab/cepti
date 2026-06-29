@@ -136,7 +136,7 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
               disabled={loading}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
                 selectedPlatforms.includes(id)
-                  ? 'bg-zinc-900 text-white border-zinc-900'
+                  ? 'bg-emerald-600 text-white border-emerald-600'
                   : 'bg-white text-zinc-500 border-zinc-300 hover:border-zinc-400'
               } disabled:opacity-50`}
             >
@@ -162,7 +162,7 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
               disabled={loading}
               className={`flex-1 px-3 py-2 text-sm font-medium rounded-md border transition-colors ${
                 mediaMode === mode
-                  ? 'bg-zinc-900 text-white border-zinc-900'
+                  ? 'bg-emerald-600 text-white border-emerald-600'
                   : 'bg-white text-zinc-900 border-zinc-300 hover:border-zinc-900'
               } disabled:opacity-50`}
             >
