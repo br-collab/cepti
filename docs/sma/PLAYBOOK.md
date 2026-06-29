@@ -182,6 +182,19 @@ non-text message. Operators take over / hand back in `/admin/sma/whatsapp`.
 
 ---
 
+## 7a. Advisor answer policy ("Bot-first, human-override, price-safe")
+
+The single answer policy governing every conversational channel — WhatsApp,
+Facebook Messenger, Instagram Direct, and the website chatbot (one brain, one
+KB). **One line:** the bot answers product questions instantly 24/7, **never**
+quotes prices or anything commercial, and hard-hands-off to a human (who can
+also take over any thread at will) the moment a sale, complaint, or uncertainty
+appears. This is the commercial selling point: a governed, price-safe, always-on
+bot that captures lead intent the instant it lands while a human keeps full
+control of anything that matters. Canonical spec: `docs/sma/advisor-policy.md`.
+
+---
+
 ## 8. Meta App Review (gates production posting)
 
 Meta requires a screencast of the complete user journey per permission, and the

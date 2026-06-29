@@ -211,15 +211,18 @@ Advisor (autonomous within guardrails; never quotes prices; hands off to a
 human; backs off when a human replies). **Threads DMs remain out of scope.**
 NOT live until Meta App Review for `pages_messaging` + `instagram_manage_messages`
 (the latter was removed 2026-05-24 and must be re-added) and the messaging
-webhook is subscribed. Behavior policy (answer all DMs vs after-hours vs
-after-no-human-reply) still to be confirmed with Francisco; defaults mirror WhatsApp.
+webhook is subscribed. Behavior policy is DECIDED — **"Bot-first, human-override,
+price-safe"**, identical across all channels; canonical spec in
+`docs/sma/advisor-policy.md`.
 
 **WhatsApp Advisor — BUILT 2026-06-28 (PR #17), reverses prior stance.** An
 inbound WhatsApp Advisor bot on `+1 (829) 449-1104` is implemented
 (`lib/sma/whatsapp-advisor.ts`, `whatsapp-client.ts`, `whatsapp-store.ts`,
 `app/api/sma/whatsapp/webhook`, `prompts/whatsapp/{advisor,kb}.md`,
-`/admin/sma/whatsapp`). It is autonomous-within-guardrails (answers product
-questions; hard handoff to a human for price/quote/complaint/uncertainty). This
+`/admin/sma/whatsapp`). Its answer policy is DECIDED — **"Bot-first,
+human-override, price-safe"** (canonical spec: `docs/sma/advisor-policy.md`):
+autonomous-within-guardrails (answers product questions; hard handoff to a human
+for price/quote/complaint/uncertainty). This
 overturns the previous "inbound WhatsApp handled directly by humans" rule —
 **but it is NOT live until Coexistence onboarding is done** (the §6 blocking
 decisions with Francisco: number sharing, Cloud API/WABA cutover, template

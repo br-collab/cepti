@@ -386,9 +386,14 @@ goal: getting people to start a **WhatsApp quote conversation**. It does four th
 - **Recommends and schedules posts** for Facebook, Instagram, and Threads, and
   **drafts replies** to public comments. A human approves every post and every
   reply — nothing is published automatically.
-- **Answers WhatsApp messages** automatically (the *WhatsApp Advisor*), within
-  strict limits: it answers product questions but never quotes prices and hands
-  off to a human for quotes, complaints, or anything it's unsure about.
+- **Answers customer messages** automatically across WhatsApp, Facebook
+  Messenger, and Instagram DMs (the *Advisor*), within strict limits: it replies
+  instantly in the customer's language, answers product questions but **never
+  quotes prices**, and hands off to a human the moment anything commercial comes
+  up (quotes, orders, complaints, or anything it's unsure about). A human can
+  take over any conversation at any time, which silences the bot for that thread.
+  The full answer policy ("Bot-first, human-override, price-safe") is in
+  `docs/sma/advisor-policy.md`.
 - **Shows it all in a dashboard** — an approval queue, a calendar of scheduled
   posts, a comment inbox, WhatsApp conversations, performance insights, and an
   AI-spend tracker.

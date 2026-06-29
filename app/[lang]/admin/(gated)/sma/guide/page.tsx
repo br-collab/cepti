@@ -161,13 +161,17 @@ function GuideEs() {
         redacta: tú decides qué sale al público.
       </P>
 
-      <H>Asesor de WhatsApp</H>
+      <H>Asesor de mensajes (WhatsApp, Messenger e Instagram)</H>
       <P>
-        En la pestaña <strong>WhatsApp</strong> ves las conversaciones del Asesor: un bot que
-        responde preguntas de producto por WhatsApp de forma automática, dentro de límites estrictos
-        (nunca da precios ni cotizaciones &mdash; eso lo pasa a una persona). Puedes tomar el control
-        de cualquier conversación con <strong>Tomar control</strong>. Aún no está activo: falta
-        conectar el número (Coexistence) para que entre en funcionamiento.
+        El Asesor responde mensajes directos en <strong>WhatsApp, Facebook Messenger e Instagram</strong>
+        con un mismo cerebro: un bot que contesta al instante, en el idioma del cliente, dentro de
+        límites estrictos. Responde preguntas de producto, pero <strong>nunca da precios, cotizaciones,
+        ni rendimiento</strong> y pasa la conversación a una persona en cuanto aparece algo comercial
+        (precio, pedido, queja) o cuando no está seguro. Puedes tomar el control de cualquier
+        conversación con <strong>Tomar control</strong> (eso silencia al bot en ese hilo). La política
+        completa (&quot;Bot-first, human-override, price-safe&quot;) está en
+        <code>docs/sma/advisor-policy.md</code>. Aún no está activo: falta la aprobación de Meta
+        (App Review) y conectar los canales para que entre en funcionamiento.
       </P>
 
       <H>Aún no disponible</H>
@@ -268,13 +272,17 @@ function GuideEn() {
         you decide what goes public.
       </P>
 
-      <H>WhatsApp Advisor</H>
+      <H>Messaging Advisor (WhatsApp, Messenger &amp; Instagram)</H>
       <P>
-        The <strong>WhatsApp</strong> tab shows the Advisor&apos;s conversations: a bot that answers
-        product questions on WhatsApp automatically, within strict limits (it never gives prices or
-        quotes &mdash; it hands those to a person). You can take over any conversation with
-        <strong>Take over</strong>. It is not live yet: the number still needs to be connected
-        (Coexistence) before it runs.
+        The Advisor answers direct messages across <strong>WhatsApp, Facebook Messenger, and
+        Instagram</strong> with one shared brain: a bot that replies instantly, in the customer&apos;s
+        language, within strict limits. It answers product questions but <strong>never gives prices,
+        quotes, or coverage</strong> and hands the conversation off to a person the moment anything
+        commercial comes up (price, order, complaint) or when it&apos;s unsure. You can take over any
+        conversation with <strong>Take over</strong> (that silences the bot for that thread). The full
+        policy (&quot;Bot-first, human-override, price-safe&quot;) lives in
+        <code>docs/sma/advisor-policy.md</code>. It is not live yet: it still needs Meta approval
+        (App Review) and the channels connected before it runs.
       </P>
 
       <H>Not available yet</H>

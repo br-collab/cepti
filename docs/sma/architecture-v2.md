@@ -33,7 +33,7 @@ longer reliably describe *what is*.
 | Facebook agent | `lib/sma/agents/facebook-agent.ts` | DONE end-to-end — real Graph API `publish()` + `fetchEngagement()` (`draftReply()` stubbed; comment-reply posting not built for any platform). |
 | Instagram agent | `lib/sma/agents/instagram-agent.ts` | DONE (PR #18) — `publish()` (container→publish, single + carousel, rejects text-only) + `fetchEngagement()` (likes/comments + reach). `draftReply()` stubbed, matching FB. Production posting still gated on Meta App Review for `instagram_content_publish`. |
 | WhatsApp Advisor | `lib/sma/whatsapp-advisor.ts`, `whatsapp-client.ts`, `whatsapp-store.ts`, `app/api/sma/whatsapp/webhook` | DONE (PR #17) — inbound, reactive, autonomous-within-guardrails; KB from `prompts/whatsapp/kb.md`. Not live until Coexistence onboarding (see §6 + `whatsapp-advisor.md`). |
-| Messenger + IG Direct DM advisor | `lib/sma/advisor-core.ts` (shared brain), `dm-advisor.ts`, `messenger-client.ts`, `instagram-dm-client.ts`, `dm-store.ts`, `app/api/sma/messaging/webhook`, `/admin/sma/messages`, migration `0008` | DONE — shares the advisor brain + KB + guardrails with WhatsApp; reverses the "no DM handling" rule for FB/IG (Threads DMs still out). Not live until App Review for `pages_messaging` + `instagram_manage_messages` + messaging webhook subscription. |
+| Messenger + IG Direct DM advisor | `lib/sma/advisor-core.ts` (shared brain), `dm-advisor.ts`, `messenger-client.ts`, `instagram-dm-client.ts`, `dm-store.ts`, `app/api/sma/messaging/webhook`, `/admin/sma/messages`, migration `0008` | DONE — shares the advisor brain + KB + guardrails with WhatsApp; reverses the "no DM handling" rule for FB/IG (Threads DMs still out). Answer policy DECIDED: "Bot-first, human-override, price-safe" (`docs/sma/advisor-policy.md`). Not live until App Review for `pages_messaging` + `instagram_manage_messages` + messaging webhook subscription. |
 | Platform base | `lib/sma/agents/platform-base.ts` | DONE |
 | v2 schema | `supabase/migrations/0002_sma_v2_schema.sql` | DONE — creates `sma_coordinator_tasks`, `sma_handoffs`, `sma_paused_lifecycles`, `sma_content_lifecycles`, `sma_whatsapp_conversations`, `sma_whatsapp_messages` (+ indexes, RLS). |
 | Coordinator API routes | `app/api/sma/coordinator/{task,queue,ready,recommend,history,decide/[taskId],dismiss/[taskId]}` | DONE — note: approve/deny merged into `decide`. |
@@ -447,6 +447,10 @@ and updated only through PRs with Bill's review.
    of human non-response? (Cloud API has no native "answer only if human
    hasn't" — that logic must be built, and humans would need to work inside the
    same API surface or a shared inbox, not the consumer WhatsApp app.)
+   **RESOLVED 2026-06-28:** policy decided — "Bot-first, human-override,
+   price-safe" — the bot answers ALL inbound, always-on, with a human able to
+   take over any thread (which silences the bot). Canonical spec:
+   `docs/sma/advisor-policy.md`.
 2. **API tier.** Inbound free-form replies are allowed only inside the 24-hour
    customer service window. Anything proactive (quote follow-ups) needs
    Meta-approved message templates per category. v1 = reactive only.
