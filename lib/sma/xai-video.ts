@@ -21,7 +21,12 @@ export interface StartImageToVideoArgs {
   imageUrl: string
   prompt: string
   duration: number
+  resolution?: VideoResolution
 }
+
+/** Resolutions the xAI video API accepts. 1080p is supported for image-to-video
+ * on grok-imagine-video-1.5 (CEPTI's flow). */
+export type VideoResolution = '480p' | '720p' | '1080p'
 
 /**
  * Kick off an image-to-video generation. Returns the xAI request_id used to
@@ -31,6 +36,7 @@ export async function startImageToVideo({
   imageUrl,
   prompt,
   duration,
+  resolution,
 }: StartImageToVideoArgs): Promise<{ requestId: string }> {
   const res = await fetch(`${XAI_BASE}/videos/generations`, {
     method: 'POST',
@@ -43,6 +49,7 @@ export async function startImageToVideo({
       prompt,
       image: { url: imageUrl },
       duration,
+      ...(resolution ? { resolution } : {}),
     }),
   })
 
