@@ -5,8 +5,7 @@
 > developer dropping in, or a buyer evaluating the system. If anything here
 > conflicts with the code, the code wins; flag the drift and fix this doc.
 >
-> **Last reconciled:** 2026-06-28 against `main` @ `40f51f6` + the
-> `feat/sma-whatsapp-advisor` branch.
+> **Last reconciled:** 2026-06-28 against `main` (through PR #27).
 >
 > **Companion docs:** `CLAUDE.md` (conventions + governance),
 > `docs/sma.md` (Phase 1 detail), `docs/sma/architecture-v2.md` (architecture +
@@ -23,8 +22,9 @@ run CEPTI's social presence and customer chat, all funneling to one metric:
 1. **Coordinator + platform agents** — generate, schedule, and publish posts and
    draft replies to public comments on Facebook, Instagram, Threads. Every post
    and reply is human-approved (no autonomous publishing).
-2. **WhatsApp Advisor** — inbound, reactive customer-service bot, autonomous
-   within hard guardrails, hands off to a human for prices/quotes/complaints.
+2. **Inbound advisors** (WhatsApp, Facebook Messenger, Instagram Direct) — one
+   reactive customer-service brain, autonomous within hard guardrails, governed by
+   the answer policy; hands off to a human for prices/quotes/complaints.
 3. **Admin dashboard** (`/admin/sma`) — approval queue, scheduling, inbox,
    WhatsApp conversations, insights, FinOps.
 4. **Measurement** — engagement snapshots + manual WhatsApp lead attribution.
@@ -34,17 +34,22 @@ run CEPTI's social presence and customer chat, all funneling to one metric:
 | Capability | State |
 | --- | --- |
 | Coordinator, guardrails, audit | ✅ built |
-| **Facebook** publish / reply / engagement | ✅ built end-to-end |
-| **Instagram** publish / reply / engagement | ⛔ STUB — `NOT_IMPLEMENTED` |
+| **Facebook** publish / engagement | ✅ built end-to-end (comment-reply posting separate — see below) |
+| **Instagram** publish / engagement | ✅ built (App Review gates production) |
 | **Threads** publish / reply / engagement | ⛔ STUB — `NOT_IMPLEMENTED` |
+| Comment-reply posting (`draftReply`) | ⛔ STUB on all agents |
 | WhatsApp Advisor (code) | ✅ built (needs onboarding to run) |
+| Messenger + IG Direct DM advisors (code) | ✅ built (needs App Review + webhook to run) |
 | Grok video studio | ✅ built |
 | FinOps / measurement / scheduling | ✅ built |
-| Meta App Review (publish perms) | ⏳ not granted — gates production posting |
+| Meta App Review (publish + messaging perms) | ⏳ not granted — gates production |
 
-So today only **Facebook** can actually post, and **nothing posts until Meta
-App Review is granted**. The dashboard showing "0 published" is expected. See
-§9 for the roadmap to close these.
+So today **Facebook and Instagram** can publish (Threads is still a stub), but
+**nothing is live in production until Meta App Review is granted and the accounts
+are connected**. The dashboard showing "0 published" is expected — not an
+approval-rate or content-quality problem. The low approval count (1 approved /
+47 denied) is just Bill + Francisco doing test reviews; nothing is connected or
+reviewed yet. See §9 for the roadmap to close these.
 
 ---
 
@@ -102,6 +107,7 @@ is fine for first run, or `supabase db push`):
 | `0005_sma_ai_usage.sql` | FinOps usage ledger (`sma_ai_usage`) |
 | `0006_sma_measurement.sql` | Engagement snapshots + lead logging |
 | `0007_sma_scheduled_jobs.sql` | Scheduled publishing jobs |
+| `0008_sma_dm.sql` | Messenger / IG Direct DM conversation + message tables (`sma_dm_*`), RLS admin-only |
 
 **RLS:** every `sma_*` table is admin-only via `is_sma_admin()`. Browser/anon
 sessions can't read them; the service-role key (webhooks/cron/agents) bypasses RLS.
@@ -119,7 +125,7 @@ Both Bill and Francisco are intended to be in `sma_admins` with equal access.
 ## 4. Deploy from zero (checklist)
 
 1. Create the Supabase project; copy URL + anon + service-role keys into Vercel env.
-2. Apply migrations `0001`→`0007`.
+2. Apply migrations `0001`→`0008`.
 3. Create your admin user + insert into `sma_admins` (§3).
 4. Generate secrets: `SMA_TOKEN_ENCRYPTION_KEY` (hex 32), `META_WEBHOOK_VERIFY_TOKEN` (hex 24), `CRON_SECRET` (hex 24).
 5. Create the Meta App; add Instagram, Facebook Login, Threads, and WhatsApp products; fill `META_*` envs.
@@ -156,6 +162,7 @@ HMAC-SHA256(rawBody, `META_APP_SECRET`).
 | Facebook | `https://<host>/api/sma/webhooks/facebook` | feed/comments |
 | Threads | `https://<host>/api/sma/webhooks/threads` | mentions/replies |
 | **WhatsApp** | `https://<host>/api/sma/whatsapp/webhook` | **`messages`** |
+| **Messenger + Instagram Direct DMs** | `https://<host>/api/sma/messaging/webhook` | subscribe `messages`/`messaging` on the Page + Instagram (webhook `object` "page" = Messenger, "instagram" = IG) |
 
 (Replace `<host>` with `cepti-nu.vercel.app` or the production domain.)
 
@@ -205,8 +212,10 @@ rejected and burn a review cycle).
   `threads_content_publish`, `threads_keyword_search`, `threads_manage_insights`,
   `threads_manage_mentions`, `threads_manage_replies`, `threads_profile_discovery`,
   `threads_read_replies`). Also needs **Tech Provider Verification** (~1 week).
-- **Instagram Graph API** use case: TBD.
-- **Facebook Pages** use case: TBD.
+- **Instagram Graph API** use case: `instagram_content_publish` is now
+  demonstrable (IG publish is built) and can be submitted; `instagram_manage_messages`
+  (IG Direct DMs; was removed 2026-05-24, must be re-added) also needs review.
+- **Facebook Pages** use case: publish perms + `pages_messaging` (Messenger).
 - **WhatsApp**: business messaging permission for the Cloud API.
 
 Until publish permissions are granted, posting stays blocked regardless of code.
@@ -215,25 +224,29 @@ Until publish permissions are granted, posting stays blocked regardless of code.
 
 ## 9. What works vs. what's left (roadmap)
 
-**Works now:** Coordinator + guardrails; Facebook agent end-to-end; scheduling +
-publish cron; comment inbox + reply drafting (FB); FinOps; measurement; Grok
-video; WhatsApp Advisor (pending onboarding).
+**Works now:** Coordinator + guardrails; Facebook agent end-to-end; Instagram
+publish + engagement (single + carousel); generalized publish pipeline
+(`publishApprovedTask`); scheduling + publish cron; comment inbox + reply
+*drafting* (FB/IG); three DM advisors on one brain (WhatsApp, Messenger, IG
+Direct), governed by the answer policy; website chatbot reusing the shared ficha
+KB; FinOps; measurement; Grok video; WhatsApp Advisor (pending onboarding).
 
 **Open work, priority order** (mirrors `CLAUDE.md`):
 
-1. **Approval-rate problem** — ~2% approval (47 denied / 1 approved), 0 published.
-   This, not plumbing, is why nothing ships. Diagnose recommendation quality /
-   approval bar. (Francisco's focus.)
-2. **Instagram agent** — implement `publish`/`draftReply`/`fetchEngagement`
-   (FB agent is the template). Unblocks the real audience + IG App Review.
-3. **Threads agent** — same; needs Threads base URL + Tech Provider Verification.
-4. **Meta App Review** submissions per permission.
-5. **WhatsApp Advisor** onboarding + verify the Coexistence echo payload shape;
-   later, proactive/template messaging (v1.5).
-6. **Reconcile `feat/sma-v2-scaffold`** (diverged branch: scheduling, multi-user
+1. **Meta App Review + connect accounts** — submit publish perms
+   (`instagram_content_publish`, Facebook Pages) and messaging perms
+   (`pages_messaging`, `instagram_manage_messages`), and connect the live
+   accounts. This is the go-live gate — nothing is in production until it clears.
+2. **Threads agent** — implement `publish`/`draftReply`/`fetchEngagement` (only
+   platform that can't post); needs Threads base URL + Tech Provider Verification.
+3. **Comment-reply posting** — `draftReply()` is stubbed on every agent (inbox
+   classifies comments but can't post replies); build the posting path.
+4. **Reconcile `feat/sma-v2-scaffold`** (diverged branch: scheduling, multi-user
    approvals, analytics, ~2,800 lines of E2E tests).
-7. **Reuse the WhatsApp KB in the website chatbot** so web + WhatsApp answer
-   identically (`app/api/chat/route.ts` still has a shallow hardcoded paragraph).
+5. **(Optional) Escalation alert for DM handoffs** — notify an operator when a
+   DM advisor hard-hands-off.
+
+Website-KB reuse is **DONE** (PR #22) — web + WhatsApp/DM answer from the same KB.
 
 ---
 
@@ -244,8 +257,8 @@ LLM + video spend is logged to `sma_ai_usage` and surfaced on the dashboard
 
 | Use | Model | Approx rate |
 | --- | --- | --- |
-| Captions / scripts | `claude-opus-4-8` | $15 / $75 per 1M tok (in/out) |
-| WhatsApp replies | `claude-sonnet-4-6` | $3 / $15 per 1M tok |
+| Captions / scripts (`kind` `caption`) | `claude-opus-4-8` | $15 / $75 per 1M tok (in/out) |
+| WhatsApp / Messenger / IG DM replies (`kind` `whatsapp` / `messenger` / `instagram_dm`) | `claude-sonnet-4-6` | $3 / $15 per 1M tok |
 | Website chat | `claude-sonnet-4-6` | $3 / $15 per 1M tok |
 | Video | `grok-imagine-video-1.5` | ~$0.08 / sec (computed from `sma_video_jobs`) |
 
@@ -262,8 +275,9 @@ side** — cost is the LLM call only. The WhatsApp KB (~10k tokens) is cached vi
 - **No autonomous social posting.** Every post and public-comment reply is
   human-approved (Coordinator's Five Immutable Stops, enforced in
   `lib/sma/coordinator/guardrails.ts`).
-- **WhatsApp guardrails.** Never quotes prices/coverage; complaints and
-  uncertainty escalate to a human; reactive only (no proactive messaging in v1).
+- **Advisor guardrails (all DM channels).** Never quotes prices/coverage;
+  complaints and uncertainty escalate to a human; reactive only (no proactive
+  messaging in v1). Canonical spec: `docs/sma/advisor-policy.md`.
 - **Webhook security.** Invalid `X-Hub-Signature-256` → 401. Keep `META_APP_SECRET` secret.
 - **Token encryption.** OAuth tokens are AES-256-GCM encrypted at rest;
   rotating `SMA_TOKEN_ENCRYPTION_KEY` is destructive (plan a re-OAuth window).
