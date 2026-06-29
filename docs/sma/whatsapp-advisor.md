@@ -6,6 +6,10 @@ hard guardrails** and hands off to a human for anything sensitive. It is a
 separate concern from the SMA Coordinator (which posts to IG/FB/Threads) — it
 shares only the LLM client, FinOps logging, and the admin shell.
 
+> **Behavior follows the canonical answer policy** — "Bot-first, human-override,
+> price-safe" — in `docs/sma/advisor-policy.md` (the single source of truth,
+> shared across WhatsApp, Messenger, Instagram Direct, and the website chatbot).
+
 Greenlit 2026-06-28 (see `architecture-v2.md` §6). Product knowledge comes from
 `prompts/whatsapp/kb.md` — a cleaned, structured KB extracted from CEPTI's
 fichas técnicas (Ladriflex, Papelex, Pintura de Piedra) + the Papelex install
