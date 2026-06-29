@@ -28,6 +28,7 @@ export default function VideoLab() {
   const [productSlug, setProductSlug] = useState('')
   const [prompt, setPrompt] = useState('')
   const [duration, setDuration] = useState(6)
+  const [resolution, setResolution] = useState<'480p' | '720p' | '1080p'>('720p')
   const [jobs, setJobs] = useState<VideoJob[]>([])
   const [loading, setLoading] = useState(false)
   const [statusLabel, setStatusLabel] = useState<string | null>(null)
@@ -123,6 +124,7 @@ export default function VideoLab() {
           sourceImageUrl,
           prompt: prompt.trim() || undefined,
           duration,
+          resolution,
         }),
       })
 
@@ -217,6 +219,26 @@ export default function VideoLab() {
             className="w-28 px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
           />
           <p className="text-xs text-zinc-500 mt-1">Approx. cost: ${(duration * 0.08).toFixed(2)} at $0.08/sec.</p>
+        </div>
+
+        <div>
+          <label htmlFor="video-resolution" className="block text-sm font-medium text-zinc-700 mb-1">
+            Quality
+          </label>
+          <select
+            id="video-resolution"
+            value={resolution}
+            onChange={(e) => setResolution(e.target.value as '480p' | '720p' | '1080p')}
+            disabled={loading}
+            className="w-40 px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:opacity-50"
+          >
+            <option value="480p">480p — fastest</option>
+            <option value="720p">720p — standard</option>
+            <option value="1080p">1080p — highest</option>
+          </select>
+          <p className="text-xs text-zinc-500 mt-1">
+            Higher quality looks better but may take longer to generate.
+          </p>
         </div>
 
         {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>}

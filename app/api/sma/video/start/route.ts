@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { requireSmaAdmin } from '@/lib/sma/auth'
 import { getSupabaseServiceRoleClient } from '@/lib/supabase/server'
 import { getProductImages, loadProductsCatalog } from '@/lib/sma/products-service'
-import { startImageToVideo } from '@/lib/sma/xai-video'
+import { startImageToVideo, type VideoResolution } from '@/lib/sma/xai-video'
 
 export const runtime = 'nodejs'
 
@@ -16,6 +16,9 @@ const MIN_DURATION = 4
 const MAX_DURATION = 10
 const DEFAULT_DURATION = 6
 
+const ALLOWED_RESOLUTIONS: VideoResolution[] = ['480p', '720p', '1080p']
+const DEFAULT_RESOLUTION: VideoResolution = '720p'
+
 export async function POST(req: NextRequest) {
   const user = await requireSmaAdmin()
   if (!user) {
@@ -24,12 +27,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { productSlug, prompt, duration, sourceImageUrl } = body as {
+    const { productSlug, prompt, duration, sourceImageUrl, resolution } = body as {
       productSlug?: string
       prompt?: string
       duration?: number
       sourceImageUrl?: string
+      resolution?: string
     }
+
+    const resolvedResolution: VideoResolution = ALLOWED_RESOLUTIONS.includes(
+      resolution as VideoResolution,
+    )
+      ? (resolution as VideoResolution)
+      : DEFAULT_RESOLUTION
 
     const hasUploadedSource =
       typeof sourceImageUrl === 'string' && sourceImageUrl.trim() !== ''
@@ -93,6 +103,7 @@ export async function POST(req: NextRequest) {
       imageUrl,
       prompt: resolvedPrompt,
       duration: resolvedDuration,
+      resolution: resolvedResolution,
     })
 
     const supabase = getSupabaseServiceRoleClient()
