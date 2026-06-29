@@ -92,9 +92,9 @@ export default function QueuePage() {
           <NewContentForm onSuccess={handleDraftGenerated} />
         </section>
 
-        {/* Video Studio (beta) */}
+        {/* Video Studio */}
         <section className="rounded-2xl border border-zinc-200 bg-white p-6">
-          <h2 className="text-lg font-semibold mb-4">Video Studio (beta)</h2>
+          <h2 className="text-lg font-semibold mb-4">Video Studio</h2>
           <VideoLab />
         </section>
 
