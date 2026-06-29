@@ -24,12 +24,13 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { topic, notes, includePictures, includeVideo, platforms } = body as {
+    const { topic, notes, includePictures, includeVideo, platforms, attachments } = body as {
       topic?: string
       notes?: string
       includePictures?: boolean
       includeVideo?: boolean
       platforms?: Platform[]
+      attachments?: string[]
     }
 
     if (!topic || typeof topic !== 'string' || topic.trim() === '') {
@@ -44,6 +45,13 @@ export async function POST(req: NextRequest) {
     const auditLogger = new ConsoleAuditLogger()
     const coordinator = new SMACoordinator(supabase, auditLogger)
 
+    // Operator-uploaded media (public Storage URLs). When present, the platform
+    // agents use these as the draft's attached_assets and skip the auto-attach
+    // (matchProductsInTopic) path. Carried on the typed reference_assets field.
+    const operatorAttachments = Array.isArray(attachments)
+      ? attachments.filter((a): a is string => typeof a === 'string' && a.trim() !== '')
+      : undefined
+
     const intent: ContentIntent & { include_pictures?: boolean; include_video?: boolean } = {
       intent_id: `INT-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       proposed_by: 'bill',
@@ -52,6 +60,7 @@ export async function POST(req: NextRequest) {
       notes: notes?.trim(),
       proposed_platforms: selectedPlatforms,
       scheduled_for: null,
+      reference_assets: operatorAttachments && operatorAttachments.length > 0 ? operatorAttachments : undefined,
       include_pictures: includePictures !== false,
       include_video: includeVideo !== false,
     }

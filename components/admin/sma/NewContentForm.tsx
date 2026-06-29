@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import MediaPicker, { type SelectedMedia } from './MediaPicker'
 
 interface Product {
   slug: string
@@ -20,6 +21,7 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
   const [products, setProducts] = useState<Product[]>([])
   const [angle, setAngle] = useState('')
   const [mediaMode, setMediaMode] = useState<'pictures' | 'video' | 'both'>('both')
+  const [operatorMedia, setOperatorMedia] = useState<SelectedMedia[]>([])
   const [selectedPlatforms, setSelectedPlatforms] = useState<PlatformId[]>(['facebook', 'instagram', 'threads'])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -70,6 +72,7 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
           includePictures,
           includeVideo,
           platforms: selectedPlatforms,
+          attachments: operatorMedia.length > 0 ? operatorMedia.map((m) => m.url) : undefined,
         }),
       })
 
@@ -80,6 +83,7 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
 
       setProductSlug('')
       setAngle('')
+      setOperatorMedia([])
       await onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -175,6 +179,16 @@ export default function NewContentForm({ onSuccess }: { onSuccess: () => Promise
           {mediaMode === 'pictures' && 'Attaches 1-3 representative product images.'}
           {mediaMode === 'both' && 'Generates video + attaches individual product images.'}
         </p>
+
+        <div className="space-y-2 pt-2">
+          <p className="text-sm font-medium text-zinc-700">Your media (optional)</p>
+          <MediaPicker onChange={setOperatorMedia} disabled={loading} />
+          <p className="text-xs text-zinc-500">
+            {operatorMedia.length > 0
+              ? `Using ${operatorMedia.length} uploaded item${operatorMedia.length > 1 ? 's' : ''} — overrides the auto-attached product images.`
+              : 'Upload your own images or videos to use instead of the auto-attached product images.'}
+          </p>
+        </div>
       </div>
 
       {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>}
