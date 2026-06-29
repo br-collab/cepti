@@ -59,12 +59,13 @@ longer reliably describe *what is*.
 Confirmed in code (not speculation): publishing is **fully manual by design**
 (Immutable Stops 1 + 5 — nothing auto-posts) and `publishApprovedTask()` requires
 a COMPLETE+APPROVED lifecycle, a draft for the platform, a live token, and a
-human/cron trigger. FB and IG can now publish (Threads still a stub); IG also
-needs Meta App Review for `instagram_content_publish` before production. But the
-dominant cause of "0 published" is the **2% approval rate (47 denied / 1
-approved)** — a content-quality/approval-bar problem, not a code disable. Fixing
-publishing plumbing will not move the north-star metric until the approval funnel
-is fixed.
+human/cron trigger. FB and IG can publish (Threads still a stub); IG also needs
+Meta App Review for `instagram_content_publish` before production. The low
+approval count on the dashboard (1 approved / 47 denied) is **not a
+content-quality signal** — it's an artifact of Bill and Francisco clicking
+through reviews while testing. The real gate to going live is the Meta side:
+App Review for the publish permissions + connecting the accounts. There is no
+"approval-rate problem" to diagnose.
 
 ### Unmerged work
 
@@ -76,15 +77,15 @@ job, not a fast-forward. Do not assume it is safe to merge as-is.
 
 ### Recommended next build target
 
-Instagram is done (PR #18). The remaining priorities, in order:
-1. **Fix the 2% approval rate** — the actual funnel blocker; no posting volume
-   without it (content-quality / approval-bar work).
-2. **Submit Meta App Review** for `instagram_content_publish` (and FB/Threads
-   publish perms) — IG is now demonstrable, which unblocks the submission.
-3. **Threads agent** — last platform stub; mirror IG, but production needs Tech
+Instagram is done (PR #18); website-KB reuse is done (PR #22). The remaining
+priorities, in order:
+1. **Submit Meta App Review** for the publish + messaging permissions
+   (`instagram_content_publish`, `pages_messaging`, `instagram_manage_messages`)
+   and connect the accounts — this, not any content issue, is the gate to going
+   live across publishing, WhatsApp, and DMs.
+2. **Threads agent** — last platform stub; mirror IG, but production needs Tech
    Provider Verification.
-4. **Reuse the WhatsApp KB in the website chatbot** so both channels answer
-   identically (`app/api/chat/route.ts` still uses a shallow hardcoded paragraph).
+3. **Comment-reply posting** — `draftReply()` is stubbed on all agents.
 
 ---
 
