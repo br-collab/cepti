@@ -366,7 +366,7 @@ Priority order:
 
 | # | Item | Effort | Blocker |
 |---|------|--------|---------|
-| 1 | **Approval-rate problem** (1 approved / 47 denied = 2%; 0 published). Diagnose recommendation quality / approval bar — this, not plumbing, is why nothing ships | Medium | None (data + prompts in repo) |
+| 1 | **Go-live gating (Meta side)** — submit App Review for the publish + messaging permissions and connect the accounts. NOTE: the dashboard's low approval count (1/47) is just Bill + Francisco doing test reviews, NOT a content-quality problem — there is no "approval-rate" issue to fix | High calendar | Meta App Review + onboarding (Bill/Francisco) |
 | 2 | **Meta App Review** — submit `instagram_content_publish` (IG now demonstrable), plus FB/Threads publish perms | High per perm | Each perm needs its feature demonstrable in `/admin/sma` |
 | 3 | **WhatsApp Advisor onboarding** — Coexistence + env + webhook; resolve §6 decisions with Francisco; verify the echo payload shape on first live traffic | Medium | Francisco decisions + WABA/Cloud API cutover |
 | 4 | **Implement Threads agent** (`threads-agent.ts`; last platform stub; mirror IG) | Medium | Tech Provider Verification (~1 wk) for prod publish |
