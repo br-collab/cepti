@@ -30,6 +30,50 @@ export const HANDOFF_TAG = '[HANDOFF]'
 export const HANDOFF_FALLBACK_ES =
   'Con gusto te paso con un miembro de nuestro equipo para ayudarte mejor. Un momento, por favor.'
 
+/**
+ * Business hours for handoff expectations (CEPTI, confirmed 2026-06-28).
+ * Mon–Fri 09:00–17:30, America/Santo_Domingo. To change days/hours, edit these
+ * constants. `BUSINESS_DAYS` uses JS weekday indices (0 = Sunday).
+ */
+const BUSINESS_TZ = 'America/Santo_Domingo'
+const BUSINESS_DAYS = [1, 2, 3, 4, 5] // Mon–Fri
+const BUSINESS_START_MIN = 9 * 60 // 09:00
+const BUSINESS_END_MIN = 17 * 60 + 30 // 17:30
+
+function nowInBusinessTz(now: Date): { day: number; minutes: number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: BUSINESS_TZ,
+    hour12: false,
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).formatToParts(now)
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? ''
+  const wd: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }
+  const day = wd[get('weekday')] ?? 0
+  let hour = parseInt(get('hour'), 10)
+  if (!Number.isFinite(hour) || hour === 24) hour = 0
+  const minute = parseInt(get('minute'), 10) || 0
+  return { day, minutes: hour * 60 + minute }
+}
+
+/** True if `now` falls within CEPTI business hours (Santo Domingo time). */
+export function isWithinBusinessHours(now: Date = new Date()): boolean {
+  const { day, minutes } = nowInBusinessTz(now)
+  return BUSINESS_DAYS.includes(day) && minutes >= BUSINESS_START_MIN && minutes < BUSINESS_END_MIN
+}
+
+/**
+ * A runtime system note telling the model the current business-hours status so
+ * its handoff bridge sets an honest response-time expectation (in the customer's
+ * language). Not cached — it changes through the day.
+ */
+function businessHoursNote(now: Date = new Date()): string {
+  return isWithinBusinessHours(now)
+    ? 'CONTEXTO HORARIO: estamos dentro del horario de atención. Si transfieres a una persona (handoff), indica que nuestro equipo responderá en breve. Responde en el idioma del cliente.'
+    : 'CONTEXTO HORARIO: estamos fuera del horario de atención (horario: lunes a viernes, 9:00 a.m. a 5:30 p.m., hora de Santo Domingo). Si transfieres a una persona (handoff), indica con amabilidad que nuestro equipo le responderá dentro del horario de atención. Responde en el idioma del cliente.'
+}
+
 let cachedPrompt: string | null = null
 
 /**
@@ -126,6 +170,12 @@ export async function generateAdvisorReply(
           type: 'text',
           text: loadSystemPrompt(),
           cache_control: { type: 'ephemeral' },
+        },
+        // Uncached — changes through the day; tells the model how to phrase a
+        // handoff's response-time expectation based on business hours.
+        {
+          type: 'text',
+          text: businessHoursNote(),
         },
       ],
       messages: turns,
