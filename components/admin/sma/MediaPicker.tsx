@@ -44,9 +44,15 @@ function mediaType(contentType: string): 'image' | 'video' | null {
 export default function MediaPicker({
   onChange,
   disabled,
+  accept = 'image/*,video/*',
+  multiple = true,
+  note,
 }: {
   onChange: (selected: SelectedMedia[]) => void
   disabled?: boolean
+  accept?: string
+  multiple?: boolean
+  note?: string
 }) {
   const [items, setItems] = useState<UploadedItem[]>([])
   const [dragActive, setDragActive] = useState(false)
@@ -144,14 +150,14 @@ export default function MediaPicker({
       if (newErrors.length > 0) setErrors(newErrors)
       if (newItems.length > 0) {
         setItems((prev) => {
-          const next = [...prev, ...newItems]
+          const next = multiple ? [...prev, ...newItems] : newItems.slice(-1)
           emit(next)
           return next
         })
       }
       setUploading(false)
     },
-    [emit, uploadOne],
+    [emit, uploadOne, multiple],
   )
 
   const toggle = useCallback(
@@ -194,8 +200,8 @@ export default function MediaPicker({
         <input
           ref={inputRef}
           type="file"
-          multiple
-          accept="image/*,video/*"
+          multiple={multiple}
+          accept={accept}
           disabled={disabled}
           className="hidden"
           onChange={(e) => {
@@ -254,7 +260,7 @@ export default function MediaPicker({
 
       {items.length > 0 && (
         <p className="text-xs text-zinc-500">
-          {items.filter((i) => i.selected).length} selected — selected media will be used as the post attachments.
+          {note ?? `${items.filter((i) => i.selected).length} selected — selected media will be used as the post attachments.`}
         </p>
       )}
     </div>
