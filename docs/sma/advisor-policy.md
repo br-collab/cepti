@@ -45,12 +45,14 @@ something it shouldn't.
 
 ## Parameters CEPTI sets (defaults below — none block go-live)
 
-- **Handoff wording by time of day.** Default: the bridge message is
-  time-neutral ("nuestro equipo te responderá a la brevedad"). Optional upgrade:
-  vary the wording by business hours in `America/Santo_Domingo` (proposed default
-  **Mon–Fri 08:00–17:00, Sat 08:00–12:00**) so an after-hours handoff sets an
-  honest expectation. Confirm the real hours to enable this; it's a small change
-  in `advisor-core.ts`.
+- **Handoff wording by time of day — CONFIGURED + LIVE (2026-06-28).** Business
+  hours are **Mon–Fri 09:00–17:30, America/Santo_Domingo** (constants in
+  `lib/sma/advisor-core.ts`). When the bot hands off, it sets an honest
+  response-time expectation in the customer's language: within hours → "our team
+  will respond shortly"; outside hours → "our team will respond during business
+  hours (Mon–Fri 9:00 a.m.–5:30 p.m.)." To change days/hours, edit
+  `BUSINESS_DAYS` / `BUSINESS_START_MIN` / `BUSINESS_END_MIN`. (Saturdays are not
+  currently counted — add `6` to `BUSINESS_DAYS` if that changes.)
 - **Escalation visibility.** Handed-off threads surface in `/admin/sma`
   (Bot/Human status) and in the platform inbox the team already uses (WhatsApp
   Business app / Meta Business Suite). v1 has no separate push notification; add
