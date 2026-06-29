@@ -102,13 +102,19 @@ export class FacebookAgent extends PlatformAgentBase {
     let attachedAssets: string[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const includePictures = (intent as any).include_pictures !== false;
+    // Operator-provided media (public Storage URLs). When present, these override
+    // the auto-attached product images so the post publishes with the operator's media.
+    const operatorAssets = (intent.reference_assets || []).filter((a) => typeof a === 'string' && a.trim() !== '');
 
     console.log('[FacebookAgent] Draft generation:', {
       topic: intent.topic,
       includePictures,
+      operatorAssetCount: operatorAssets.length,
     });
 
-    if (includePictures) {
+    if (operatorAssets.length > 0) {
+      attachedAssets = operatorAssets;
+    } else if (includePictures) {
       const productImages = await matchProductsInTopic(intent.topic);
       console.log('[FacebookAgent] Matched product images:', {
         topic: intent.topic,
