@@ -199,9 +199,20 @@ its corresponding feature is built and demonstrable in `/admin/sma`. Meta requir
 a screencast of the complete user journey for each permission. Submitting empty
 stubs gets the permission rejected and consumes a review cycle.
 
-**Scope split:** Recommend → Schedule/Publish → Draft comment replies.
-No social-platform DM handling (IG/FB/Threads DMs stay out of scope). No
+**Scope split:** Recommend → Schedule/Publish → Draft comment replies. No
 autonomous posting — every post and reply is human-approved.
+
+**DM handling — REVERSED 2026-06-28 (Francisco).** The prior "no social-platform
+DM handling" rule is lifted for **Facebook Messenger and Instagram Direct**: an
+inbound DM advisor is built (`lib/sma/dm-advisor.ts`, `advisor-core.ts`,
+`messenger-client.ts`, `instagram-dm-client.ts`, `app/api/sma/messaging/webhook`,
+`/admin/sma/messages`), sharing one brain + KB + guardrails with the WhatsApp
+Advisor (autonomous within guardrails; never quotes prices; hands off to a
+human; backs off when a human replies). **Threads DMs remain out of scope.**
+NOT live until Meta App Review for `pages_messaging` + `instagram_manage_messages`
+(the latter was removed 2026-05-24 and must be re-added) and the messaging
+webhook is subscribed. Behavior policy (answer all DMs vs after-hours vs
+after-no-human-reply) still to be confirmed with Francisco; defaults mirror WhatsApp.
 
 **WhatsApp Advisor — BUILT 2026-06-28 (PR #17), reverses prior stance.** An
 inbound WhatsApp Advisor bot on `+1 (829) 449-1104` is implemented
@@ -359,16 +370,18 @@ Priority order:
 | 2 | **Meta App Review** — submit `instagram_content_publish` (IG now demonstrable), plus FB/Threads publish perms | High per perm | Each perm needs its feature demonstrable in `/admin/sma` |
 | 3 | **WhatsApp Advisor onboarding** — Coexistence + env + webhook; resolve §6 decisions with Francisco; verify the echo payload shape on first live traffic | Medium | Francisco decisions + WABA/Cloud API cutover |
 | 4 | **Implement Threads agent** (`threads-agent.ts`; last platform stub; mirror IG) | Medium | Tech Provider Verification (~1 wk) for prod publish |
-| 5 | **Comment-reply posting** — `draftReply()` is stubbed on all agents; wire the Inbox reply path | Medium | None |
-| 6 | Reuse the WhatsApp KB in the website chatbot (`app/api/chat/route.ts`) so web + WhatsApp answer identically | Low | None |
+| 5 | **Messenger + IG DM advisor onboarding** — submit App Review for `pages_messaging` + `instagram_manage_messages`, subscribe the messaging webhook, confirm answer policy with Francisco, verify payload shapes on first live traffic | Medium | App Review + Francisco decision |
+| 6 | **Comment-reply posting** — `draftReply()` is stubbed on all agents; wire the Inbox reply path | Medium | None |
 | 7 | Reconcile/merge `feat/sma-v2-scaffold` (diverged history) or cherry-pick its E2E tests | Medium-High | Conflict resolution |
 | 8 | SMA issue #2 typecheck fix | Medium | None |
-| 9 | Confirm the 4 ficha-técnica data flags with Francisco; correct `prompts/whatsapp/kb.md` | Low | Francisco input |
+| 9 | Confirm the 4 ficha-técnica data flags with Francisco; correct `prompts/whatsapp/kb.md` (now used by web + WhatsApp + DMs) | Low | Francisco input |
 | 10 | CalculatorMini item 6 checkmark | Low | Awaiting Francisco clarification |
 
-**Done since last update:** Instagram agent (publish + engagement) + generalized
-publish pipeline (PR #18); WhatsApp Advisor + ficha KB (PR #17); commercialization
-playbook + README + `.env` (PR #18); v2 docs reconciliation (PR #19).
+**Done since last update:** Instagram agent + generalized publish pipeline (PR #18);
+WhatsApp Advisor + ficha KB (PR #17); commercialization playbook (PR #18); v2 docs
+reconciliation (PR #19); website chatbot uses shared KB (PR #22); operator Guide +
+stale-number fixes (PR #21, #23); **Messenger + IG Direct DM advisor built** (shared
+`advisor-core`, migration 0008) — pending App Review.
 
 ---
 
