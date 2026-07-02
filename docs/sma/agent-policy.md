@@ -29,7 +29,9 @@ governance and the cross-channel plumbing, not any single model.
 - **Run inbound advisors** on WhatsApp, Messenger, and Instagram Direct (and the
   website chatbot): instant, 24/7, in the customer's language, answering product
   questions grounded in a product knowledge base and quoting from CEPTI's official
-  published price list (never inventing, negotiating, or discounting).
+  published price list (never inventing, negotiating, or discounting). The website
+  chatbot quotes from the same price list **and** keeps the WhatsApp CTA to close
+  the sale; its conversations are tracked in `/admin/sma/chat` (`sma_web_chat_*`).
 - **Capture results** — engagement metrics (Facebook + Instagram) and
   hand-logged WhatsApp lead attribution.
 - **Accept operator media** — upload/select your own images or videos (≤30MB)

@@ -28,7 +28,8 @@ run CEPTI's social presence and customer chat, all funneling to one metric:
    flow (never inventing/negotiating/discounting) and hands off to a human for
    complaints, uncertainty, or an explicit request for a person.
 3. **Admin dashboard** (`/admin/sma`) — approval queue, scheduling, inbox,
-   WhatsApp conversations, insights, FinOps.
+   WhatsApp conversations, website chat conversations (`/admin/sma/chat`),
+   insights, FinOps.
 4. **Measurement** — engagement snapshots + manual WhatsApp lead attribution.
 
 **Reality check (read before selling or deploying):**
@@ -110,6 +111,7 @@ is fine for first run, or `supabase db push`):
 | `0006_sma_measurement.sql` | Engagement snapshots + lead logging |
 | `0007_sma_scheduled_jobs.sql` | Scheduled publishing jobs |
 | `0008_sma_dm.sql` | Messenger / IG Direct DM conversation + message tables (`sma_dm_*`), RLS admin-only |
+| `0009_sma_web_chat.sql` | Website chatbot conversation + message tables (`sma_web_chat_*`), `wa_clicked` conversion flag, RLS admin-only |
 
 **RLS:** every `sma_*` table is admin-only via `is_sma_admin()`. Browser/anon
 sessions can't read them; the service-role key (webhooks/cron/agents) bypasses RLS.

@@ -77,6 +77,10 @@ export default function ChatbotCEPTI({
   const [error, setError] = useState<string | null>(null)
   const [showWa, setShowWa] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  // Stable per-session conversation id. Lazily initialized so it survives
+  // re-renders; regenerated on a language toggle (which starts a new session).
+  const idRef = useRef<string | null>(null)
+  if (idRef.current == null) idRef.current = crypto.randomUUID()
 
   const t = UI[lang]
 
@@ -91,6 +95,8 @@ export default function ChatbotCEPTI({
     setMessages([])
     setError(null)
     setShowWa(false)
+    // Clearing the transcript starts a fresh session — new conversation id.
+    idRef.current = crypto.randomUUID()
   }
 
   const send = async () => {
@@ -107,14 +113,16 @@ export default function ChatbotCEPTI({
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages: next, lang }),
+        body: JSON.stringify({ messages: next, lang, conversationId: idRef.current }),
       })
       if (!res.ok) {
         setError(t.errorGeneric)
         setLoading(false)
         return
       }
-      const data: { message?: string } = await res.json()
+      const data: { message?: string; conversationId?: string } = await res.json()
+      // Keep client and server in sync on the conversation id.
+      if (data.conversationId) idRef.current = data.conversationId
       const reply = data.message ?? ''
       const { clean, showWa: hasWa } = stripShowWa(reply)
       setMessages((prev) => [
@@ -225,6 +233,20 @@ export default function ChatbotCEPTI({
           href={waHref}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => {
+            // Best-effort conversion flag. Don't preventDefault — let the link
+            // navigate normally; keepalive lets the request finish anyway.
+            try {
+              void fetch('/api/chat/wa-click', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ conversationId: idRef.current }),
+                keepalive: true,
+              }).catch(() => {})
+            } catch {
+              // ignore
+            }
+          }}
           className="mx-4 mb-2 flex items-center justify-center gap-2 rounded-xl bg-green-600 text-white font-semibold px-4 py-3 hover:bg-green-700 transition-colors text-sm sm:text-base"
         >
           <WhatsAppIcon size={18} className="w-[18px] h-[18px]" />
