@@ -2,9 +2,10 @@
 
 Datos extraídos de las fichas técnicas oficiales de CEPTI (Ladriflex, Papelex,
 Pintura de Piedra) y la guía de instalación de Papelex. Úsalos para responder
-preguntas de especificaciones, usos, instalación y garantía. Nunca des precios
-ni cotizaciones (eso lo maneja un humano). Si un dato no está aquí, no lo
-inventes: haz handoff.
+preguntas de especificaciones, usos, instalación y garantía. Para precios y
+cotizaciones, usa la lista de precios oficial (sección "LISTA DE PRECIOS"); nunca
+inventes ni negocies un precio. Si un dato no está aquí, no lo inventes: haz
+handoff.
 
 ---
 

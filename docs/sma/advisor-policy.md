@@ -8,28 +8,43 @@
 
 ## Policy name: "Bot-first, human-override, price-safe"
 
-The advisor answers every inbound message instantly, around the clock, but only
-product questions — never anything commercial — and a human can take over any
-conversation at any moment, which silences the bot for that thread. The point is
-to capture lead intent the instant it appears, with zero risk of the bot saying
-something it shouldn't.
+**"Price-safe" (one line):** the advisor quotes **only** from CEPTI's official
+published price list — it never invents, negotiates, or discounts a price — and
+complaints, uncertainty, and explicit human requests still escalate.
+
+The advisor answers every inbound message instantly, around the clock — product
+questions **and** pricing/quotes, but pricing only from the official price list —
+and a human can take over any conversation at any moment, which silences the bot
+for that thread. The point is to capture lead intent the instant it appears, with
+zero risk of the bot quoting a number that isn't on the official list.
 
 ## The rules
 
 1. **Always-on, bot-first.** Every new inbound DM gets an immediate reply, any
    hour of any day, in the customer's language (Spanish by default; it mirrors
    the customer). No time-gating — speed is the value.
-2. **Guardrailed content only.** It answers product questions grounded in the
-   ficha-técnica knowledge base (what a product is, its uses, technical specs,
-   installation, warranty, maintenance, safety). It **never** quotes prices,
-   costs, coverage in m², or delivery times, and never invents specs.
+2. **Guardrailed content + official quotes only.** It answers product questions
+   grounded in the ficha-técnica knowledge base (what a product is, its uses,
+   technical specs, installation, warranty, maintenance, safety) **and** quotes
+   prices — but **only** from CEPTI's official price list (`prompts/advisor/pricing.md`).
+   It runs a quote flow (greet; ask where/how many m²; for paints ask lisa/rugosa
+   and 1/2 manos; for Papelex/Ladriflex ask interior/exterior; give the per-m² rate
+   and, if given m², the total). It **never** invents, negotiates, or discounts a
+   price, never quotes a number not derivable from that list, and never invents
+   specs. It offers to take a photo of the surface and can share the factory
+   location; the products are for walls/ceilings/surfaces (interior & exterior) but
+   NOT floors or stairs.
 3. **Hard handoff triggers.** When any of these occur, the bot sends a short
    bridge message, flips the conversation to "human," and goes silent:
-   - any price / cost / quote / "cuánto cuesta" / how-to-order / availability ask
    - complaints or upset/negative tone
    - anything it cannot answer confidently or that is outside the knowledge base
+     and the official price list (e.g. a price it can't derive, or a request to
+     negotiate/discount)
    - an explicit request to talk to a person
    - any non-text message (image, audio, document, location, sticker)
+
+   (Note: a plain price/quote request is **no longer** a handoff trigger — the bot
+   quotes it from the official list.)
 4. **Human override always wins.** A human reply from the platform inbox — or
    the dashboard **Take over** button — immediately silences the bot for that
    conversation. **Return to bot** re-enables it. The bot never talks over a
@@ -64,20 +79,23 @@ something it shouldn't.
 
 ## Why this policy (rationale for operators and buyers)
 
-The advisor's only job is to never let a real question sit unanswered and to
-route genuine buying intent to a human fast. Because the guardrails already fence
-off everything commercially sensitive (prices, quotes, complaints), answering
-instantly is safe — there is no upside to making a customer wait for a human to
-say something the bot could have said correctly in two seconds. Human override
-means the team keeps full control of any conversation that matters, and the
-"price-safe" guarantee (the bot will never quote a number) is what makes
-autonomous 24/7 response acceptable in the first place.
+The advisor's job is to never let a real question sit unanswered and to move
+genuine buying intent forward fast — including giving an on-the-spot quote from
+the official price list. Because the guardrails fence pricing to the official
+list (no improvising, negotiating, or discounting) and still escalate complaints,
+uncertainty, and explicit human requests, answering instantly is safe — there is
+no upside to making a customer wait for a human to repeat a number that is already
+on the price list. Human override means the team keeps full control of any
+conversation that matters, and the "price-safe" guarantee (the bot only ever
+quotes official, published numbers and never negotiates) is what makes autonomous
+24/7 response acceptable in the first place.
 
 ## Where this is enforced in code
 
 - `lib/sma/advisor-core.ts` — the shared brain: prompt + KB, the `[HANDOFF]`
   decision, transcript handling, usage logging.
-- `prompts/advisor/system.md` — the guardrail/handoff instructions (rules 2, 3, 5).
+- `prompts/advisor/system.md` — the guardrail/quote-flow/handoff instructions (rules 2, 3, 5).
+- `prompts/advisor/pricing.md` — the official price list the bot quotes from (rule 2).
 - `lib/sma/dm-advisor.ts` + `lib/sma/whatsapp-advisor.ts` — arbitration (rules 1,
   4): dedupe, bot-first reply, back off when a human replies, escalate non-text.
 - `prompts/whatsapp/kb.md` — the knowledge base (rule 2).

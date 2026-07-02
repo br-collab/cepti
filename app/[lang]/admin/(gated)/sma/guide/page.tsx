@@ -165,9 +165,12 @@ function GuideEs() {
       <P>
         El Asesor responde mensajes directos en <strong>WhatsApp, Facebook Messenger e Instagram</strong>
         con un mismo cerebro: un bot que contesta al instante, en el idioma del cliente, dentro de
-        límites estrictos. Responde preguntas de producto, pero <strong>nunca da precios, cotizaciones,
-        ni rendimiento</strong> y pasa la conversación a una persona en cuanto aparece algo comercial
-        (precio, pedido, queja) o cuando no está seguro. Puedes tomar el control de cualquier
+        límites estrictos. Responde preguntas de producto <strong>y cotiza precios</strong>, pero
+        <strong>solo con la lista de precios oficial</strong> (nunca inventa, negocia ni descuenta):
+        saluda, pregunta dónde se aplicará y cuántos m² tiene el proyecto, para pinturas pregunta si la
+        superficie es lisa o rugosa y de 1 o 2 manos, y da el precio por m² (y el total si le dan los
+        m²). Pasa la conversación a una persona ante <strong>quejas</strong>, dudas fuera de su base de
+        conocimiento, o si el cliente pide hablar con alguien. Puedes tomar el control de cualquier
         conversación con <strong>Tomar control</strong> (eso silencia al bot en ese hilo). La política
         completa (&quot;Bot-first, human-override, price-safe&quot;) está en
         <code>docs/sma/advisor-policy.md</code>. Aún no está activo: falta la aprobación de Meta
@@ -276,9 +279,12 @@ function GuideEn() {
       <P>
         The Advisor answers direct messages across <strong>WhatsApp, Facebook Messenger, and
         Instagram</strong> with one shared brain: a bot that replies instantly, in the customer&apos;s
-        language, within strict limits. It answers product questions but <strong>never gives prices,
-        quotes, or coverage</strong> and hands the conversation off to a person the moment anything
-        commercial comes up (price, order, complaint) or when it&apos;s unsure. You can take over any
+        language, within strict limits. It answers product questions <strong>and quotes prices</strong>,
+        but <strong>only from CEPTI&apos;s official price list</strong> (it never invents, negotiates, or
+        discounts): it greets, asks where the product goes and how many m² the project is, for paints
+        asks whether the surface is smooth or rough and 1 or 2 coats, then gives the per-m² price (and
+        the total if given the m²). It hands the conversation off to a person on <strong>complaints</strong>,
+        anything outside its knowledge base, or when the customer asks for a human. You can take over any
         conversation with <strong>Take over</strong> (that silences the bot for that thread). The full
         policy (&quot;Bot-first, human-override, price-safe&quot;) lives in
         <code>docs/sma/advisor-policy.md</code>. It is not live yet: it still needs Meta approval

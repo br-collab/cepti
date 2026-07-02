@@ -28,7 +28,8 @@ governance and the cross-channel plumbing, not any single model.
   selectable duration and resolution.
 - **Run inbound advisors** on WhatsApp, Messenger, and Instagram Direct (and the
   website chatbot): instant, 24/7, in the customer's language, answering product
-  questions grounded in a product knowledge base.
+  questions grounded in a product knowledge base and quoting from CEPTI's official
+  published price list (never inventing, negotiating, or discounting).
 - **Capture results** — engagement metrics (Facebook + Instagram) and
   hand-logged WhatsApp lead attribution.
 - **Accept operator media** — upload/select your own images or videos (≤30MB)
@@ -39,8 +40,11 @@ governance and the cross-channel plumbing, not any single model.
 - **Never publishes autonomously.** Every post and every public-comment reply
   requires explicit human approval (the "Five Immutable Stops"). The Coordinator
   never calls a publish API directly.
-- **Never quotes prices, cost, coverage, or delivery times.** Any price / quote
-  / order / availability request is handed off to a human.
+- **Quotes only CEPTI's official published prices; never invents, negotiates, or
+  discounts; complaints still escalate.** Price and quote requests are answered
+  from the official price list (`prompts/advisor/pricing.md`); anything not
+  derivable from that list, plus complaints and explicit human requests, is handed
+  off to a human.
 - **Never resolves complaints autonomously** — it escalates to a human at once.
 - **Human override always wins.** In any DM, a human reply (or the dashboard
   "Take over") silences the bot for that conversation.
