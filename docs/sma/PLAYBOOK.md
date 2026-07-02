@@ -24,7 +24,9 @@ run CEPTI's social presence and customer chat, all funneling to one metric:
    and reply is human-approved (no autonomous publishing).
 2. **Inbound advisors** (WhatsApp, Facebook Messenger, Instagram Direct) — one
    reactive customer-service brain, autonomous within hard guardrails, governed by
-   the answer policy; hands off to a human for prices/quotes/complaints.
+   the answer policy; quotes from CEPTI's official price list and runs the quote
+   flow (never inventing/negotiating/discounting) and hands off to a human for
+   complaints, uncertainty, or an explicit request for a person.
 3. **Admin dashboard** (`/admin/sma`) — approval queue, scheduling, inbox,
    WhatsApp conversations, insights, FinOps.
 4. **Measurement** — engagement snapshots + manual WhatsApp lead attribution.
@@ -183,8 +185,10 @@ Full detail in `docs/sma/whatsapp-advisor.md`. Summary:
 6. Test from another phone; check `/admin/sma/whatsapp`.
 
 **Behavior:** answers product questions autonomously (Spanish default) from the
-ficha-técnica KB (`prompts/whatsapp/kb.md`); **hard handoff** to a human on
-price/quote/order, complaint, low confidence, explicit human request, or any
+ficha-técnica KB (`prompts/whatsapp/kb.md`) **and quotes from the official price
+list** (`prompts/advisor/pricing.md`) via the quote flow — never inventing,
+negotiating, or discounting. **Hard handoff** to a human on complaints, low
+confidence / a price it can't derive from the list, explicit human request, or any
 non-text message. Operators take over / hand back in `/admin/sma/whatsapp`.
 
 ---
@@ -193,12 +197,14 @@ non-text message. Operators take over / hand back in `/admin/sma/whatsapp`.
 
 The single answer policy governing every conversational channel — WhatsApp,
 Facebook Messenger, Instagram Direct, and the website chatbot (one brain, one
-KB). **One line:** the bot answers product questions instantly 24/7, **never**
-quotes prices or anything commercial, and hard-hands-off to a human (who can
-also take over any thread at will) the moment a sale, complaint, or uncertainty
-appears. This is the commercial selling point: a governed, price-safe, always-on
-bot that captures lead intent the instant it lands while a human keeps full
-control of anything that matters. Canonical spec: `docs/sma/advisor-policy.md`.
+KB). **One line:** the bot answers product questions instantly 24/7 **and quotes
+from CEPTI's official price list** ("price-safe" = quotes only official published
+numbers, never inventing/negotiating/discounting), and hard-hands-off to a human
+(who can also take over any thread at will) on a complaint, uncertainty, or an
+explicit request for a person. This is the commercial selling point: a governed,
+price-safe, always-on bot that captures lead intent and quotes on the spot while a
+human keeps full control of anything that matters. Canonical spec:
+`docs/sma/advisor-policy.md`.
 
 ---
 
@@ -275,9 +281,10 @@ side** — cost is the LLM call only. The WhatsApp KB (~10k tokens) is cached vi
 - **No autonomous social posting.** Every post and public-comment reply is
   human-approved (Coordinator's Five Immutable Stops, enforced in
   `lib/sma/coordinator/guardrails.ts`).
-- **Advisor guardrails (all DM channels).** Never quotes prices/coverage;
-  complaints and uncertainty escalate to a human; reactive only (no proactive
-  messaging in v1). Canonical spec: `docs/sma/advisor-policy.md`.
+- **Advisor guardrails (all DM channels).** Quotes only from CEPTI's official
+  price list (never invents, negotiates, or discounts); complaints and uncertainty
+  escalate to a human; reactive only (no proactive messaging in v1). Canonical
+  spec: `docs/sma/advisor-policy.md`.
 - **Webhook security.** Invalid `X-Hub-Signature-256` → 401. Keep `META_APP_SECRET` secret.
 - **Token encryption.** OAuth tokens are AES-256-GCM encrypted at rest;
   rotating `SMA_TOKEN_ENCRYPTION_KEY` is destructive (plan a re-OAuth window).

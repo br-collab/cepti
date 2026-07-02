@@ -77,10 +77,11 @@ function businessHoursNote(now: Date = new Date()): string {
 let cachedPrompt: string | null = null
 
 /**
- * Load the channel-neutral system prompt and append the product knowledge base.
- * Cached in module scope so the ~10k-token KB is read from disk once per worker.
- * The KB is small enough to live in the prompt (no RAG); cache_control keeps it
- * from being re-billed on every turn.
+ * Load the channel-neutral system prompt and append the product knowledge base
+ * plus the official price list. Cached in module scope so the KB + price list are
+ * read from disk once per worker. Both are small enough to live in the prompt (no
+ * RAG); cache_control keeps them from being re-billed on every turn. The advisor
+ * quotes ONLY from the price list — see prompts/advisor/pricing.md.
  */
 function loadSystemPrompt(): string {
   if (cachedPrompt) return cachedPrompt
@@ -95,9 +96,21 @@ function loadSystemPrompt(): string {
   } catch (e) {
     console.error('advisor-core: kb.md not found, continuing without it:', e)
   }
-  cachedPrompt = kb
-    ? `${base}\n\n---\n\n# BASE DE CONOCIMIENTO (fichas técnicas — usa estos datos)\n\n${kb}`
-    : base
+  // Official price list — the advisor quotes ONLY from these numbers, never improvises.
+  let pricing = ''
+  try {
+    pricing = fs.readFileSync(path.join(process.cwd(), 'prompts/advisor/pricing.md'), 'utf8')
+  } catch (e) {
+    console.error('advisor-core: pricing.md not found, continuing without it:', e)
+  }
+  let prompt = base
+  if (kb) {
+    prompt += `\n\n---\n\n# BASE DE CONOCIMIENTO (fichas técnicas — usa estos datos)\n\n${kb}`
+  }
+  if (pricing) {
+    prompt += `\n\n---\n\n# LISTA DE PRECIOS (cotiza usando estos datos)\n\n${pricing}`
+  }
+  cachedPrompt = prompt
   return cachedPrompt
 }
 

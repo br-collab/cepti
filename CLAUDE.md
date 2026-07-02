@@ -207,8 +207,9 @@ DM handling" rule is lifted for **Facebook Messenger and Instagram Direct**: an
 inbound DM advisor is built (`lib/sma/dm-advisor.ts`, `advisor-core.ts`,
 `messenger-client.ts`, `instagram-dm-client.ts`, `app/api/sma/messaging/webhook`,
 `/admin/sma/messages`), sharing one brain + KB + guardrails with the WhatsApp
-Advisor (autonomous within guardrails; never quotes prices; hands off to a
-human; backs off when a human replies). **Threads DMs remain out of scope.**
+Advisor (autonomous within guardrails; quotes ONLY from CEPTI's official price
+list — never invents, negotiates, or discounts; hands off to a human on
+complaints/uncertainty/explicit request; backs off when a human replies). **Threads DMs remain out of scope.**
 NOT live until Meta App Review for `pages_messaging` + `instagram_manage_messages`
 (the latter was removed 2026-05-24 and must be re-added) and the messaging
 webhook is subscribed. Behavior policy is DECIDED — **"Bot-first, human-override,
@@ -221,8 +222,9 @@ inbound WhatsApp Advisor bot on `+1 (829) 449-1104` is implemented
 `app/api/sma/whatsapp/webhook`, `prompts/whatsapp/{advisor,kb}.md`,
 `/admin/sma/whatsapp`). Its answer policy is DECIDED — **"Bot-first,
 human-override, price-safe"** (canonical spec: `docs/sma/advisor-policy.md`):
-autonomous-within-guardrails (answers product questions; hard handoff to a human
-for price/quote/complaint/uncertainty). This
+autonomous-within-guardrails (answers product questions AND quotes from CEPTI's
+official price list — never improvising, negotiating, or discounting; hard handoff
+to a human for complaints/uncertainty/explicit human request). This
 overturns the previous "inbound WhatsApp handled directly by humans" rule —
 **but it is NOT live until Coexistence onboarding is done** (the §6 blocking
 decisions with Francisco: number sharing, Cloud API/WABA cutover, template

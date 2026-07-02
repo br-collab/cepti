@@ -21,15 +21,21 @@ no vector DB / RAG is used because the corpus fits in context. Regenerate
 
 - **Autonomous within guardrails.** Answers product questions in the customer's
   language (Spanish default), 2–4 sentences, one product per turn.
+- **Quotes from the official price list.** It answers pricing/quote requests using
+  CEPTI's official price list (`prompts/advisor/pricing.md`) and runs a quote flow
+  (greet; ask where + how many m²; for paints ask lisa/rugosa and 1/2 manos; for
+  Papelex/Ladriflex ask interior/exterior; give the per-m² rate and, if given m²,
+  the total). It **never** invents, negotiates, or discounts a price.
 - **Hard handoff triggers** (bot sends a short bridge message, flips the
   conversation to "human", then stays silent):
-  - any price / cost / quote / "cuánto cuesta" / availability / how-to-order ask
   - complaints or upset customers
-  - questions it can't answer confidently (unknown spec, catalog code, dimension)
+  - questions it can't answer confidently, or a price it can't derive from the
+    official list (unknown spec, catalog code, dimension; a request to negotiate)
   - explicit request for a person
   - any non-text message (image/audio/doc) — v1 reads text only
-- **Never** quotes prices, invents specs, claims to be human, or sends proactive
-  / template messages (reactive only, inside the free 24-hour service window).
+- **Never** quotes a price not on the official list, invents specs, claims to be
+  human, or sends proactive / template messages (reactive only, inside the free
+  24-hour service window).
 
 ## Architecture
 
@@ -52,7 +58,8 @@ WhatsApp user → Meta Cloud API → POST /api/sma/whatsapp/webhook
 
 Files: `app/api/sma/whatsapp/webhook/route.ts`, `lib/sma/whatsapp-advisor.ts`,
 `lib/sma/whatsapp-client.ts`, `lib/sma/whatsapp-store.ts`,
-`prompts/whatsapp/advisor.md`, `app/[lang]/admin/(gated)/sma/whatsapp/page.tsx`,
+`prompts/advisor/system.md`, `prompts/advisor/pricing.md` (official price list),
+`app/[lang]/admin/(gated)/sma/whatsapp/page.tsx`,
 `app/api/sma/whatsapp/conversations/route.ts`.
 
 Model: `claude-sonnet-4-6` (cheaper/faster than the SMA Opus default; inbound
