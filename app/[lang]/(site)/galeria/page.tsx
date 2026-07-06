@@ -6,10 +6,12 @@ import GallerySection from '@/components/gallery/GallerySection'
 const MASTER_ORDER = [
   'papelex',
   'ladriflex',
-  'pintura-aterciopelada',
   'pintura-de-piedra',
   'pintura-efecto-granito',
+  'pintura-aterciopelada',
   'arte-con-arena',
+  'primer',
+  'pegamento',
 ]
 
 export function generateStaticParams() {
