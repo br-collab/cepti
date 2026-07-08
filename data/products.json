@@ -72,7 +72,7 @@
         "08",
         "09"
       ],
-      "image_folder": "/images/products/pintura-aterciopelada/v2/",
+      "image_folder": "/images/products/pintura-aterciopelada/",
       "coverage_m2_per_unit": 4,
       "unit_label": {
         "es": "kg",
@@ -149,7 +149,7 @@
         "18",
         "19"
       ],
-      "image_folder": "/images/products/pintura-de-piedra/v2/",
+      "image_folder": "/images/products/pintura-de-piedra/",
       "coverage_m2_per_unit": 3.5,
       "unit_label": {
         "es": "kg",
@@ -255,7 +255,7 @@
         "45",
         "46"
       ],
-      "image_folder": "/images/products/pintura-efecto-granito/v2/",
+      "image_folder": "/images/products/pintura-efecto-granito/",
       "coverage_m2_per_unit": 3.5,
       "unit_label": {
         "es": "kg",
@@ -362,7 +362,7 @@
         "35",
         "36"
       ],
-      "image_folder": "/images/products/papelex/v2/",
+      "image_folder": "/images/products/papelex/",
       "coverage_m2_per_unit": 1,
       "unit_label": {
         "es": "hojas",
@@ -455,7 +455,7 @@
         "21",
         "22"
       ],
-      "image_folder": "/images/products/ladriflex/v2/",
+      "image_folder": "/images/products/ladriflex/",
       "coverage_m2_per_unit": 1,
       "unit_label": {
         "es": "piezas",
@@ -516,7 +516,7 @@
         ]
       },
       "catalog_codes": [],
-      "image_folder": "/images/products/primer/v2/",
+      "image_folder": "/images/products/primer/",
       "coverage_m2_per_unit": 6,
       "unit_label": {
         "es": "litro",
@@ -574,7 +574,7 @@
         ]
       },
       "catalog_codes": [],
-      "image_folder": "/images/products/pegamento/v2/",
+      "image_folder": "/images/products/pegamento/",
       "coverage_m2_per_unit": 1.5,
       "unit_label": {
         "es": "litro",
@@ -638,7 +638,7 @@
         ]
       },
       "catalog_codes": [],
-      "image_folder": "/images/products/arte-con-arena/v2/",
+      "image_folder": "/images/products/arte-con-arena/",
       "coverage_m2_per_unit": 2,
       "unit_label": {
         "es": "kg",
