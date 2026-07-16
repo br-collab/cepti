@@ -367,7 +367,7 @@ export default function ProductDetail({
                   controls
                   preload="metadata"
                   playsInline
-                  className="w-full aspect-video rounded-xl bg-black"
+                  className="w-full max-h-[75vh] rounded-xl bg-black object-contain"
                 />
               ))}
             </div>

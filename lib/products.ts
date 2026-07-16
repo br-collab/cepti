@@ -18,6 +18,7 @@ export type Product = {
   use_cases: BilingualArray
   catalog_codes: string[]
   image_folder: string
+  video_folder?: string
   coverage_m2_per_unit: number
   unit_label: Bilingual
   whatsapp_template: Bilingual
@@ -118,7 +119,7 @@ export function getProductImages(product: Product): ProductImages {
 }
 
 export function getProductVideos(product: Product): string[] {
-  const dir = `/videos/products/${product.slug}`
+  const dir = (product.video_folder ?? `/videos/products/${product.slug}`).replace(/\/+$/, '')
   try {
     const absDir = publicPath(dir)
     if (!fs.existsSync(absDir)) return []
