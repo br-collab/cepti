@@ -81,7 +81,8 @@
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura Aterciopelada para {m2} m². ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Velvet Paint for {m2} m². Can you send me a quote?"
-      }
+      },
+      "video_folder": "/videos/products/pintura-aterciopelada/web/"
     },
     {
       "slug": "pintura-de-piedra",
@@ -159,7 +160,8 @@
         "es": "Hola CEPTI, me interesa Pintura de Piedra. Superficie aproximada: {m2} m². Código de color: {code}. ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Stone Paint. Approximate surface: {m2} m². Color code: {code}. Can you send me a quote?"
       },
-      "show_on_homepage": true
+      "show_on_homepage": true,
+      "video_folder": "/videos/products/pintura-de-piedra/web/"
     },
     {
       "slug": "pintura-efecto-granito",
@@ -267,7 +269,8 @@
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura con Efecto Granito para {m2} m². ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Granite Effect Paint for {m2} m². Can you send me a quote?"
-      }
+      },
+      "video_folder": "/videos/products/pintura-efecto-granito/web/"
     },
     {
       "slug": "papelex",
@@ -374,7 +377,8 @@
         "es": "Hola CEPTI, me interesa Papelex. Superficie aproximada: {m2} m². Textura: {code}. ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Papelex. Approximate surface: {m2} m². Texture: {code}. Can you send me a quote?"
       },
-      "show_on_homepage": true
+      "show_on_homepage": true,
+      "video_folder": "/videos/products/papelex/web/"
     },
     {
       "slug": "ladriflex",
@@ -470,7 +474,8 @@
         "es": "Hola CEPTI, me interesa Ladriflex. Superficie aproximada: {m2} m². Color/textura: {code}. ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Ladriflex. Approximate surface: {m2} m². Color/texture: {code}. Can you send me a quote?"
       },
-      "show_on_homepage": true
+      "show_on_homepage": true,
+      "video_folder": "/videos/products/ladriflex/web/"
     },
     {
       "slug": "primer",
@@ -588,7 +593,8 @@
       "whatsapp_template": {
         "es": "Hola CEPTI, necesito Pegamento para {m2} m² de {producto}. ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I need Adhesive for {m2} m² of {producto}. Can you send me a quote?"
-      }
+      },
+      "video_folder": "/videos/products/pegamento/web/"
     },
     {
       "slug": "arte-con-arena",
