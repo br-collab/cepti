@@ -94,12 +94,16 @@ export function getProductImages(product: Product): ProductImages {
   const hero = findFileWithExt(`${folder}/hero`)
   const card = findFileWithExt(`${folder}/card`) ?? hero
 
+  // catalog_codes is the *display order* (sorted lightest->darkest by color family);
+  // each entry locates the source file. The code shown to customers is the swatch's
+  // position in that order, so the palette always reads 01, 02, 03... with no gaps.
   const textures = product.catalog_codes
     .map((code) => {
       const src = findFileWithExt(`${folder}/texture-${code}`)
-      return src ? { code, src } : null
+      return src ? { src } : null
     })
-    .filter((t): t is { code: string; src: string } => t !== null)
+    .filter((t): t is { src: string } => t !== null)
+    .map((t, i) => ({ code: String(i + 1).padStart(2, '0'), src: t.src }))
 
   let projectImages: string[] = []
   try {
