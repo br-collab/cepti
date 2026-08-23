@@ -39,4 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local scratch — working folders that sit in the repo root but are not part
+# of the app. Code Review/ and Agents/ are also listed in tsconfig.json's
+# "exclude": they hold stale copies of lib/sma sources, and without that the
+# glob in "include" pulls them into tsc and fails the production build.
 Agents/
+Code Review/
+Corrections/
+
+# retired FFmpeg-era video scratch (superseded by the Grok video pipeline)
+public/videos/DFT-*
+public/videos/test-*
