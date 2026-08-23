@@ -149,3 +149,43 @@ export function buildWhatsAppHref(params: {
   const number = params.whatsappNumber.replace(/[^\d]/g, '')
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`
 }
+
+/**
+ * Landing-page showcase rail.
+ *
+ * One vertical (9:16) clip per flagship finish, shot 2026-08-23. Paths are
+ * declared explicitly rather than discovered with `fs` because
+ * `next.config.ts` excludes `public/**` from the serverless bundle — a
+ * runtime `readdirSync` here would return nothing on Vercel and silently
+ * drop the whole section.
+ *
+ * Assets: public/videos/products/<slug>/showcase.mp4
+ *         public/images/products/<slug>/showcase-poster.jpg
+ */
+export const SHOWCASE_RAIL_SLUGS = [
+  'pintura-de-piedra',
+  'pintura-efecto-granito',
+  'pintura-aterciopelada',
+  'ladriflex',
+  'papelex',
+] as const
+
+export type ShowcaseVideo = {
+  slug: string
+  name: string
+  src: string
+  poster: string
+}
+
+export function getShowcaseVideos(lang: Locale): ShowcaseVideo[] {
+  return SHOWCASE_RAIL_SLUGS.map((slug): ShowcaseVideo | null => {
+    const product = getProduct(slug)
+    if (!product) return null
+    return {
+      slug,
+      name: pickLang(product.name, lang),
+      src: `/videos/products/${slug}/showcase.mp4`,
+      poster: `/images/products/${slug}/showcase-poster.jpg`,
+    }
+  }).filter((v): v is ShowcaseVideo => v !== null)
+}

@@ -56,6 +56,13 @@
     "cta": "View products",
     "ctaSecondary": "Contact us"
   },
+  "videoRail": {
+    "title": "See it applied",
+    "sub": "Our finishes on real jobs — under 30 seconds each",
+    "view": "View product",
+    "mute": "Mute",
+    "unmute": "Unmute"
+  },
   "products": {
     "title": "Our products",
     "sub": "Solutions for every surface and style",
