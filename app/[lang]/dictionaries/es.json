@@ -56,6 +56,13 @@
     "cta": "Ver productos",
     "ctaSecondary": "Contáctenos"
   },
+  "videoRail": {
+    "title": "Míralo aplicado",
+    "sub": "Nuestros acabados en obra real — menos de 30 segundos cada uno",
+    "view": "Ver producto",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido"
+  },
   "products": {
     "title": "Nuestros productos",
     "sub": "Soluciones para cada superficie y estilo",
