@@ -51,3 +51,28 @@ Corrections/
 # retired FFmpeg-era video scratch (superseded by the Grok video pipeline)
 public/videos/DFT-*
 public/videos/test-*
+
+# Superseded gallery originals.
+#
+# Since PR #40 every product's image_folder in data/products.json points at
+# <slug>/v3/, so the top-level project-*/card/hero files and the whole v2/
+# experiment are read by nothing — not getProductImages(), not
+# scripts/build-product-images.mjs, not the SMA manifest. Untracked here to
+# keep them out of the repo and the Vercel deploy; the files stay on disk
+# locally and remain in git history if a gallery ever needs re-cutting.
+#
+# Exceptions below are genuinely live:
+#   texture-01.jpg x4 — hardcoded by components/analyzer/Analyzer.tsx
+#   ceramoflex/, granito-liquido/ — no v3 equivalent exists
+#   showcase-poster.jpg x5 — posters for the homepage video rail
+public/images/products/*/v2/
+public/images/products/*/project-*
+public/images/products/*/card.*
+public/images/products/*/hero.*
+public/images/products/*/texture-*
+!public/images/products/ladriflex/texture-01.jpg
+!public/images/products/papelex/texture-01.jpg
+!public/images/products/pintura-aterciopelada/texture-01.jpg
+!public/images/products/pintura-efecto-granito/texture-01.jpg
+!public/images/products/ceramoflex/texture-*
+!public/images/products/granito-liquido/texture-*
