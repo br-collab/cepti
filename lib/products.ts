@@ -129,7 +129,10 @@ export function getProductVideos(product: Product): string[] {
     if (!fs.existsSync(absDir)) return []
     return fs
       .readdirSync(absDir)
-      .filter((name) => /\.(mp4|webm)$/i.test(name))
+      // Homepage showcase clips live beside the product videos, but are a
+      // separate editorial surface. Only the canonical numbered files belong
+      // in the product-page video gallery.
+      .filter((name) => /^video-\d+\.(mp4|webm)$/i.test(name))
       .sort()
       .map((name) => `${dir}/${name}`)
   } catch {
