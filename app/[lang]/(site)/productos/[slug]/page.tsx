@@ -10,6 +10,7 @@ import {
   pickLang,
 } from '@/lib/products'
 import type { CalcProduct } from '@/lib/calculator'
+import { getProductRates } from '@/lib/calculator/rates'
 import ProductDetail from '@/components/products/ProductDetail'
 
 const VISUALIZER_MAP: Record<string, string> = {
@@ -142,6 +143,8 @@ export default async function ProductDetailPage({
             },
           ]
       : undefined
+  const showCalculator =
+    !!calculatorSubProducts || getProductRates(product.slug).length > 0
 
   return (
     <ProductDetail
@@ -163,7 +166,7 @@ export default async function ProductDetailPage({
       visualizerDict={dict.visualizer}
       visualizer={visualizer}
       videos={videos}
-      showCalculator={product.slug !== 'arte-con-arena'}
+      showCalculator={showCalculator}
       galleryTitleOverride={galleryTitleOverride}
       inMasterGallery={inMasterGallery}
       viewMoreHref={viewMoreHref}
