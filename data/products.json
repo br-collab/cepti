@@ -17,7 +17,7 @@
   "products": [
     {
       "slug": "pintura-aterciopelada",
-      "order": 5,
+      "order": 6,
       "show_on_homepage": true,
       "name": {
         "es": "Pintura Aterciopelada",
@@ -81,8 +81,7 @@
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura Aterciopelada para {m2} m². ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Velvet Paint for {m2} m². Can you send me a quote?"
-      },
-      "video_folder": "/videos/products/pintura-aterciopelada/web/"
+      }
     },
     {
       "slug": "pintura-de-piedra",
@@ -160,34 +159,30 @@
         "es": "Hola CEPTI, me interesa Pintura de Piedra. Superficie aproximada: {m2} m². Código de color: {code}. ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Stone Paint. Approximate surface: {m2} m². Color code: {code}. Can you send me a quote?"
       },
-      "show_on_homepage": true,
-      "video_folder": "/videos/products/pintura-de-piedra/web/"
+      "show_on_homepage": true
     },
     {
       "slug": "pintura-efecto-granito",
       "order": 4,
       "show_on_homepage": true,
       "name": {
-        "es": "Pintura con Efecto Granito y Granito Líquido",
-        "en": "Granite Effect Paint & Liquid Granite"
+        "es": "Pintura con Efecto Granito",
+        "en": "Granite Effect Paint"
       },
       "tagline": {
-        "es": "Pintura con Efecto Granito y Granito Líquido — acabado continuo impecable con profundidad visual y resistencia",
+        "es": "Acabado decorativo con apariencia de granito natural",
         "en": "Decorative finish with natural granite appearance"
       },
       "description": {
-        "es": "Las Pinturas con Efecto Granito y Granito Líquido permiten crear una agradable atmósfera de confort y prestigio, sin alterar el concepto general de su diseño. Las composiciones de los materiales incluyen aditivos especiales de cuarzo que permiten lograr la textura delicada de una superficie granítica, otorgando al revestimiento multidimensionalidad, profundidad visual, resistencia y durabilidad.\n\nPinturas con Efecto Granito y Granito Líquido permiten crear un revestimiento continuo impecable en interiores de cualquier estilo, y generan en el espacio una atmósfera única de frescura y tranquilidad.",
+        "es": "Pintura decorativa que reproduce la apariencia del granito natural. Acabado resistente para interiores y exteriores, con la profundidad visual del granito a una fracción del costo.",
         "en": "Decorative paint that reproduces the appearance of natural granite. Durable finish for interior and exterior use, with the visual depth of granite at a fraction of the cost."
       },
       "properties": {
         "es": [
-          "Apariencia de granito natural",
+          "Apariencia de granito",
           "Resistente al clima tropical",
-          "Resistente a la limpieza húmeda",
-          "Protección anti-moho y hongos",
-          "Alta resistencia al desgaste, a la decoloración y a la suciedad",
-          "100% ecológica",
-          "Vida útil 10 años"
+          "Multi-superficie",
+          "Vida útil prolongada"
         ],
         "en": [
           "Granite appearance",
@@ -198,9 +193,10 @@
       },
       "use_cases": {
         "es": [
-          "Todo tipo de superficies interiores",
-          "Todo tipo de superficies exteriores",
-          "Ambientes premium"
+          "Fachadas",
+          "Paredes interiores",
+          "Columnas",
+          "Proyectos arquitectónicos"
         ],
         "en": [
           "Facades",
@@ -269,8 +265,73 @@
       "whatsapp_template": {
         "es": "Hola CEPTI, me interesa Pintura con Efecto Granito para {m2} m². ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Granite Effect Paint for {m2} m². Can you send me a quote?"
+      }
+    },
+    {
+      "slug": "granito-liquido",
+      "order": 5,
+      "name": {
+        "es": "Granito Líquido",
+        "en": "Liquid Granite"
       },
-      "video_folder": "/videos/products/pintura-efecto-granito/web/"
+      "tagline": {
+        "es": "Acabado tipo granito aplicable sobre cualquier superficie",
+        "en": "Granite-style finish applicable to any surface"
+      },
+      "description": {
+        "es": "Acabado elegante tipo granito de larga duración, aplicable sobre cualquier superficie. Alternativa moderna al granito natural con versatilidad de aplicación.",
+        "en": "Elegant, long-lasting granite-style finish applicable to any surface. A modern alternative to natural granite with application versatility."
+      },
+      "properties": {
+        "es": [
+          "Apariencia de granito natural",
+          "Multi-superficie",
+          "Larga duración",
+          "Acabado elegante"
+        ],
+        "en": [
+          "Natural granite appearance",
+          "Multi-surface",
+          "Long-lasting",
+          "Elegant finish"
+        ]
+      },
+      "use_cases": {
+        "es": [
+          "Encimeras",
+          "Fachadas",
+          "Columnas",
+          "Escaleras"
+        ],
+        "en": [
+          "Countertops",
+          "Facades",
+          "Columns",
+          "Staircases"
+        ]
+      },
+      "catalog_codes": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09"
+      ],
+      "image_folder": "/images/products/granito-liquido/",
+      "coverage_m2_per_unit": 3,
+      "unit_label": {
+        "es": "galón",
+        "en": "gallon"
+      },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Granito Líquido. Superficie aproximada: {m2} m². Código de color: {code}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I'm interested in Liquid Granite. Approximate surface: {m2} m². Color code: {code}. Can you send me a quote?"
+      },
+      "show_on_homepage": true
     },
     {
       "slug": "papelex",
@@ -377,8 +438,7 @@
         "es": "Hola CEPTI, me interesa Papelex. Superficie aproximada: {m2} m². Textura: {code}. ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Papelex. Approximate surface: {m2} m². Texture: {code}. Can you send me a quote?"
       },
-      "show_on_homepage": true,
-      "video_folder": "/videos/products/papelex/web/"
+      "show_on_homepage": true
     },
     {
       "slug": "ladriflex",
@@ -474,12 +534,11 @@
         "es": "Hola CEPTI, me interesa Ladriflex. Superficie aproximada: {m2} m². Color/textura: {code}. ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I'm interested in Ladriflex. Approximate surface: {m2} m². Color/texture: {code}. Can you send me a quote?"
       },
-      "show_on_homepage": true,
-      "video_folder": "/videos/products/ladriflex/web/"
+      "show_on_homepage": true
     },
     {
       "slug": "primer",
-      "order": 7,
+      "order": 8,
       "show_on_homepage": true,
       "name": {
         "es": "Primer",
@@ -539,7 +598,7 @@
     },
     {
       "slug": "pegamento",
-      "order": 8,
+      "order": 9,
       "show_on_homepage": true,
       "name": {
         "es": "Pegamento",
@@ -593,12 +652,11 @@
       "whatsapp_template": {
         "es": "Hola CEPTI, necesito Pegamento para {m2} m² de {producto}. ¿Pueden enviarme una cotización?",
         "en": "Hi CEPTI, I need Adhesive for {m2} m² of {producto}. Can you send me a quote?"
-      },
-      "video_folder": "/videos/products/pegamento/web/"
+      }
     },
     {
       "slug": "arte-con-arena",
-      "order": 6,
+      "order": 7,
       "name": {
         "es": "Arte con Arena y Piedra",
         "en": "Sand and Stone Art"
@@ -660,6 +718,71 @@
         "en": "Hi CEPTI, I'm interested in Sand Art. Approximate surface: {m2} m². Can you send me a quote?"
       },
       "show_on_homepage": true
+    },
+    {
+      "slug": "ceramoflex",
+      "order": 99,
+      "name": {
+        "es": "Ceramoflex",
+        "en": "Ceramoflex"
+      },
+      "tagline": {
+        "es": "Gres porcelánico flexible — acabado cerámico sobre superficies curvas",
+        "en": "Flexible porcelain stoneware — ceramic finish on curved surfaces"
+      },
+      "description": {
+        "es": "Gres porcelánico flexible que permite aplicar acabados cerámicos sobre superficies planas y curvas. Combina la resistencia del porcelánico con flexibilidad total de aplicación.",
+        "en": "Flexible porcelain stoneware that applies ceramic finishes to flat and curved surfaces. Combines porcelain durability with total application flexibility."
+      },
+      "properties": {
+        "es": [
+          "Flexibilidad total",
+          "Resistencia porcelánica",
+          "Aplicación en curvas",
+          "Acabado cerámico"
+        ],
+        "en": [
+          "Total flexibility",
+          "Porcelain durability",
+          "Curved surface application",
+          "Ceramic finish"
+        ]
+      },
+      "use_cases": {
+        "es": [
+          "Columnas",
+          "Arcos",
+          "Cúpulas",
+          "Fachadas complejas"
+        ],
+        "en": [
+          "Columns",
+          "Arches",
+          "Domes",
+          "Complex facades"
+        ]
+      },
+      "catalog_codes": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08"
+      ],
+      "image_folder": "/images/products/ceramoflex/",
+      "coverage_m2_per_unit": 1,
+      "unit_label": {
+        "es": "m²",
+        "en": "m²"
+      },
+      "whatsapp_template": {
+        "es": "Hola CEPTI, me interesa Ceramoflex. Superficie aproximada: {m2} m². Código: {code}. ¿Pueden enviarme una cotización?",
+        "en": "Hi CEPTI, I'm interested in Ceramoflex. Approximate surface: {m2} m². Code: {code}. Can you send me a quote?"
+      },
+      "show_on_homepage": false
     }
   ],
   "projects": [
