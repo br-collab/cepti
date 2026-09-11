@@ -196,6 +196,17 @@
     "/images/products/pintura-efecto-granito/v3/texture-48.webp",
     "/images/products/pintura-efecto-granito/v3/texture-49.webp"
   ],
+  "granito-liquido": [
+    "/images/products/granito-liquido/texture-01.jpg",
+    "/images/products/granito-liquido/texture-02.jpg",
+    "/images/products/granito-liquido/texture-03.jpg",
+    "/images/products/granito-liquido/texture-04.jpg",
+    "/images/products/granito-liquido/texture-05.jpg",
+    "/images/products/granito-liquido/texture-06.jpg",
+    "/images/products/granito-liquido/texture-07.jpg",
+    "/images/products/granito-liquido/texture-08.jpg",
+    "/images/products/granito-liquido/texture-09.jpg"
+  ],
   "papelex": [
     "/images/products/papelex/v3/card.png",
     "/images/products/papelex/v3/hero.jpg",
@@ -443,5 +454,15 @@
     "/images/products/arte-con-arena/v3/project-22.webp",
     "/images/products/arte-con-arena/v3/project-23.webp",
     "/images/products/arte-con-arena/v3/project-24.webp"
+  ],
+  "ceramoflex": [
+    "/images/products/ceramoflex/texture-01.jpg",
+    "/images/products/ceramoflex/texture-02.jpg",
+    "/images/products/ceramoflex/texture-03.jpg",
+    "/images/products/ceramoflex/texture-04.jpg",
+    "/images/products/ceramoflex/texture-05.jpg",
+    "/images/products/ceramoflex/texture-06.jpg",
+    "/images/products/ceramoflex/texture-07.jpg",
+    "/images/products/ceramoflex/texture-08.jpg"
   ]
 }
