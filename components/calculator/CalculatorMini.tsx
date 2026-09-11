@@ -54,7 +54,9 @@ export default function CalculatorMini({
   subProducts?: SubProductOption[]
 }) {
   const [area, setArea] = useState('')
-  const [activeProductId, setActiveProductId] = useState(product.slug)
+  const [activeProductId, setActiveProductId] = useState(
+    subProducts?.[0]?.productId ?? product.slug
+  )
   const [surface, setSurface] = useState<'smooth' | 'rough'>('smooth')
   const [coats, setCoats] = useState<1 | 2>(1)
 

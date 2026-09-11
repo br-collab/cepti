@@ -130,6 +130,17 @@ export default async function ProductDetailPage({
             productId: 'granito-liquido-intensivo',
           },
         ]
+      : product.slug === 'granito-liquido'
+        ? [
+            {
+              label: dict.calculator.granito_estandar,
+              productId: 'granito-liquido-estandar',
+            },
+            {
+              label: dict.calculator.granito_intensivo,
+              productId: 'granito-liquido-intensivo',
+            },
+          ]
       : undefined
 
   return (
